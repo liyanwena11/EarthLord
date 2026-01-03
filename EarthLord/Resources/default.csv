@@ -1,0 +1,6 @@
+# Default CSV Data File
+# This file is used for default configuration data
+name,value,description
+app_version,1.0.0,Current application version
+theme,apocalypse,Default theme name
+primary_color,#FF9933,Primary orange color

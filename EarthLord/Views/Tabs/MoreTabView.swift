@@ -1,53 +1,146 @@
-//
-//  MoreTabView.swift
-//  EarthLord
-//
-//  Created by lyanwen on 2025/12/30.
-//
-
 import SwiftUI
 
 struct MoreTabView: View {
+    @AppStorage("push_notifications") private var pushEnabled = true
+    @AppStorage("game_audio") private var audioEnabled = true
+    @AppStorage("haptic_feedback") private var hapticEnabled = true
+    
+    let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
+
     var body: some View {
-        NavigationStack {
-            ZStack {
-                ApocalypseTheme.background
-                    .ignoresSafeArea()
-
-                List {
-                    Section("开发工具") {
-                        NavigationLink {
-                            SupabaseTestView()
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: "network")
-                                    .font(.title3)
-                                    .foregroundColor(ApocalypseTheme.primary)
-                                    .frame(width: 30)
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Supabase 连接测试")
-                                        .font(.body)
-                                        .foregroundColor(ApocalypseTheme.textPrimary)
-
-                                    Text("检测数据库连接状态")
-                                        .font(.caption)
-                                        .foregroundColor(ApocalypseTheme.textSecondary)
-                                }
-                            }
-                            .padding(.vertical, 8)
+        ZStack {
+            // 背景纯黑
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // 1. 顶部标题
+                Text("Control Center") // 翻译：控制中心
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .padding(.top, 10)
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 25) {
+                        
+                        // 2. 快捷访问 (Quick Access)
+                        SectionHeader(icon: "star.fill", title: "Quick Access", subtitle: "Quick access to common features")
+                        
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
+                            QuickAccessButton(icon: "chart.bar.fill", title: "Data Statistics", color: .blue)
+                            QuickAccessButton(icon: "trophy.fill", title: "Achievement System", color: .yellow)
+                            QuickAccessButton(icon: "person.2.fill", title: "Friends List", color: .green)
+                            QuickAccessButton(icon: "envelope.fill", title: "Message Center", color: .red)
                         }
+
+                        // 3. 游戏设置 (Game Settings)
+                        SectionHeader(icon: "gearshape.fill", title: "Game Settings", subtitle: "Personalize your game experience")
+                        
+                        VStack(spacing: 1) {
+                            SettingSwitchRow(icon: "bell.fill", title: "Push Notifications", subtitle: "Receive territory and resource updates", isOn: $pushEnabled, iconColor: .orange)
+                            SettingSwitchRow(icon: "speaker.wave.2.fill", title: "Game Audio", subtitle: "Enable background music and sound effects", isOn: $audioEnabled, iconColor: .blue)
+                            SettingSwitchRow(icon: "iphone.radiowaves.left.and.right", title: "Haptic Feedback", subtitle: "Vibration feedback during operations", isOn: $hapticEnabled, iconColor: .yellow)
+                        }
+                        .background(Color.white.opacity(0.05))
+                        .cornerRadius(15)
+                        .overlay(RoundedRectangle(cornerRadius: 15).stroke(brandOrange.opacity(0.2), lineWidth: 1))
+
+                        // 4. 数据与隐私 (Data & Privacy)
+                        SectionHeader(icon: "shield.lefthalf.filled", title: "Data & Privacy", subtitle: "Manage your data and privacy settings")
+                        
                     }
-                    .listRowBackground(ApocalypseTheme.cardBackground)
+                    .padding(.horizontal)
+                    .padding(.top, 20)
+                    .padding(.bottom, 100)
                 }
-                .scrollContentBackground(.hidden)
             }
-            .navigationTitle("更多")
-            .navigationBarTitleDisplayMode(.large)
         }
     }
 }
 
-#Preview {
-    MoreTabView()
+// MARK: - 子组件 (确保使用 LocalizedStringKey 彻底解决不翻译问题)
+
+struct SectionHeader: View {
+    let icon: String
+    let title: LocalizedStringKey // 核心修复：强制使用本地化类型
+    let subtitle: LocalizedStringKey
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Image(systemName: icon).foregroundColor(.orange)
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+            Text(subtitle)
+                .font(.caption2)
+                .foregroundColor(.gray)
+        }
+    }
+}
+
+struct QuickAccessButton: View {
+    let icon: String
+    let title: LocalizedStringKey // 核心修复
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(color.opacity(0.2))
+                    .frame(width: 50, height: 50)
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.title2)
+            }
+            Text(title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(15)
+        .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.white.opacity(0.1), lineWidth: 1))
+    }
+}
+
+struct SettingSwitchRow: View {
+    let icon: String
+    let title: LocalizedStringKey // 核心修复
+    let subtitle: LocalizedStringKey // 核心修复
+    @Binding var isOn: Bool
+    let iconColor: Color
+    
+    var body: some View {
+        HStack(spacing: 15) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(iconColor.opacity(0.1))
+                    .frame(width: 36, height: 36)
+                Image(systemName: icon)
+                    .foregroundColor(iconColor)
+                    .font(.system(size: 16))
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.body)
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .tint(.orange)
+        }
+        .padding()
+        .background(Color.black.opacity(0.2))
+    }
 }

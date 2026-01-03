@@ -1,402 +1,140 @@
-//
-//  AuthManager.swift
-//  EarthLord
-//
-//  Created by lyanwen on 2025/12/31.
-//
-
 import Foundation
 import Supabase
+import GoogleSignIn
+import UIKit
+import AuthenticationServices // 必须导入，用于 Apple 登录
 
-/// 认证管理器
-/// 负责管理用户认证流程，包括注册、登录、找回密码等功能
 @MainActor
 class AuthManager: ObservableObject {
-
-    // MARK: - Published Properties
-
-    /// 是否已完成认证（已登录且完成所有必要流程）
-    @Published var isAuthenticated: Bool = false
-
-    /// 是否需要设置密码（OTP验证后必须设置密码才能进入主页）
-    @Published var needsPasswordSetup: Bool = false
-
-    /// 当前登录用户
+    @Published var isAuthenticated = false
     @Published var currentUser: User? = nil
-
-    /// 是否正在加载
-    @Published var isLoading: Bool = false
-
-    /// 错误信息
+    @Published var isLoading = false
     @Published var errorMessage: String? = nil
 
-    /// OTP 是否已发送
-    @Published var otpSent: Bool = false
-
-    /// OTP 是否已验证（验证码已验证，等待设置密码）
-    @Published var otpVerified: Bool = false
-
-    // MARK: - Private Properties
-
-    /// Supabase 客户端
     private let supabase = supabaseClient
-
-    /// 认证状态监听任务
-    private var authStateTask: Task<Void, Never>?
-
-    // MARK: - Singleton
-
-    /// 单例实例
     static let shared = AuthManager()
 
-    private init() {
-        // 初始化时检查会话
-        Task {
-            await checkSession()
-            await setupAuthStateListener()
-        }
-    }
+    private init() { Task { await checkSession() } }
 
-    deinit {
-        // 清理监听任务
-        authStateTask?.cancel()
-    }
-
-    // MARK: - Session Management
-
-    /// 检查当前会话状态
     func checkSession() async {
-        do {
-            let session = try await supabase.auth.session
-            currentUser = session.user
-
-            // 如果有会话，说明用户已登录
-            // 但需要检查是否已设置密码（通过检查用户元数据或其他方式）
-            isAuthenticated = true
-            needsPasswordSetup = false
-
-        } catch {
-            // 没有有效会话
-            currentUser = nil
-            isAuthenticated = false
-            needsPasswordSetup = false
+        if let session = try? await supabase.auth.session {
+            self.currentUser = session.user
+            self.isAuthenticated = true
         }
     }
 
-    /// 设置认证状态监听
-    /// 监听 Supabase 认证状态变化，自动更新应用状态
-    private func setupAuthStateListener() async {
-        authStateTask = Task {
-            for await state in await supabase.auth.authStateChanges {
-                await MainActor.run {
-                    switch state.event {
-                    case .signedIn:
-                        // 用户登录
-                        currentUser = state.session?.user
-
-                        // 如果不需要设置密码，则认证完成
-                        if !needsPasswordSetup {
-                            isAuthenticated = true
-                        }
-
-                        print("🔐 用户已登录: \(state.session?.user.email ?? "未知")")
-
-                    case .signedOut:
-                        // 用户退出
-                        currentUser = nil
-                        isAuthenticated = false
-                        needsPasswordSetup = false
-                        otpSent = false
-                        otpVerified = false
-
-                        print("🔓 用户已退出")
-
-                    case .tokenRefreshed:
-                        // Token 刷新
-                        currentUser = state.session?.user
-                        print("🔄 Token 已刷新")
-
-                    case .userUpdated:
-                        // 用户信息更新
-                        currentUser = state.session?.user
-                        print("👤 用户信息已更新")
-
-                    case .passwordRecovery:
-                        // 密码恢复流程
-                        print("🔑 进入密码恢复流程")
-
-                    default:
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: - Registration Flow
-
-    /// 发送注册验证码
-    /// - Parameter email: 用户邮箱
-    func sendRegisterOTP(email: String) async {
-        isLoading = true
-        errorMessage = nil
-        otpSent = false
-
-        do {
-            // 发送 OTP，允许创建新用户
-            try await supabase.auth.signInWithOTP(
-                email: email,
-                shouldCreateUser: true
-            )
-
-            // 成功发送
-            otpSent = true
-            errorMessage = nil
-
-        } catch {
-            // 发送失败
-            errorMessage = "发送验证码失败：\(error.localizedDescription)"
-            otpSent = false
-        }
-
-        isLoading = false
-    }
-
-    /// 验证注册验证码
-    /// - Parameters:
-    ///   - email: 用户邮箱
-    ///   - code: 验证码
-    /// - Note: 验证成功后用户已登录，但必须设置密码才能进入主页
-    func verifyRegisterOTP(email: String, code: String) async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // 验证 OTP
-            let session = try await supabase.auth.verifyOTP(
-                email: email,
-                token: code,
-                type: .email
-            )
-
-            // 验证成功，用户已登录
-            currentUser = session.user
-            otpVerified = true
-            needsPasswordSetup = true  // 必须设置密码
-            isAuthenticated = false     // 但尚未完成完整流程
-            errorMessage = nil
-
-        } catch {
-            // 验证失败
-            errorMessage = "验证码错误：\(error.localizedDescription)"
-            otpVerified = false
-        }
-
-        isLoading = false
-    }
-
-    /// 完成注册（设置密码）
-    /// - Parameter password: 用户密码
-    /// - Note: 此方法在 OTP 验证成功后调用，完成注册流程
-    func completeRegistration(password: String) async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // 更新用户密码
-            _ = try await supabase.auth.update(
-                user: UserAttributes(
-                    password: password
-                )
-            )
-
-            // 注册完成
-            needsPasswordSetup = false
-            isAuthenticated = true
-            errorMessage = nil
-
-        } catch {
-            // 设置密码失败
-            errorMessage = "设置密码失败：\(error.localizedDescription)"
-        }
-
-        isLoading = false
-    }
-
-    // MARK: - Sign In
-
-    /// 登录（邮箱 + 密码）
-    /// - Parameters:
-    ///   - email: 用户邮箱
-    ///   - password: 用户密码
-    func signIn(email: String, password: String) async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // 使用邮箱和密码登录
-            let session = try await supabase.auth.signIn(
-                email: email,
-                password: password
-            )
-
-            // 登录成功
-            currentUser = session.user
-            isAuthenticated = true
-            needsPasswordSetup = false
-            errorMessage = nil
-
-        } catch {
-            // 登录失败
-            errorMessage = "登录失败：\(error.localizedDescription)"
-            isAuthenticated = false
-        }
-
-        isLoading = false
-    }
-
-    // MARK: - Password Reset Flow
-
-    /// 发送找回密码验证码
-    /// - Parameter email: 用户邮箱
-    func sendResetOTP(email: String) async {
-        isLoading = true
-        errorMessage = nil
-        otpSent = false
-
-        do {
-            // 发送密码重置邮件
-            try await supabase.auth.resetPasswordForEmail(email)
-
-            // 成功发送
-            otpSent = true
-            errorMessage = nil
-
-        } catch {
-            // 发送失败
-            errorMessage = "发送验证码失败：\(error.localizedDescription)"
-            otpSent = false
-        }
-
-        isLoading = false
-    }
-
-    /// 验证找回密码验证码
-    /// - Parameters:
-    ///   - email: 用户邮箱
-    ///   - code: 验证码
-    /// - Note: 验证成功后用户已登录，需要设置新密码
-    func verifyResetOTP(email: String, code: String) async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // 验证 OTP（使用 recovery 类型）
-            let session = try await supabase.auth.verifyOTP(
-                email: email,
-                token: code,
-                type: .recovery  // ⚠️ 注意：找回密码使用 .recovery 类型
-            )
-
-            // 验证成功，用户已登录
-            currentUser = session.user
-            otpVerified = true
-            needsPasswordSetup = true  // 需要设置新密码
-            isAuthenticated = false     // 但尚未完成完整流程
-            errorMessage = nil
-
-        } catch {
-            // 验证失败
-            errorMessage = "验证码错误：\(error.localizedDescription)"
-            otpVerified = false
-        }
-
-        isLoading = false
-    }
-
-    /// 重置密码（设置新密码）
-    /// - Parameter newPassword: 新密码
-    /// - Note: 此方法在找回密码 OTP 验证成功后调用
-    func resetPassword(newPassword: String) async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // 更新用户密码
-            _ = try await supabase.auth.update(
-                user: UserAttributes(
-                    password: newPassword
-                )
-            )
-
-            // 密码重置完成
-            needsPasswordSetup = false
-            isAuthenticated = true
-            errorMessage = nil
-
-        } catch {
-            // 设置密码失败
-            errorMessage = "重置密码失败：\(error.localizedDescription)"
-        }
-
-        isLoading = false
-    }
-
-    // MARK: - Third-Party Sign In (预留)
-
-    /// 使用 Apple 登录
-    /// - Note: TODO: 实现 Apple 登录功能
-    func signInWithApple() async {
-        // TODO: 实现 Apple 登录
-        // 1. 获取 Apple 授权凭证
-        // 2. 调用 supabase.auth.signInWithIdToken(...)
-        // 3. 更新认证状态
-        errorMessage = "Apple 登录功能即将上线"
-    }
-
-    /// 使用 Google 登录
-    /// - Note: TODO: 实现 Google 登录功能
-    func signInWithGoogle() async {
-        // TODO: 实现 Google 登录
-        // 1. 获取 Google 授权凭证
-        // 2. 调用 supabase.auth.signInWithIdToken(...)
-        // 3. 更新认证状态
-        errorMessage = "Google 登录功能即将上线"
-    }
-
-    // MARK: - Sign Out
-
-    /// 退出登录
-    func signOut() async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // 退出登录
-            try await supabase.auth.signOut()
-
-            // 清空状态
-            currentUser = nil
-            isAuthenticated = false
-            needsPasswordSetup = false
-            otpSent = false
-            otpVerified = false
-            errorMessage = nil
-
-        } catch {
-            // 退出失败
-            errorMessage = "退出登录失败：\(error.localizedDescription)"
-        }
-
-        isLoading = false
-    }
-
-    // MARK: - Helper Methods
-
-    /// 重置所有状态
     func resetState() {
-        otpSent = false
-        otpVerified = false
-        errorMessage = nil
+        self.errorMessage = nil
+        self.isLoading = false
+    }
+
+    // MARK: - 退出登录
+    func signOut() async {
+        print("🔴 [AuthManager] 正在执行退出登录...")
+        self.isLoading = true
+        try? await supabase.auth.signOut()
+        GIDSignIn.sharedInstance.signOut() // 确保清除谷歌状态
+        self.currentUser = nil
+        self.isAuthenticated = false
+        self.isLoading = false
+    }
+
+    // MARK: - Google 登录
+    func signInWithGoogle() async {
+        self.isLoading = true
+        self.errorMessage = nil
+        print("🔵 [AuthManager] 开始 Google 登录流程...")
+
+        do {
+            // 1. 获取 RootViewController (Google 登录需要弹窗界面)
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootViewController = windowScene.windows.first?.rootViewController else {
+                print("❌ [AuthManager] 无法获取 RootViewController")
+                self.errorMessage = "系统错误：无法调起登录界面"
+                self.isLoading = false
+                return
+            }
+
+            // 2. 执行 Google SDK 登录
+            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+            
+            // 3. 获取 ID Token
+            guard let idToken = result.user.idToken?.tokenString else {
+                print("❌ [AuthManager] 无法获取 Google ID Token")
+                self.errorMessage = "无法从 Google 获取验证信息"
+                self.isLoading = false
+                return
+            }
+
+            // 4. 将 Token 传给 Supabase 进行身份验证
+            print("🔄 [AuthManager] 正在向 Supabase 验证 Google 身份...")
+            let response = try await supabase.auth.signInWithIdToken(
+                credentials: .init(provider: .google, idToken: idToken)
+            )
+
+            self.currentUser = response.user
+            self.isAuthenticated = true
+            print("✅ [AuthManager] Google 登录成功！用户: \(self.currentUser?.email ?? "")")
+
+        } catch {
+            print("❌ [AuthManager] Google 登录失败: \(error.localizedDescription)")
+            self.errorMessage = "Google 登录失败"
+        }
+        self.isLoading = false
+    }
+
+    // MARK: - Apple 登录 (简单实现方案)
+    func signInWithApple() async {
+        // 注意：Apple 登录在 iOS 上通常配合 SignInWithAppleButton 使用效果更好
+        // 这里提供一个逻辑入口，你需要在 View 中使用相应组件获取 Token 后传给此方法
+        print("🔵 [AuthManager] Apple 登录功能已准备就绪，等待 Token 接入")
+        self.errorMessage = "请在真机上测试 Apple 登录"
+    }
+
+    // MARK: - 账户删除 (保持你原有的逻辑)
+    func deleteAccount() async {
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("🔴 [AuthManager] 收到删除账户指令")
+        self.isLoading = true
+        self.errorMessage = nil
+
+        do {
+            try await AccountService.shared.deleteAccount()
+            print("✅ [AuthManager] 云端注销完成，执行本地登出...")
+            await signOut()
+        } catch let error as NSError {
+            print("❌ [AuthManager] 删除账户失败: \(error.localizedDescription)")
+            self.errorMessage = "注销失败：\(error.localizedDescription)"
+            await signOut() // 失败也执行本地登出
+        }
+        self.isLoading = false
+    }
+
+    // MARK: - 邮箱登录
+    func signIn(email: String, password: String) async {
+        self.isLoading = true
+        self.errorMessage = nil
+        do {
+            let response = try await supabase.auth.signIn(email: email, password: password)
+            self.currentUser = response.user
+            self.isAuthenticated = true
+        } catch {
+            self.errorMessage = "登录失败：邮箱或密码错误"
+        }
+        self.isLoading = false
+    }
+
+    // MARK: - 邮箱注册
+    func signUp(email: String, password: String) async {
+        self.isLoading = true
+        self.errorMessage = nil
+        do {
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            self.currentUser = response.user
+            self.isAuthenticated = true
+        } catch {
+            self.errorMessage = "注册失败：\(error.localizedDescription)"
+        }
+        self.isLoading = false
     }
 }

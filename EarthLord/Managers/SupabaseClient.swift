@@ -1,16 +1,16 @@
-//
-//  SupabaseClient.swift
-//  EarthLord
-//
-//  Created by lyanwen on 2025/12/31.
-//
-
 import Foundation
 import Supabase
 
-/// Supabase 客户端单例
-/// 全局唯一的 Supabase 客户端实例，用于所有后端交互
+// Supabase 配置
+// 项目：EarthLord (lkekxzssfrspkyxtqysx)
+// 区域：ap-southeast-1
 let supabaseClient = SupabaseClient(
     supabaseURL: URL(string: "https://lkekxzssfrspkyxtqysx.supabase.co")!,
-    supabaseKey: "sb_publishable_8Gg8z5XRTOkupYVm6MbACg_Lc9CXU4I"
+    supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrZWt4enNzZnJzcGt5eHRxeXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDAwNjUsImV4cCI6MjA4MjY3NjA2NX0.cqQjlAIdQIcRjXvRUtjc02h3CsdxV383WE9PofNc6iM",
+    options: SupabaseClientOptions(
+        auth: .init(
+            emitLocalSessionAsInitialSession: true
+        )
+    )
 )
+

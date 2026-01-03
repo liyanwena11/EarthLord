@@ -61,7 +61,7 @@ struct TestView: View {
                 )
                 
                 // 尝试简单的健康检查或查询
-                let _ = try await client.database
+                let _ = try await client
                     .from("non_existent_table") // 故意查个不存在的表也没事，只要服务器回话了就算通
                     .select()
                     .execute()

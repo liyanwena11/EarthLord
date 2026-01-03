@@ -10,15 +10,30 @@
 		A46CE8E92F040E4B00314E2B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = A46CE8E82F040E4B00314E2B /* Supabase */; };
 		A46F48BE2F04E05300CA8CBD /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A46F48BD2F04E05300CA8CBD /* GoogleSignIn */; };
 		A46F48C02F04E05300CA8CBD /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A46F48BF2F04E05300CA8CBD /* GoogleSignInSwift */; };
+		A4C93CF02F07AB2A0029FEC2 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A4C93CEF2F07AB2A0029FEC2 /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A46CE8A52F03E85800314E2B /* EarthLord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EarthLord.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4C93CEF2F07AB2A0029FEC2 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A4C93CF72F07F1560029FEC2 /* Exceptions for "EarthLord" folder in "EarthLord" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A46CE8A42F03E85800314E2B /* EarthLord */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A46CE8A72F03E85800314E2B /* EarthLord */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A4C93CF72F07F1560029FEC2 /* Exceptions for "EarthLord" folder in "EarthLord" target */,
+			);
 			path = EarthLord;
 			sourceTree = "<group>";
 		};
@@ -41,6 +56,7 @@
 		A46CE89C2F03E85800314E2B = {
 			isa = PBXGroup;
 			children = (
+				A4C93CEF2F07AB2A0029FEC2 /* Localizable.xcstrings */,
 				A46CE8A72F03E85800314E2B /* EarthLord */,
 				A46CE8A62F03E85800314E2B /* Products */,
 			);
@@ -98,11 +114,12 @@
 				};
 			};
 			buildConfigurationList = A46CE8A02F03E85800314E2B /* Build configuration list for PBXProject "EarthLord" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = A46CE89C2F03E85800314E2B;
 			minimizedProjectReferenceProxies = 1;
@@ -125,6 +142,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4C93CF02F07AB2A0029FEC2 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,6 +216,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -252,6 +271,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
@@ -263,8 +283,12 @@
 				CODE_SIGN_ENTITLEMENTS = EarthLord/EarthLord.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = X5FKXDWAFV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EarthLord/Info.plist;
+				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleTypeRole = Editor;\n    CFBundleURLSchemes =     (\n        \"com.googleusercontent.apps.260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb\"\n    );\n}";
+				INFOPLIST_KEY_GIDClientID = "260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb.apps.googleusercontent.com";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -300,8 +324,12 @@
 				CODE_SIGN_ENTITLEMENTS = EarthLord/EarthLord.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = X5FKXDWAFV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EarthLord/Info.plist;
+				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleTypeRole = Editor;\n    CFBundleURLSchemes =     (\n        \"com.googleusercontent.apps.260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb\"\n    );\n}";
+				INFOPLIST_KEY_GIDClientID = "260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb.apps.googleusercontent.com";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
