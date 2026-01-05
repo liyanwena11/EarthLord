@@ -17,26 +17,25 @@ struct TerritoryTabView: View {
                 ScrollView {
                     VStack(spacing: 25) {
                         VStack(alignment: .leading, spacing: 15) {
-                            Label("Territory Overview", systemImage: "chart.pie.fill").foregroundColor(.orange)
+                            Label("Territory Overview", systemImage: "chart.pie.fill").foregroundColor(brandOrange)
                             HStack(spacing: 12) {
-                                TStatBox(icon: "flag.fill", value: "4", label: "Total Territories", color: .orange.opacity(0.3))
-                                TStatBox(icon: "square.grid.3x3.fill", value: "3.2k", label: "Total Area", color: .blue.opacity(0.3))
-                                TStatBox(icon: "archivebox.fill", value: "48", label: "Total Resources", color: .yellow.opacity(0.3))
+                                TStat(icon: "flag.fill", value: "4", label: "Total Territories")
+                                TStat(icon: "square.grid.3x3.fill", value: "3.2k", label: "Total Area")
+                                TStat(icon: "archivebox.fill", value: "48", label: "Total Resources")
                             }
                         }.padding().background(Color.white.opacity(0.05)).cornerRadius(15)
 
                         HStack {
-                            FilterTab(title: "All", count: 4, isActive: selectedFilter == 0) { selectedFilter = 0 }
-                            FilterTab(title: "Safe", count: 2, isActive: selectedFilter == 1) { selectedFilter = 1 }
-                            FilterTab(title: "Warning", count: 1, isActive: selectedFilter == 2) { selectedFilter = 2 }
+                            FilterBtn(title: "All", count: 4, isActive: selectedFilter == 0) { selectedFilter = 0 }
+                            FilterBtn(title: "Safe", count: 2, isActive: selectedFilter == 1) { selectedFilter = 1 }
+                            FilterBtn(title: "Warning", count: 1, isActive: selectedFilter == 2) { selectedFilter = 2 }
                             Spacer()
                         }
 
                         VStack(alignment: .leading, spacing: 15) {
                             Text("Territory List").font(.headline).foregroundColor(.white)
-                            // 修复点：确保名字也是本地化 Key
-                            TCard(name: "Shelter Alpha", type: "Shelter", status: "Safe", coord: "39.91°, 116.42°", area: "1250 m²", res: "12", time: "1 week ago", isSafe: true)
-                            TCard(name: "Resource Beta", type: "Resource Point", status: "Warning", coord: "39.89°, 116.40°", area: "850 m²", res: "23", time: "5 days ago", isSafe: false)
+                            TListItem(name: "Shelter Alpha", type: "Shelter", status: "Safe", isSafe: true, time: "1 week ago")
+                            TListItem(name: "Resource Beta", type: "Resource Point", status: "Warning", isSafe: false, time: "5 days ago")
                         }
                     }
                     .padding(.horizontal).padding(.bottom, 100)
@@ -46,14 +45,11 @@ struct TerritoryTabView: View {
     }
 }
 
-// 辅助组件 (确保所有文本属性都是 LocalizedStringKey)
-struct TCard: View {
-    let name: LocalizedStringKey // 核心修复：改为本地化类型
-    let type: LocalizedStringKey
-    let status: LocalizedStringKey
-    let coord: String; let area: String; let res: String
-    let time: LocalizedStringKey; let isSafe: Bool
-    
+// --- 补全下方组件 ---
+struct TListItem: View {
+    let name: LocalizedStringKey; let type: LocalizedStringKey; let status: LocalizedStringKey
+    let isSafe: Bool; let time: LocalizedStringKey
+
     var body: some View {
         VStack(spacing: 15) {
             HStack {
@@ -65,36 +61,39 @@ struct TCard: View {
                 }
                 Spacer()
                 Text(status).font(.caption).bold().padding(.horizontal, 8).padding(.vertical, 4)
-                    .background(isSafe ? Color.green.opacity(0.2) : Color.yellow.opacity(0.2))
-                    .foregroundColor(isSafe ? .green : .yellow).cornerRadius(6)
+                    .background(isSafe ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
+                    .foregroundColor(isSafe ? .green : .red).cornerRadius(6)
             }
-            HStack(spacing: 0) {
-                VStack { Text("Coordinates").font(.system(size: 10)).foregroundColor(.gray); Text(coord).font(.system(size: 12)).bold().foregroundColor(.white) }.frame(maxWidth: .infinity)
-                VStack { Text("Area").font(.system(size: 10)).foregroundColor(.gray); Text(area).font(.system(size: 12)).bold().foregroundColor(.white) }.frame(maxWidth: .infinity)
-                VStack { Text("Resources").font(.system(size: 10)).foregroundColor(.gray); Text("\(res) ↑").font(.system(size: 12)).bold().foregroundColor(.white) }.frame(maxWidth: .infinity)
-            }
-            HStack { Image(systemName: "clock"); Text("Claimed \(time)"); Spacer(); Image(systemName: "chevron.right") }.font(.caption).foregroundColor(.gray)
-        }.padding().background(Color.white.opacity(0.05)).cornerRadius(15)
+            HStack {
+                Image(systemName: "clock")
+                Text("Claimed \(time)") // 修复了之前的 Tex 错误
+                Spacer()
+                Image(systemName: "chevron.right")
+            }.font(.caption).foregroundColor(.gray)
+        }
+        .padding().background(Color.white.opacity(0.05)).cornerRadius(15)
     }
 }
 
-struct TStatBox: View {
-    let icon: String; let value: String; let label: LocalizedStringKey; let color: Color
+struct TStat: View {
+    let icon: String; let value: String; let label: LocalizedStringKey
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: icon).font(.title3)
-            Text(value).font(.title3).bold()
+            Image(systemName: icon).font(.title3).foregroundColor(.white)
+            Text(value).font(.title3).bold().foregroundColor(.white)
             Text(label).font(.system(size: 10)).foregroundColor(.gray)
-        }.frame(maxWidth: .infinity).padding(.vertical, 15).background(color).cornerRadius(12).foregroundColor(.white)
+        }.frame(maxWidth: .infinity).padding(.vertical, 15).background(Color.white.opacity(0.1)).cornerRadius(12)
     }
 }
 
-struct FilterTab: View {
+struct FilterBtn: View {
     let title: LocalizedStringKey; let count: Int; let isActive: Bool; let action: () -> Void
     var body: some View {
         Button(action: action) {
             HStack { Text(title); Text("\(count)").font(.caption).padding(.horizontal, 6).background(Color.black.opacity(0.3)).cornerRadius(10) }
-            .padding(.horizontal, 12).padding(.vertical, 8).background(isActive ? Color.orange : Color.white.opacity(0.1)).foregroundColor(.white).cornerRadius(20)
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(isActive ? Color.orange : Color.white.opacity(0.1))
+            .foregroundColor(.white).cornerRadius(20)
         }
     }
 }
