@@ -70,6 +70,12 @@
         }
       }
     },
+    "○ Not Tracking" : {
+
+    },
+    "● Tracking" : {
+
+    },
     "1 week ago" : {
       "localizations" : {
         "zh-Hans" : {
@@ -81,6 +87,7 @@
       }
     },
     "4" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -160,6 +167,7 @@
       }
     },
     "Claimed %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -168,6 +176,9 @@
           }
         }
       }
+    },
+    "Clear Logs" : {
+
     },
     "Confirm Delete" : {
 
@@ -230,6 +241,12 @@
     "Delete Account?" : {
 
     },
+    "Developer Tools" : {
+
+    },
+    "Development Tests" : {
+
+    },
     "EARTH LORD" : {
       "localizations" : {
         "zh-Hans" : {
@@ -251,6 +268,7 @@
       }
     },
     "English" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -259,6 +277,9 @@
           }
         }
       }
+    },
+    "Export Logs" : {
+
     },
     "Friends List" : {
       "localizations" : {
@@ -503,6 +524,9 @@
     "Sign Out" : {
 
     },
+    "Supabase Connection Test" : {
+
+    },
     "Supabase 连接测试" : {
       "localizations" : {
         "en" : {
@@ -566,6 +590,15 @@
         }
       }
     },
+    "Territory Test" : {
+
+    },
+    "Test and debug features" : {
+
+    },
+    "Test database connectivity" : {
+
+    },
     "Threat" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -619,6 +652,9 @@
           }
         }
       }
+    },
+    "View path tracking logs" : {
+
     },
     "Warning" : {
       "localizations" : {
@@ -745,7 +781,7 @@
         }
       }
     },
-    "停止圈地 (%lld点)" : {
+    "停止追踪" : {
 
     },
     "全部" : {
@@ -1002,6 +1038,9 @@
           }
         }
       }
+    },
+    "圈地成功！" : {
+
     },
     "在末日中重建文明" : {
       "extractionState" : "stale",
@@ -1779,6 +1818,7 @@
       }
     },
     "简体中文" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -1874,6 +1914,7 @@
       }
     },
     "语言设置" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2129,6 +2170,9 @@
         }
       }
     },
+    "面积: %lld ㎡" : {
+
+    },
     "領地" : {
 
     },
@@ -2232,6 +2276,9 @@
           }
         }
       }
+    },
+    "验证失败" : {
+
     }
   },
   "version" : "1.0"

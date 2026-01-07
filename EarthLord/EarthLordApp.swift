@@ -3,14 +3,16 @@ import SwiftUI
 @main
 struct EarthLordApp: App {
     @StateObject private var authManager = AuthManager.shared
+    @StateObject private var locationManager = LocationManager()
 
     var body: some Scene {
         WindowGroup {
             if authManager.isAuthenticated {
-                // 👈 已登录：必须进入 MainTabView，才能看到“个人”标签
+                // Logged in: Enter MainTabView
                 MainTabView()
+                    .environmentObject(locationManager)
             } else {
-                // 👈 未登录：显示登录页
+                // Not logged in: Show login page
                 AuthView()
             }
         }

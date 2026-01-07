@@ -1,7 +1,7 @@
 import Foundation
 import CoreLocation
 
-/// 解决中国地图偏移问题的工具类 (WGS-84 转 GCJ-02)
+// Coordinate converter for China map offset correction (WGS-84 to GCJ-02)
 struct CoordinateConverter {
     private static let a = 6378245.0
     private static let ee = 0.00669342162296594323
@@ -10,11 +10,11 @@ struct CoordinateConverter {
     static func wgs84ToGcj02(_ coordinate: CLLocationCoordinate2D) -> CLLocationCoordinate2D {
         let lat = coordinate.latitude
         let lon = coordinate.longitude
-        
+
         if outOfChina(lat: lat, lon: lon) {
             return coordinate
         }
-        
+
         var dLat = transformLat(lon - 105.0, lat - 35.0)
         var dLon = transformLon(lon - 105.0, lat - 35.0)
         let radLat = lat / 180.0 * pi
@@ -23,7 +23,7 @@ struct CoordinateConverter {
         let sqrtMagic = sqrt(magic)
         dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * pi)
         dLon = (dLon * 180.0) / (a / sqrtMagic * cos(radLat) * pi)
-        
+
         return CLLocationCoordinate2D(latitude: lat + dLat, longitude: lon + dLon)
     }
 
