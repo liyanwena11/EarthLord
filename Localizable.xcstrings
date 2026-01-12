@@ -42,6 +42,9 @@
         }
       }
     },
+    "%lld points tracked" : {
+
+    },
     "%lld 个" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -76,7 +79,11 @@
     "● Tracking" : {
 
     },
+    "🔧 Fix Database & Insert Territory" : {
+
+    },
     "1 week ago" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -98,6 +105,7 @@
       }
     },
     "5 days ago" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -132,6 +140,7 @@
       }
     },
     "All" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -140,6 +149,9 @@
           }
         }
       }
+    },
+    "Are you sure you want to delete this territory? This action cannot be undone." : {
+
     },
     "Area" : {
       "extractionState" : "stale",
@@ -235,16 +247,25 @@
         }
       }
     },
+    "Delete" : {
+
+    },
     "Delete Account" : {
 
     },
     "Delete Account?" : {
 
     },
+    "Delete Territory" : {
+
+    },
     "Developer Tools" : {
 
     },
     "Development Tests" : {
+
+    },
+    "Done" : {
 
     },
     "EARTH LORD" : {
@@ -278,6 +299,9 @@
         }
       }
     },
+    "Error" : {
+
+    },
     "Export Logs" : {
 
     },
@@ -310,6 +334,9 @@
           }
         }
       }
+    },
+    "Go out and claim your first territory!" : {
+
     },
     "GPS" : {
       "extractionState" : "stale",
@@ -350,6 +377,12 @@
           }
         }
       }
+    },
+    "Insert a test territory in Chengdu for indoor testing" : {
+
+    },
+    "Insert Test Territory (Old)" : {
+
     },
     "Language Settings" : {
 
@@ -407,7 +440,16 @@
         }
       }
     },
+    "My Territories" : {
+
+    },
+    "No territories yet" : {
+
+    },
     "Notifications" : {
+
+    },
+    "OK" : {
 
     },
     "Personalize your game experience" : {
@@ -461,6 +503,7 @@
       }
     },
     "Resource Beta" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -471,6 +514,7 @@
       }
     },
     "Resource Point" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -491,7 +535,11 @@
         }
       }
     },
+    "Retry" : {
+
+    },
     "Safe" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -502,6 +550,7 @@
       }
     },
     "Shelter" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -512,6 +561,7 @@
       }
     },
     "Shelter Alpha" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -522,6 +572,9 @@
       }
     },
     "Sign Out" : {
+
+    },
+    "Success!" : {
 
     },
     "Supabase Connection Test" : {
@@ -561,6 +614,7 @@
 
     },
     "Territory Archive" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -569,6 +623,9 @@
           }
         }
       }
+    },
+    "Territory Details" : {
+
     },
     "Territory List" : {
       "localizations" : {
@@ -620,7 +677,11 @@
         }
       }
     },
+    "Total Points" : {
+
+    },
     "Total Resources" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -657,6 +718,7 @@
 
     },
     "Warning" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -1038,9 +1100,6 @@
           }
         }
       }
-    },
-    "圈地成功！" : {
-
     },
     "在末日中重建文明" : {
       "extractionState" : "stale",
@@ -1556,6 +1615,9 @@
         }
       }
     },
+    "正在上传..." : {
+
+    },
     "正在获取位置..." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1767,6 +1829,15 @@
         }
       }
     },
+    "登记失败" : {
+
+    },
+    "登记成功" : {
+
+    },
+    "确定" : {
+
+    },
     "确定注销档案吗？" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1783,6 +1854,9 @@
           }
         }
       }
+    },
+    "确认登记领地" : {
+
     },
     "离线" : {
       "extractionState" : "stale",
@@ -2048,6 +2122,12 @@
         }
       }
     },
+    "路径已闭合！验证通过 ✓" : {
+
+    },
+    "轨迹自相交，请勿画8字形" : {
+
+    },
     "输入 DELETE 确认" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2170,7 +2250,7 @@
         }
       }
     },
-    "面积: %lld ㎡" : {
+    "面积: %lld㎡，点击下方登记" : {
 
     },
     "領地" : {
@@ -2277,7 +2357,10 @@
         }
       }
     },
-    "验证失败" : {
+    "验证未通过" : {
+
+    },
+    "龙泉驿桃花源别墅测试领地 (30.565, 104.265)" : {
 
     }
   },

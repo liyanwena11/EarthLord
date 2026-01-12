@@ -5,11 +5,11 @@ import Combine
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     
-    // MARK: - 验证常量
-    private let minimumPathPoints = 10
-    private let minimumTotalDistance: Double = 50.0
-    private let minimumEnclosedArea: Double = 100.0
-    private let closureDistanceThreshold: CLLocationDistance = 30.0
+    // MARK: - 验证常量（已降低测试难度）
+    private let minimumPathPoints = 5           // 降低：10 → 5
+    private let minimumTotalDistance: Double = 20.0  // 降低：50.0 → 20.0
+    private let minimumEnclosedArea: Double = 20.0   // 降低：100.0 → 20.0（车位大小）
+    private let closureDistanceThreshold: CLLocationDistance = 50.0  // 提高：30.0 → 50.0（更容易触发闭环）
     
     // MARK: - 数据发布属性
     @Published var userLocation: CLLocation?
@@ -49,8 +49,29 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     func stopTracking() {
         isTracking = false
         manager.stopUpdatingLocation()
+
+        // ⚠️ 优化：验证失败时不清空路径，让用户能看到问题
+        // 只在验证通过时清空路径（上传成功后）
+        if territoryValidationPassed {
+            // 验证通过，清空路径（上传成功后的清理）
+            pathCoordinates.removeAll()
+            pathUpdateVersion += 1
+            TerritoryLogger.shared.log("验证通过，路径已清空", type: .info)
+        } else {
+            // 验证失败，保留路径让用户查看
+            TerritoryLogger.shared.log("验证失败，路径已保留供检查", type: .warning)
+        }
+
+        // Reset validation states to prevent duplicate uploads
+        territoryValidationPassed = false
+        territoryValidationError = nil
+        calculatedArea = 0
+        isPathClosed = false
+        speedWarning = nil
+
+        TerritoryLogger.shared.log("Tracking stopped", type: .info)
     }
-    
+
     func clearPath() {
         pathCoordinates.removeAll()
         isPathClosed = false
@@ -77,18 +98,33 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         pathCoordinates.append(coord)
         pathUpdateVersion += 1 // 触发地图刷新
-        
-        if pathCoordinates.count >= 10 {
+
+        // 降低点数门槛：5 个点就可以开始检测闭环
+        if pathCoordinates.count >= 5 {
             checkPathClosure(currentLocation: location)
         }
     }
-    
+
     private func checkPathClosure(currentLocation: CLLocation) {
+        guard pathCoordinates.count >= 5 else { return }
+
         let startCoord = pathCoordinates[0]
         let startLocation = CLLocation(latitude: startCoord.latitude, longitude: startCoord.longitude)
-        if currentLocation.distance(from: startLocation) < closureDistanceThreshold && pathCoordinates.count > 15 {
+        let distanceToStart = currentLocation.distance(from: startLocation)
+
+        // 距离日志：100 米内每 10 米打印一次
+        if distanceToStart <= 100 {
+            let rounded = (distanceToStart / 10).rounded() * 10
+            if Int(rounded) % 10 == 0 {
+                TerritoryLogger.shared.log("距离起点: \(Int(distanceToStart))米", type: .info)
+            }
+        }
+
+        // 闭环触发：距离 < 50米 且至少 5 个点
+        if distanceToStart < closureDistanceThreshold && pathCoordinates.count >= 5 {
             if !isPathClosed {
                 isPathClosed = true
+                TerritoryLogger.shared.log("闭环触发！距离: \(Int(distanceToStart))米, 点数: \(pathCoordinates.count)", type: .success)
                 stopTracking()
                 let result = validateTerritory()
                 territoryValidationPassed = result.isValid
