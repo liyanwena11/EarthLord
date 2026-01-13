@@ -4,6 +4,9 @@
     "" : {
 
     },
+    "--- 快速通关控制台 ---" : {
+
+    },
     "《地球新主》需要获取您的位置来显示您在末日世界中的坐标，帮助您探索和圈定领地。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -42,9 +45,6 @@
         }
       }
     },
-    "%lld points tracked" : {
-
-    },
     "%lld 个" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -77,9 +77,6 @@
 
     },
     "● Tracking" : {
-
-    },
-    "🔧 Fix Database & Insert Territory" : {
 
     },
     "1 week ago" : {
@@ -247,6 +244,9 @@
         }
       }
     },
+    "Day 19 碰撞模拟准备" : {
+
+    },
     "Delete" : {
 
     },
@@ -299,9 +299,6 @@
         }
       }
     },
-    "Error" : {
-
-    },
     "Export Logs" : {
 
     },
@@ -334,9 +331,6 @@
           }
         }
       }
-    },
-    "Go out and claim your first territory!" : {
-
     },
     "GPS" : {
       "extractionState" : "stale",
@@ -377,12 +371,6 @@
           }
         }
       }
-    },
-    "Insert a test territory in Chengdu for indoor testing" : {
-
-    },
-    "Insert Test Territory (Old)" : {
-
     },
     "Language Settings" : {
 
@@ -440,16 +428,7 @@
         }
       }
     },
-    "My Territories" : {
-
-    },
-    "No territories yet" : {
-
-    },
     "Notifications" : {
-
-    },
-    "OK" : {
 
     },
     "Personalize your game experience" : {
@@ -535,9 +514,6 @@
         }
       }
     },
-    "Retry" : {
-
-    },
     "Safe" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -572,12 +548,6 @@
       }
     },
     "Sign Out" : {
-
-    },
-    "Success!" : {
-
-    },
-    "Supabase Connection Test" : {
 
     },
     "Supabase 连接测试" : {
@@ -628,6 +598,7 @@
 
     },
     "Territory List" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -638,6 +609,7 @@
       }
     },
     "Territory Overview" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -653,9 +625,6 @@
     "Test and debug features" : {
 
     },
-    "Test database connectivity" : {
-
-    },
     "Threat" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -668,6 +637,7 @@
       }
     },
     "Total Area" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -676,9 +646,6 @@
           }
         }
       }
-    },
-    "Total Points" : {
-
     },
     "Total Resources" : {
       "extractionState" : "stale",
@@ -692,6 +659,7 @@
       }
     },
     "Total Territories" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -713,9 +681,6 @@
           }
         }
       }
-    },
-    "View path tracking logs" : {
-
     },
     "Warning" : {
       "extractionState" : "stale",
@@ -843,7 +808,7 @@
         }
       }
     },
-    "停止追踪" : {
+    "停止测试" : {
 
     },
     "全部" : {
@@ -930,6 +895,9 @@
           }
         }
       }
+    },
+    "准备工作" : {
+
     },
     "切换语言后将立即生效" : {
       "extractionState" : "stale",
@@ -1201,6 +1169,12 @@
         }
       }
     },
+    "基础测试" : {
+
+    },
+    "大幅靠近敌军 (15m)" : {
+
+    },
     "好友列表" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1354,7 +1328,11 @@
         }
       }
     },
+    "开发测试" : {
+
+    },
     "开始圈地" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1363,6 +1341,9 @@
           }
         }
       }
+    },
+    "开始实战圈地" : {
+
     },
     "当前坐标" : {
       "extractionState" : "stale",
@@ -1431,6 +1412,9 @@
         }
       }
     },
+    "总数" : {
+
+    },
     "成就系统" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1447,6 +1431,12 @@
           }
         }
       }
+    },
+    "我已运行 SQL" : {
+
+    },
+    "我的领地统计" : {
+
     },
     "或者使用以下方式登录" : {
       "localizations" : {
@@ -1548,6 +1538,9 @@
         }
       }
     },
+    "暂无领地，快去圈地吧！" : {
+
+    },
     "暂无领地数据" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1614,9 +1607,6 @@
           }
         }
       }
-    },
-    "正在上传..." : {
-
     },
     "正在获取位置..." : {
       "extractionState" : "stale",
@@ -1829,15 +1819,6 @@
         }
       }
     },
-    "登记失败" : {
-
-    },
-    "登记成功" : {
-
-    },
-    "确定" : {
-
-    },
     "确定注销档案吗？" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1854,9 +1835,6 @@
           }
         }
       }
-    },
-    "确认登记领地" : {
-
     },
     "离线" : {
       "extractionState" : "stale",
@@ -1890,6 +1868,9 @@
           }
         }
       }
+    },
+    "第一步：前往 Supabase 运行 SQL 脚本" : {
+
     },
     "简体中文" : {
       "extractionState" : "stale",
@@ -2021,6 +2002,12 @@
         }
       }
     },
+    "说明：由于本地修复代码冲突，请务必在网页端执行我发给你的 SQL 脚本来制造‘敌军’领地。" : {
+
+    },
+    "请在电脑浏览器打开 Supabase，运行那段名为‘敌军插旗’的脚本。运行成功后重启 App 即可在地图看到橙色块。" : {
+
+    },
     "调试和测试工具" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2121,9 +2108,6 @@
           }
         }
       }
-    },
-    "路径已闭合！验证通过 ✓" : {
-
     },
     "轨迹自相交，请勿画8字形" : {
 
@@ -2250,7 +2234,7 @@
         }
       }
     },
-    "面积: %lld㎡，点击下方登记" : {
+    "面积: %lld㎡" : {
 
     },
     "領地" : {
@@ -2290,7 +2274,6 @@
       }
     },
     "领地列表" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2357,10 +2340,10 @@
         }
       }
     },
-    "验证未通过" : {
+    "领地管理" : {
 
     },
-    "龙泉驿桃花源别墅测试领地 (30.565, 104.265)" : {
+    "领地轨迹日志" : {
 
     }
   },
