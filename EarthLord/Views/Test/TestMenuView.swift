@@ -3,6 +3,7 @@ import SwiftUI
 struct TestMenuView: View {
     @State private var isInsertingTestData = false
     @State private var isFixingDatabase = false
+    @State private var isInsertingCollisionTest = false  // Day 19: 碰撞测试
     @State private var showSuccessAlert = false
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
@@ -75,6 +76,36 @@ struct TestMenuView: View {
                 .padding(.vertical, 8)
             }
             .disabled(isFixingDatabase)
+
+            // 🆕 Day 19: 插入他人领地（碰撞测试）
+            Button(action: {
+                insertOtherUserTerritory()
+            }) {
+                HStack(spacing: 15) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.orange)
+                        .frame(width: 30)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🧪 Insert Other User Territory (Collision Test)")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        Text("北边 40m 处插入橙色领地，用于测试碰撞检测")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    if isInsertingCollisionTest {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                    }
+                }
+                .padding(.vertical, 8)
+            }
+            .disabled(isInsertingCollisionTest)
 
             // 插入测试领地按钮（旧版，保留）
             Button(action: {
@@ -160,6 +191,30 @@ struct TestMenuView: View {
                 await MainActor.run {
                     isInsertingTestData = false
                     errorMessage = error.localizedDescription
+                    showErrorAlert = true
+                }
+            }
+        }
+    }
+
+    // MARK: - Day 19: Insert Other User Territory (Collision Test)
+
+    private func insertOtherUserTerritory() {
+        isInsertingCollisionTest = true
+
+        Task {
+            do {
+                try await TerritoryManager.shared.insertOtherUserTerritoryForCollisionTest()
+
+                await MainActor.run {
+                    isInsertingCollisionTest = false
+                    successMessage = "✅ 他人领地已插入（北边 40m）！\n\n橙色多边形应该显示在你北边约 40 米处。\n\n请重启 App 并进入地图页面测试碰撞检测。"
+                    showSuccessAlert = true
+                }
+            } catch {
+                await MainActor.run {
+                    isInsertingCollisionTest = false
+                    errorMessage = "插入失败：\(error.localizedDescription)"
                     showErrorAlert = true
                 }
             }

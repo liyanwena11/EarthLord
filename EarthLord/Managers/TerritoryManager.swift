@@ -235,6 +235,57 @@ class TerritoryManager {
         TerritoryLogger.shared.log("✅ 测试领地已插入！打开 App 查看成都附近的绿色多边形", type: .success)
     }
 
+    /// Day 19: 插入他人领地（用于碰撞测试）- 在龙泉驿北边 40 米处
+    func insertOtherUserTerritoryForCollisionTest() async throws {
+        // 使用一个固定的测试 UUID（不等于当前用户）
+        let otherUserId = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+
+        // 龙泉驿桃花源别墅坐标：30.565, 104.265
+        // 北边 40 米 ≈ 纬度 + 0.00036 度
+        // 中心点：30.56536, 104.265
+        // 创建 30m × 30m 正方形（面积约 1000m²）
+        let testCoordinates = [
+            CLLocationCoordinate2D(latitude: 30.565225, longitude: 104.264865),  // 西南角
+            CLLocationCoordinate2D(latitude: 30.565495, longitude: 104.264865),  // 西北角
+            CLLocationCoordinate2D(latitude: 30.565495, longitude: 104.265135),  // 东北角
+            CLLocationCoordinate2D(latitude: 30.565225, longitude: 104.265135),  // 东南角
+            CLLocationCoordinate2D(latitude: 30.565225, longitude: 104.264865)   // 回到起点（闭合）
+        ]
+
+        // 准备数据
+        let pathJSON = coordinatesToPathJSON(testCoordinates)
+        let wktPolygon = coordinatesToWKT(testCoordinates)
+        let bbox = calculateBoundingBox(testCoordinates)
+
+        // 构建上传 payload，使用自定义 user_id
+        let payload = TerritoryUploadPayload(
+            userId: otherUserId,  // 使用测试 UUID
+            path: pathJSON,
+            polygon: wktPolygon,
+            bboxMinLat: bbox.minLat,
+            bboxMaxLat: bbox.maxLat,
+            bboxMinLon: bbox.minLon,
+            bboxMaxLon: bbox.maxLon,
+            area: 1000.0,
+            pointCount: testCoordinates.count,
+            startedAt: Date().ISO8601Format(),
+            isActive: true
+        )
+
+        // 上传到数据库
+        try await supabase
+            .from("territories")
+            .insert(payload)
+            .execute()
+
+        TerritoryLogger.shared.log("✅ 他人领地已插入（北边 40m）！User ID: \(otherUserId.uuidString)", type: .success)
+        print("=== 碰撞测试领地已插入 ===")
+        print("位置：龙泉驿北边 40 米")
+        print("中心：(30.56536, 104.265)")
+        print("面积：1000m²")
+        print("User ID: \(otherUserId.uuidString)")
+    }
+
     // MARK: - 碰撞检测算法
 
     /// 射线法判断点是否在多边形内
