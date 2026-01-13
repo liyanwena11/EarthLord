@@ -239,7 +239,7 @@ struct MapTabView: View {
 
         // 检测起始点是否在他人领地内
         let result = territoryManager.checkPointCollision(
-            location: location,
+            location: location.coordinate,
             currentUserId: userId
         )
 

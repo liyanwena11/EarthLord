@@ -69,10 +69,6 @@ class DatabaseFixManager {
         print("User Email: \(userEmail)")
 
         // 检查用户是否已存在于 profiles 表
-        let checkQuery = """
-        SELECT id FROM profiles WHERE id = '\(userId.uuidString)'
-        """
-
         do {
             let result: [[String: String]] = try await supabase
                 .from("profiles")

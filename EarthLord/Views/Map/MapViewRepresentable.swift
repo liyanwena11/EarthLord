@@ -219,13 +219,13 @@ import SwiftUI
                   if title.hasSuffix("_mine") {
                       // 我的领地：绿色
                       print("🎨 [Renderer] → GREEN (my territory)")
-                      renderer.fillColor = UIColor.green.withAlphaComponent(0.6)
-                      renderer.strokeColor = UIColor.green
+                      renderer.fillColor = UIColor.green.withAlphaComponent(0.5)
+                      renderer.strokeColor = UIColor.green.withAlphaComponent(1.0)
                   } else {
                       // 别人的领地：橙色
                       print("🎨 [Renderer] → ORANGE (other's territory)")
-                      renderer.fillColor = UIColor.orange.withAlphaComponent(0.6)
-                      renderer.strokeColor = UIColor.orange
+                      renderer.fillColor = UIColor.orange.withAlphaComponent(0.5)
+                      renderer.strokeColor = UIColor.orange.withAlphaComponent(1.0)
                   }
 
                   renderer.lineWidth = 2
