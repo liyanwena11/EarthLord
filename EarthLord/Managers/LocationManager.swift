@@ -134,17 +134,50 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func validateTerritory() -> (isValid: Bool, errorMessage: String?) {
-        if pathCoordinates.count < minimumPathPoints { return (false, "点数不足") }
-        if calculateTotalPathDistance() < minimumTotalDistance { return (false, "距离不足") }
-        
+        TerritoryLogger.shared.log("━━━━━━━━━━ 领地验证开始 ━━━━━━━━━━", type: .info)
+
+        // [1/4] 点数检查
+        let pointCount = pathCoordinates.count
+        TerritoryLogger.shared.log("[1/4] 点数检查: \(pointCount) 个点 (最低要求: \(minimumPathPoints))", type: .info)
+        if pointCount < minimumPathPoints {
+            TerritoryLogger.shared.log("❌ 验证失败: 点数不足 (\(pointCount) < \(minimumPathPoints))", type: .error)
+            return (false, "点数不足（需要至少 \(minimumPathPoints) 个点）")
+        }
+        TerritoryLogger.shared.log("   ✓ 点数检查通过", type: .success)
+
+        // [2/4] 距离检查
+        let totalDistance = calculateTotalPathDistance()
+        TerritoryLogger.shared.log("[2/4] 距离检查: \(String(format: "%.1f", totalDistance)) 米 (最低要求: \(minimumTotalDistance)米)", type: .info)
+        if totalDistance < minimumTotalDistance {
+            TerritoryLogger.shared.log("❌ 验证失败: 行走距离不足", type: .error)
+            return (false, "行走距离不足（需要至少 \(Int(minimumTotalDistance)) 米）")
+        }
+        TerritoryLogger.shared.log("   ✓ 距离检查通过", type: .success)
+
+        // [3/4] 自相交检查
+        TerritoryLogger.shared.log("[3/4] 轨迹形状检查: 检测是否存在8字形自相交...", type: .info)
         if hasPathSelfIntersection() {
+            TerritoryLogger.shared.log("❌ 验证失败: 轨迹自相交（8字形）", type: .error)
             return (false, "轨迹自相交，请勿画8字形")
         }
-        
+        TerritoryLogger.shared.log("   ✓ 轨迹形状检查通过", type: .success)
+
+        // [4/4] 面积检查
         let area = calculatePolygonArea()
         calculatedArea = area
-        if area < minimumEnclosedArea { return (false, "面积不足") }
-        
+        TerritoryLogger.shared.log("[4/4] 面积检查: \(String(format: "%.2f", area)) ㎡ (最低要求: \(minimumEnclosedArea)㎡)", type: .info)
+        if area < minimumEnclosedArea {
+            TerritoryLogger.shared.log("❌ 验证失败: 围合面积不足", type: .error)
+            return (false, "围合面积不足（需要至少 \(Int(minimumEnclosedArea)) 平方米）")
+        }
+        TerritoryLogger.shared.log("   ✓ 面积检查通过", type: .success)
+
+        // 全部通过
+        TerritoryLogger.shared.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", type: .info)
+        TerritoryLogger.shared.log("🏅 SUCCESS: 领地验证全部通过！", type: .success)
+        TerritoryLogger.shared.log("   📍 点数: \(pointCount) | 📏 距离: \(String(format: "%.1f", totalDistance))m | 📐 面积: \(String(format: "%.2f", area))㎡", type: .success)
+        TerritoryLogger.shared.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", type: .info)
+
         return (true, nil)
     }
     
@@ -177,14 +210,23 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     private func calculatePolygonArea() -> Double {
+        let pointCount = pathCoordinates.count
+        TerritoryLogger.shared.log("   面积计算中: 使用 Shoelace 公式（地球半径修正）", type: .info)
+
         var area: Double = 0
-        for i in 0..<pathCoordinates.count {
-            let p1 = pathCoordinates[i], p2 = pathCoordinates[(i + 1) % pathCoordinates.count]
+        for i in 0..<pointCount {
+            let p1 = pathCoordinates[i], p2 = pathCoordinates[(i + 1) % pointCount]
             let lat1 = p1.latitude * .pi / 180, lon1 = p1.longitude * .pi / 180
             let lat2 = p2.latitude * .pi / 180, lon2 = p2.longitude * .pi / 180
             area += (lon2 - lon1) * (2 + sin(lat1) + sin(lat2))
         }
-        return abs(area * 6371000.0 * 6371000.0 / 2.0)
+
+        let earthRadius: Double = 6371000.0  // 地球半径（米）
+        let finalArea = abs(area * earthRadius * earthRadius / 2.0)
+
+        TerritoryLogger.shared.log("   面积计算详情: \(pointCount)个点 -> \(String(format: "%.2f", finalArea))㎡", type: .info)
+
+        return finalArea
     }
     
     private func calculateTotalPathDistance() -> Double {
