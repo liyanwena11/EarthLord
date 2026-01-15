@@ -202,10 +202,33 @@ struct TerritoryCard: View {
     }
 
     private func formatDate() -> String {
-        // Territory 模型暂无日期字段，显示模拟日期
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM-dd HH:mm"
-        return formatter.string(from: Date())
+        // 使用 Territory 的 createdAt 字段
+        guard let dateString = territory.createdAt else {
+            return "未知时间"
+        }
+
+        // 解析 ISO 格式日期
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        // 尝试多种格式
+        var date: Date?
+        if let parsed = isoFormatter.date(from: dateString) {
+            date = parsed
+        } else {
+            // 简化格式 "2026-01-13T15:30:00"
+            let simpleFormatter = DateFormatter()
+            simpleFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            date = simpleFormatter.date(from: dateString)
+        }
+
+        guard let finalDate = date else {
+            return dateString.prefix(10).replacingOccurrences(of: "-", with: "/")
+        }
+
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateFormat = "MM-dd HH:mm"
+        return displayFormatter.string(from: finalDate)
     }
 }
 

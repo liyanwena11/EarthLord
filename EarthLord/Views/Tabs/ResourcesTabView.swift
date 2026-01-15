@@ -2,26 +2,24 @@ import SwiftUI
 
 struct ResourcesTabView: View {
     @State private var selectedSegment = 0
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 1. 顶部五段选择器 (修复了宽度和间距)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    Picker("板块", selection: $selectedSegment) {
-                        Text("POI").tag(0)
-                        Text("背包").tag(1)
-                        Text("已购").tag(2)
-                        Text("领地").tag(3)
-                        Text("交易").tag(4)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 480)
-                    .padding()
+                // 1. 顶部五段选择器 - 移除 ScrollView 修复触摸问题
+                Picker("板块", selection: $selectedSegment) {
+                    Text("POI").tag(0)
+                    Text("背包").tag(1)
+                    Text("已购").tag(2)
+                    Text("领地").tag(3)
+                    Text("交易").tag(4)
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.vertical, 10)
                 .background(Color(.systemBackground))
 
-                // 2. 内容动态切换
+                // 2. 内容动态切换 - 添加动画确保切换生效
                 Group {
                     switch selectedSegment {
                     case 0:
@@ -36,7 +34,7 @@ struct ResourcesTabView: View {
                         TradeComingSoonView()
                     }
                 }
-                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.2), value: selectedSegment)
             }
             .navigationTitle("资源管理")
             .background(Color(.systemGroupedBackground))

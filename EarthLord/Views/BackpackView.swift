@@ -1,8 +1,9 @@
 import SwiftUI
 
 struct BackpackView: View {
-    // ✅ 观察管理器，不需要 $ 符号
-    @StateObject private var manager = ExplorationManager.shared
+    // ✅ 核心修复：单例必须用 @ObservedObject，不能用 @StateObject
+    // @StateObject 会创建新实例，@ObservedObject 用于观察已存在的实例
+    @ObservedObject private var manager = ExplorationManager.shared
     
     var body: some View {
         VStack(spacing: 0) {
