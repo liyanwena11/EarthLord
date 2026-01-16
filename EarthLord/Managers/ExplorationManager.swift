@@ -83,4 +83,82 @@ class ExplorationManager: ObservableObject {
         updateWeight()
         print("🗑️ 背包已清空")
     }
+
+    // MARK: - Day 20 完善：根据 POI 类型生成随机掉落物品
+
+    /// 根据 POI 类型生成 1-3 件随机物品
+    /// - Parameter poiType: POI 类型
+    /// - Returns: 生成的物品数组
+    func generateLoot(for poiType: POIType) -> [BackpackItem] {
+        // 根据 POI 类型定义可能掉落的物品池
+        let lootTable: [POIType: [(itemId: String, name: String, category: ItemCategory, weight: Double, icon: String)]] = [
+            .supermarket: [
+                ("food_001", "罐头食品", .food, 0.3, "square.stack.3d.up.fill"),
+                ("water_001", "矿泉水", .water, 0.5, "drop.fill"),
+                ("food_002", "压缩饼干", .food, 0.2, "rectangle.compress.vertical")
+            ],
+            .hospital: [
+                ("medical_001", "绷带", .medical, 0.05, "cross.case.fill"),
+                ("medical_002", "止痛药", .medical, 0.02, "pills.fill"),
+                ("medical_003", "抗生素", .medical, 0.03, "syringe.fill")
+            ],
+            .pharmacy: [
+                ("medical_002", "止痛药", .medical, 0.02, "pills.fill"),
+                ("medical_001", "绷带", .medical, 0.05, "cross.case.fill"),
+                ("water_001", "矿泉水", .water, 0.5, "drop.fill")
+            ],
+            .gasStation: [
+                ("material_003", "燃料罐", .material, 2.0, "fuelpump.fill"),
+                ("food_001", "罐头食品", .food, 0.3, "square.stack.3d.up.fill"),
+                ("tool_001", "手电筒", .tool, 0.3, "flashlight.on.fill")
+            ],
+            .factory: [
+                ("material_001", "木材", .material, 1.5, "rectangle.stack.fill"),
+                ("material_002", "废金属", .material, 2.0, "cube.fill"),
+                ("tool_002", "绳子", .tool, 0.8, "link")
+            ],
+            .warehouse: [
+                ("material_001", "木材", .material, 1.5, "rectangle.stack.fill"),
+                ("food_001", "罐头食品", .food, 0.3, "square.stack.3d.up.fill"),
+                ("tool_002", "绳子", .tool, 0.8, "link")
+            ],
+            .school: [
+                ("tool_001", "手电筒", .tool, 0.3, "flashlight.on.fill"),
+                ("material_004", "布料", .material, 0.5, "square.fill"),
+                ("water_001", "矿泉水", .water, 0.5, "drop.fill")
+            ]
+        ]
+
+        // 获取该类型的掉落池，默认使用超市
+        let pool = lootTable[poiType] ?? lootTable[.supermarket]!
+
+        // 随机生成 1-3 件物品
+        let itemCount = Int.random(in: 1...3)
+        var generatedItems: [BackpackItem] = []
+
+        for _ in 0..<itemCount {
+            let randomIndex = Int.random(in: 0..<pool.count)
+            let template = pool[randomIndex]
+            let quantity = Int.random(in: 1...3)
+
+            // 随机品质
+            let qualities: [ItemQuality] = [.poor, .normal, .good, .excellent]
+            let quality = qualities.randomElement()
+
+            let item = BackpackItem(
+                id: UUID().uuidString,
+                itemId: template.itemId,
+                name: template.name,
+                category: template.category,
+                quantity: quantity,
+                weight: template.weight,
+                quality: quality,
+                icon: template.icon
+            )
+            generatedItems.append(item)
+        }
+
+        print("🎲 生成掉落物品：\(generatedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+        return generatedItems
+    }
 }

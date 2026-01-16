@@ -34,19 +34,59 @@ class RealPOIService: ObservableObject {
             guard let response = response else { self.isScanning = false; return }
             
             self.realPOIs = response.mapItems.map { item in
-                POIPoint(
-                    id: item.phoneNumber ?? UUID().uuidString,
+                // 随机分配 POI 类型
+                let types: [POIType] = [.supermarket, .hospital, .pharmacy, .gasStation, .warehouse]
+                let randomType = types.randomElement() ?? .supermarket
+
+                return POIPoint(
+                    id: UUID().uuidString,  // 使用 UUID 确保唯一性
                     name: item.name ?? "神秘遗迹",
-                    type: .supermarket, // 简化处理
+                    type: randomType,
                     coordinate: item.placemark.coordinate,
                     status: .discovered,
                     hasResources: true,
-                    dangerLevel: 2,
-                    description: "这是一处真实的遗迹",
+                    dangerLevel: Int.random(in: 1...5),
+                    description: self.generateDescription(for: randomType, name: item.name ?? "遗迹"),
                     distance: nil
                 )
             }
             self.isScanning = false
+            print("🗺️ POI搜索完成：找到 \(self.realPOIs.count) 个地点")
+        }
+    }
+
+    // MARK: - Day 20 完善：POI 状态管理
+
+    /// 将指定 POI 标记为已搜空
+    /// - Parameter poiId: POI 的 ID
+    func markAsLooted(poiId: String) {
+        if let index = realPOIs.firstIndex(where: { $0.id == poiId }) {
+            realPOIs[index].status = .looted
+            realPOIs[index].hasResources = false
+            print("🏴 POI 已搜空：\(realPOIs[index].name)")
+        }
+    }
+
+    /// 检查 POI 是否已被搜空
+    func isLooted(poiId: String) -> Bool {
+        return realPOIs.first(where: { $0.id == poiId })?.status == .looted
+    }
+
+    /// 根据类型生成描述
+    private func generateDescription(for type: POIType, name: String) -> String {
+        switch type {
+        case .supermarket:
+            return "「\(name)」的废墟，货架可能还有残留物资，小心感染者出没"
+        case .hospital:
+            return "「\(name)」的医疗废墟，可能有珍贵的医疗用品，但危险程度极高"
+        case .pharmacy:
+            return "「\(name)」的药店残骸，可能还有药品残留，相对安全"
+        case .gasStation:
+            return "「\(name)」加油站，可能有燃料和便利店物资"
+        case .warehouse:
+            return "「\(name)」仓库，可能有大量材料和工具"
+        default:
+            return "废弃的「\(name)」，可能有物资残留"
         }
     }
 }
