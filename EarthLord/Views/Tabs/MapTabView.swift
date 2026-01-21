@@ -3,16 +3,13 @@ import MapKit
 
 struct MapTabView: View {
     @EnvironmentObject var locationManager: LocationManager
-    
-    // MARK: - 状态控制
-    @State private var collisionWarning: String?
-    @State private var showCollisionWarning = false
-    @State private var collisionWarningLevel: WarningLevel = .safe
-    
+    @ObservedObject var walkingRewardManager = WalkingRewardManager.shared
+
     @State private var isExploring = false
     @State private var showExplorationResult = false
-    @State private var isUploading = false
-    @State private var explorationLoot: [BackpackItem] = []  // 探索获得的物品
+    @State private var shouldCenterOnUser = false  // ✅ Day 21 修复：定位按钮触发器
+    // 存储生成的搜刮奖励，用于展示
+    @State private var explorationLoot: [BackpackItem] = []
     
     var body: some View {
         ZStack {
@@ -21,210 +18,231 @@ struct MapTabView: View {
                 locationManager: locationManager,
                 trackingPath: $locationManager.pathCoordinates,
                 isPathClosed: $locationManager.isPathClosed,
-                pathUpdateVersion: locationManager.pathUpdateVersion
+                pathUpdateVersion: locationManager.pathUpdateVersion,
+                shouldCenterOnUser: $shouldCenterOnUser  // ✅ Day 21 修复：传递定位触发器
             )
             .edgesIgnoringSafeArea(.all)
             
             VStack {
-                // 2. 顶部预警横幅 (Day 19 逻辑)
-                if showCollisionWarning, let warning = collisionWarning {
-                    collisionWarningBanner(message: warning, level: collisionWarningLevel)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
-                
-                // 3. 顶部验证结果 (Day 17/18 逻辑)
-                if locationManager.isPathClosed && !showCollisionWarning {
+                // 2. ✅ Day 21 修复：实时距离状态栏（心跳感）
+                WalkingDistanceStatusBar(manager: walkingRewardManager)
+                    .padding(.top, 60)
+                    .padding(.horizontal)
+
+                // 3. 验证结果横幅
+                if locationManager.isPathClosed {
                     validationResultBanner
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
-                
+
+                // 4. 行走奖励通知
+                if walkingRewardManager.showRewardNotification,
+                   let reward = walkingRewardManager.recentReward {
+                    WalkingRewardNotificationView(tier: reward, manager: walkingRewardManager)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(100)
+                }
+
                 Spacer()
                 
-                // 4. 底部控制区 (Day 20 整合布局)
-                VStack(spacing: 16) {
-                    
-                    // 【Day 18 核心】确认登记按钮：增加加载状态
-                    if locationManager.territoryValidationPassed {
-                        Button(action: {
-                            Task {
-                                isUploading = true
-                                // 调用现有的上传逻辑
-                                try? await TerritoryManager.shared.uploadTerritory(
-                                    coordinates: locationManager.pathCoordinates,
-                                    area: locationManager.calculatedArea,
-                                    startTime: Date()
-                                )
-                                isUploading = false
-                                locationManager.stopTracking()
-                            }
-                        }) {
-                            HStack {
-                                if isUploading {
-                                    ProgressView().tint(.white)
-                                    Text("正在登记到云端...")
-                                } else {
-                                    Image(systemName: "cloud.fill")
-                                    Text("确认登记领地")
-                                }
-                            }
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(isUploading ? Color.gray : Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 10)
+                // 4. 底部控制区 (Day 20)
+                HStack(spacing: 12) {
+                    // 圈地/停止按钮
+                    Button(action: {
+                        if locationManager.isTracking {
+                            locationManager.stopTracking()
+                        } else {
+                            locationManager.startTracking()
                         }
-                        .disabled(isUploading)
-                        .padding(.horizontal, 40)
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: locationManager.isTracking ? "stop.fill" : "figure.walk")
+                            Text(locationManager.isTracking ? "停止" : "圈地")
+                        }
+                        .frame(maxWidth: .infinity).frame(height: 60)
+                        .background(locationManager.isTracking ? Color.red : Color.blue)
+                        .foregroundColor(.white).cornerRadius(12)
                     }
                     
-                    // 三合一功能按钮
-                    HStack(spacing: 12) {
-                        // 圈地/停止
-                        Button(action: {
-                            if locationManager.isTracking {
-                                locationManager.stopTracking()
+                    // 定位按钮
+                    Button(action: {
+                        // ✅ Day 21 修复：触发地图定位到用户位置
+                        shouldCenterOnUser.toggle()
+                    }) {
+                        Image(systemName: "location.fill")
+                            .frame(width: 60, height: 60)
+                            .background(Color.white).foregroundColor(.blue).cornerRadius(12).shadow(radius: 5)
+                    }
+                    
+                    // 探索按钮
+                    Button(action: {
+                        runExplorationFlow()
+                    }) {
+                        VStack(spacing: 4) {
+                            if isExploring {
+                                ProgressView().tint(.white)
                             } else {
-                                locationManager.startTracking()
+                                Image(systemName: "binoculars.fill")
+                                Text("探索")
                             }
-                        }) {
-                            VStack(spacing: 4) {
-                                Image(systemName: locationManager.isTracking ? "stop.fill" : "figure.walk")
-                                Text(locationManager.isTracking ? "停止" : "圈地")
-                            }
-                            .frame(maxWidth: .infinity).frame(height: 60)
-                            .background(locationManager.isTracking ? Color.red : Color.blue)
-                            .foregroundColor(.white).cornerRadius(12)
                         }
-                        
-                        // 定位
-                        Button(action: { /* 定位逻辑 */ }) {
-                            Image(systemName: "location.fill")
-                                .frame(width: 60, height: 60)
-                                .background(Color.white).foregroundColor(.blue).cornerRadius(12).shadow(radius: 5)
-                        }
-                        
-                        // 探索（生成随机物品）
-                        Button(action: {
-                            isExploring = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                // 随机选择一种 POI 类型生成物品
-                                let types: [POIType] = [.supermarket, .warehouse, .pharmacy]
-                                let randomType = types.randomElement() ?? .supermarket
-                                explorationLoot = ExplorationManager.shared.generateLoot(for: randomType)
-                                isExploring = false
-                                showExplorationResult = true
-                            }
-                        }) {
-                            VStack(spacing: 4) {
-                                if isExploring { ProgressView().tint(.white) }
-                                else { Image(systemName: "binoculars.fill"); Text("探索") }
-                            }
-                            .frame(maxWidth: .infinity).frame(height: 60)
-                            .background(isExploring ? Color.gray : Color.orange)
-                            .foregroundColor(.white).cornerRadius(12)
-                        }
-                        .disabled(isExploring)
+                        .frame(maxWidth: .infinity).frame(height: 60)
+                        .background(isExploring ? Color.gray : Color.orange)
+                        .foregroundColor(.white).cornerRadius(12)
                     }
-                    .padding(.horizontal, 20)
+                    .disabled(isExploring)
                 }
+                .padding(.horizontal, 20)
                 .padding(.bottom, 30)
             }
         }
+        // ✅ 修正：使用独立文件定义的 QuickLootResultView，传入生成的奖励
         .sheet(isPresented: $showExplorationResult) {
-            // 使用新的 LootResultView，传入动态生成的物品
             QuickLootResultView(lootItems: explorationLoot)
         }
     }
     
-    // MARK: - UI 组件保留
+    // MARK: - 逻辑实现
     
-    private func collisionWarningBanner(message: String, level: WarningLevel) -> some View {
-        HStack {
-            Image(systemName: level == .violation ? "xmark.octagon.fill" : "exclamationmark.triangle.fill")
-            Text(message)
+    private func runExplorationFlow() {
+        guard let userLoc = locationManager.userLocation?.coordinate else {
+            print("❌ 无法获取位置，请确保 GPS 开启")
+            return
         }
-        .padding(.horizontal, 20).padding(.vertical, 12)
-        .background(level == .warning ? Color.orange : (level == .caution ? Color.yellow : Color.red))
-        .foregroundColor(level == .caution ? .black : .white).cornerRadius(25).padding(.top, 100)
+
+        isExploring = true
+
+        // ✅ 调用真实 POI 搜索
+        RealPOIService.shared.searchNearbyRealPOI(userLocation: userLoc)
+
+        // 等待搜索完成
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            guard let nearestPOI = RealPOIService.shared.realPOIs.first else {
+                print("❌ 附近 500 米内没有可搜刮的 POI")
+                self.isExploring = false
+                return
+            }
+
+            // ✅ 根据 POI 类型生成真实掉落物品
+            self.explorationLoot = ExplorationManager.shared.generateLoot(for: nearestPOI.type)
+
+            // 标记 POI 为已搜空
+            RealPOIService.shared.markAsLooted(poiId: nearestPOI.id)
+
+            self.isExploring = false
+            self.showExplorationResult = true
+
+            print("🎲 在 \(nearestPOI.name) 获得物品：\(self.explorationLoot.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+        }
     }
-    
+
+    // MARK: - UI 组件
+
     private var validationResultBanner: some View {
         HStack {
             Image(systemName: locationManager.territoryValidationPassed ? "checkmark.circle.fill" : "xmark.circle.fill")
-            Text(locationManager.territoryValidationPassed ? "验证成功！准备登记" : (locationManager.territoryValidationError ?? "验证失败"))
+            Text(locationManager.territoryValidationPassed ? "验证通过！准备登记" : (locationManager.territoryValidationError ?? "验证失败"))
         }
         .padding().background(locationManager.territoryValidationPassed ? Color.green : Color.red)
         .foregroundColor(.white).cornerRadius(20).padding(.top, 50)
     }
 }
 
-// MARK: - 快速探索结果视图
+// MARK: - 行走奖励通知视图
 
-struct QuickLootResultView: View {
-    let lootItems: [BackpackItem]
-    @Environment(\.dismiss) var dismiss
-    private var manager = ExplorationManager.shared
+struct WalkingRewardNotificationView: View {
+    let tier: WalkingRewardTier
+    let manager: WalkingRewardManager
 
     var body: some View {
-        ZStack {
-            Color(red: 0.1, green: 0.08, blue: 0.12).edgesIgnoringSafeArea(.all)
-
-            ScrollView {
-                VStack(spacing: 25) {
-                    // 标题
-                    VStack(spacing: 15) {
-                        Image(systemName: "star.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.orange)
-                        Text("探索完成！")
-                            .font(.largeTitle).bold()
-                            .foregroundColor(.white)
-                        Text("在附近区域发现了物资")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.top, 40)
-
-                    // 物品列表
-                    VStack(alignment: .leading, spacing: 15) {
-                        Text("获得物资").font(.headline).foregroundColor(.orange)
-
-                        ForEach(lootItems) { item in
-                            HStack {
-                                Image(systemName: item.icon).foregroundColor(.blue)
-                                Text(item.name).foregroundColor(.white)
-                                Spacer()
-                                Text("x\(item.quantity)").bold().foregroundColor(.orange)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    // 放入背包按钮
-                    Button(action: {
-                        let count = manager.addItems(items: lootItems)
-                        print("✅ 探索物品已入包：\(count) 件")
-                        dismiss()
-                    }) {
-                        HStack {
-                            Image(systemName: "shippingbox.fill")
-                            Text("放入背包")
-                        }
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.orange)
-                        .cornerRadius(15)
-                    }
-                    .padding(30)
+        VStack(spacing: 12) {
+            HStack {
+                Image(systemName: "star.fill")
+                    .foregroundColor(.yellow)
+                Text("🎉 解锁成就：\(tier.displayName)")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: {
+                    manager.showRewardNotification = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.white.opacity(0.7))
                 }
             }
+
+            Text("行走 \(Int(tier.distance)) 米")
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.8))
+
+            Text("获得奖励：\(tier.rewards.map { $0.name }.joined(separator: ", "))")
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.6))
         }
+        .padding()
+        .background(Color.green.opacity(0.9))
+        .cornerRadius(12)
+        .shadow(radius: 5)
+        .padding(.horizontal)
+        .padding(.top, 60)
+    }
+}
+
+// MARK: - 实时距离状态栏（心跳感）
+
+struct WalkingDistanceStatusBar: View {
+    @ObservedObject var manager: WalkingRewardManager
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // 左侧：脚步图标
+            Image(systemName: "figure.walk")
+                .foregroundColor(.white)
+                .font(.title3)
+
+            // 中间：距离信息
+            VStack(alignment: .leading, spacing: 2) {
+                Text("今日已累计行走")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
+
+                HStack(spacing: 4) {
+                    Text("\(Int(manager.totalWalkingDistance))")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .animation(.easeInOut(duration: 0.3), value: manager.totalWalkingDistance)  // ✅ 心跳感动画
+
+                    Text("米")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+            }
+
+            Spacer()
+
+            // 右侧：下一个奖励提示
+            if let nextTier = manager.nextTier {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("距下一奖励")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.6))
+
+                    Text("\(Int(manager.distanceToNextTier))m")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.orange)
+                }
+            } else {
+                // 全部解锁
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundColor(.green)
+                    .font(.title3)
+            }
+        }
+        .padding()
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 2)
     }
 }

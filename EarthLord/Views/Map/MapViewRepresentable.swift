@@ -1,11 +1,13 @@
 import SwiftUI
 import MapKit
+import Supabase
 
 struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var locationManager: LocationManager
     @Binding var trackingPath: [CLLocationCoordinate2D]
     @Binding var isPathClosed: Bool
     var pathUpdateVersion: Int
+    @Binding var shouldCenterOnUser: Bool  // ✅ Day 21 修复：定位按钮触发器
 
     // ✅ 定义成都龙泉驿桃花源为唯一中心
     private let chengduBase = CLLocationCoordinate2D(latitude: 30.565, longitude: 104.265)
@@ -28,11 +30,20 @@ struct MapViewRepresentable: UIViewRepresentable {
     func updateUIView(_ mapView: MKMapView, context: Context) {
         // 1. 绘制当前行走轨迹线
         updateTrackingPolyline(on: mapView)
-        
+
         // 2. 绘制所有领地
         updateTerritoryPolygons(on: mapView)
-        
-        // 3. 圈地时镜头跟随
+
+        // 3. ✅ Day 21 修复：定位按钮触发镜头定位
+        if shouldCenterOnUser, let userLoc = locationManager.userLocation?.coordinate {
+            let region = MKCoordinateRegion(
+                center: userLoc,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            mapView.setRegion(region, animated: true)
+        }
+
+        // 4. 圈地时镜头跟随
         if locationManager.isTracking, let userLoc = locationManager.userLocation?.coordinate {
             let region = MKCoordinateRegion(center: userLoc, span: mapView.region.span)
             mapView.setRegion(region, animated: true)
@@ -57,23 +68,25 @@ struct MapViewRepresentable: UIViewRepresentable {
     private func updateTerritoryPolygons(on mapView: MKMapView) {
         let oldPolygons = mapView.overlays.filter { $0 is MKPolygon }
         mapView.removeOverlays(oldPolygons)
-        
+
+        // Get current user ID from AuthManager
+        let currentUserId = AuthManager.shared.currentUser?.id.uuidString
+
         for territory in TerritoryManager.shared.territories {
             let wgs84Coords = territory.toCoordinates()
-            
-            // ✅ 核心修复：直接把对象丢进去，不带任何 latitude/longitude 标签
-            // 这是为了适配你项目中 CoordinateConverter 的具体定义
+
+            // Coordinate conversion for China
             let gcj02Coords = wgs84Coords.map { coord in
                 CoordinateConverter.wgs84ToGcj02(coord)
             }
-            
+
             var coordinates = gcj02Coords
             let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
-            
-            // ✅ 颜色区分逻辑修复：只有 player_1 是自己的领地（绿色），其他都是敌军（橙色）
-            let isMine = territory.userId.lowercased() == "player_1"
+
+            // Determine if territory belongs to current user
+            let isMine = currentUserId != nil && territory.userId.lowercased() == currentUserId?.lowercased()
             polygon.title = isMine ? "mine" : "enemy"
-            
+
             mapView.addOverlay(polygon)
         }
     }
