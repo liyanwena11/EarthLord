@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import UserNotifications
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
@@ -23,6 +24,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var territoryValidationError: String? = nil
     @Published var calculatedArea: Double = 0
 
+    // MARK: - Day 22：地理围栏属性
+    @Published var nearbyPOIs: [POIPoint] = []  // 50m 内的 POI
+    @Published var showPOIAlert = false         // 系统 Alert（可选）
+    @Published var showPOIPopup = false         // 底部弹窗控制
+    @Published var alertPOI: POIPoint?          // 当前触发的 POI
+    private var monitoredRegions: Set<String> = []  // 已监控的 POI ID
+
     // MARK: - Timer 备用方案
     private var locationTimer: Timer?
     
@@ -42,6 +50,19 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // ✅ 强制申请多种权限
         manager.requestWhenInUseAuthorization()
         print("✅ [LocationManager] 已请求 WhenInUse 权限")
+
+        // ✅ Day 22：申请 Always 权限（用于地理围栏）
+        manager.requestAlwaysAuthorization()
+        print("✅ [LocationManager] 已请求 Always 权限（地理围栏）")
+
+        // ✅ Day 22：申请通知权限
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if granted {
+                print("✅ [LocationManager] 通知权限已授予")
+            } else {
+                print("⚠️ [LocationManager] 通知权限被拒绝：\(error?.localizedDescription ?? "unknown")")
+            }
+        }
 
         // 等待 0.5 秒确保权限对话框显示
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -318,5 +339,158 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 print("⚠️ [GPS核心] manager.location 为 nil，可能尚未获取到位置")
             }
         }
+    }
+
+    // MARK: - Day 22：地理围栏管理
+
+    /// 开始监控 POI 地理围栏（50m 半径）
+    func startMonitoringPOI(_ poi: POIPoint) {
+        // 避免重复监控
+        guard !monitoredRegions.contains(poi.id) else { return }
+
+        let region = CLCircularRegion(
+            center: poi.coordinate,
+            radius: 50.0,  // 50 米范围
+            identifier: poi.id
+        )
+
+        region.notifyOnEntry = true
+        region.notifyOnExit = true
+
+        manager.startMonitoring(for: region)
+        monitoredRegions.insert(poi.id)
+
+        print("🎯 [地理围栏] 开始监控 POI：\(poi.name)（50m）")
+    }
+
+    /// 停止监控指定 POI
+    func stopMonitoringPOI(_ poiId: String) {
+        if let region = manager.monitoredRegions.first(where: { $0.identifier == poiId }) {
+            manager.stopMonitoring(for: region)
+            monitoredRegions.remove(poiId)
+            print("🛑 [地理围栏] 停止监控 POI：\(poiId)")
+        }
+    }
+
+    /// 批量监控 POI 列表（自动筛选 1km 内的）
+    func startMonitoringNearbyPOIs(userLocation: CLLocationCoordinate2D, pois: [POIPoint]) {
+        let userLoc = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+
+        // 筛选 1km 内的 POI
+        let nearby = pois.filter { poi in
+            let poiLoc = CLLocation(latitude: poi.coordinate.latitude, longitude: poi.coordinate.longitude)
+            return userLoc.distance(from: poiLoc) <= 1000
+        }
+
+        // 限制最多监控 20 个（iOS 限制）
+        let toMonitor = Array(nearby.prefix(20))
+
+        for poi in toMonitor {
+            startMonitoringPOI(poi)
+        }
+
+        print("🎯 [地理围栏] 开始监控 \(toMonitor.count) 个 POI")
+    }
+
+    // MARK: - Day 22：地理围栏委托方法
+
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        guard let circularRegion = region as? CLCircularRegion else { return }
+
+        print("🚪 [地理围栏] 进入 POI 围栏：\(circularRegion.identifier)")
+
+        // 查找对应的 POI
+        if let poi = RealPOIService.shared.realPOIs.first(where: { $0.id == circularRegion.identifier }) {
+            Task { @MainActor in
+                self.alertPOI = poi
+                self.showPOIPopup = true  // Day 22：触发底部弹窗
+                print("🎯 [地理围栏] showPOIPopup = true，弹窗应显示")
+            }
+
+            // 发送本地通知（后台时有效）
+            sendPOINotification(poi: poi, isEntering: true)
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        guard let circularRegion = region as? CLCircularRegion else { return }
+        print("🚪 [地理围栏] 离开 POI 围栏：\(circularRegion.identifier)")
+
+        // Day 22：清理弹窗状态
+        Task { @MainActor in
+            if self.alertPOI?.id == circularRegion.identifier {
+                self.showPOIPopup = false
+                self.alertPOI = nil
+                print("🎯 [地理围栏] 已清理弹窗状态")
+            }
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("❌ [地理围栏] 监控失败：\(region?.identifier ?? "unknown") - \(error.localizedDescription)")
+    }
+
+    // MARK: - Day 22：本地通知
+
+    /// 发送 POI 进入通知
+    private func sendPOINotification(poi: POIPoint, isEntering: Bool) {
+        let content = UNMutableNotificationContent()
+        content.title = "发现可搜刮地点"
+        content.body = "你已接近「\(poi.name)」（危险等级：\(poi.dangerLevel)），点击查看详情"
+        content.sound = .default
+        content.userInfo = ["poi_id": poi.id]
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil  // 立即触发
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("❌ [通知] 发送失败：\(error.localizedDescription)")
+            } else {
+                print("✅ [通知] 已发送 POI 进入通知：\(poi.name)")
+            }
+        }
+    }
+
+    // MARK: - ✅ Day 22：开发测试方法
+
+    /// 模拟进入 POI 范围（用于测试弹窗逻辑）
+    /// - Parameter poi: 要模拟进入的 POI，如果为 nil 则使用第一个可搜刮的 POI
+    @MainActor
+    func simulateEnterPOI(_ poi: POIPoint? = nil) {
+        // 获取要模拟的 POI
+        let targetPOI: POIPoint?
+        if let poi = poi {
+            targetPOI = poi
+        } else {
+            // 优先选择可搜刮的 POI
+            targetPOI = RealPOIService.shared.realPOIs.first(where: { $0.isLootable })
+                ?? RealPOIService.shared.realPOIs.first
+        }
+
+        guard let poi = targetPOI else {
+            print("🧪 [测试] 没有可用的 POI，请先搜索附近地点")
+            return
+        }
+
+        print("🧪 [测试] 模拟进入 POI 范围：\(poi.name)")
+        print("🧪 [测试] POI 类型：\(poi.type.rawValue)，可搜刮：\(poi.isLootable)")
+
+        // 触发弹窗
+        self.alertPOI = poi
+        self.showPOIPopup = true
+
+        print("🧪 [测试] showPOIPopup = true，弹窗应显示")
+    }
+
+    /// 模拟离开 POI 范围（关闭弹窗）
+    @MainActor
+    func simulateExitPOI() {
+        print("🧪 [测试] 模拟离开 POI 范围")
+        self.showPOIPopup = false
+        self.alertPOI = nil
     }
 }

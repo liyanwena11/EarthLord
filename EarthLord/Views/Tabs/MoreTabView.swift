@@ -21,7 +21,7 @@ struct MoreTabView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 25) {
 
-                            // 开发者测试入口
+                            // ✅ Day 22：开发者测试入口（恢复）
                             SectionHeader(icon: "wrench.and.screwdriver.fill", title: "Developer Tools", subtitle: "Test and debug features")
 
                             NavigationLink(destination: TestMenuView()) {

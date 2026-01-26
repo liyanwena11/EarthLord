@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @EnvironmentObject var locationManager: LocationManager  // ✅ 接收 LocationManager
     @State private var selectedTab = 0
 
     var body: some View {
@@ -48,9 +49,14 @@ struct MainTabView: View {
                 .tag(4)
         }
         .tint(ApocalypseTheme.primary)
+        .onAppear {
+            // ✅ 登录后同步云端数据
+            WalkingRewardManager.shared.syncWithSupabaseIfNeeded()
+        }
     }
 }
 
 #Preview {
     MainTabView()
+        .environmentObject(LocationManager())
 }

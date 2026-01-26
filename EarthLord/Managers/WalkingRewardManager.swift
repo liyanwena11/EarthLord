@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import Supabase
 
 @MainActor
 class WalkingRewardManager: ObservableObject {
@@ -17,12 +18,18 @@ class WalkingRewardManager: ObservableObject {
 
     private let maxSpeed: Double = 30.0  // 30 km/h = 8.33 m/s
     private let maxSpeedMPS: Double = 8.33  // 米/秒
+    private let supabase = supabaseClient
 
     // MARK: - Private Properties
 
     private var lastLocation: CLLocation?
     private var lastUpdateTime: Date?
     private var rewardRecords: [WalkingRewardRecord] = []
+
+    // ✅ Day 20+21：每 10 秒采样一次的真实位移累加
+    private var lastSampleTime: Date?
+    private var lastSampleLocation: CLLocation?
+    private let sampleInterval: TimeInterval = 10.0  // 10秒采样间隔
 
     // ✅ 连续超速检测
     private var speedingStartTime: Date?
@@ -32,82 +39,113 @@ class WalkingRewardManager: ObservableObject {
     private init() {
         print("🚀 [奖励系统] WalkingRewardManager 初始化开始")
         loadProgress()
-        print("✅ [奖励系统] WalkingRewardManager 初始化完成")
+
+        // ✅ 修复：延迟 Supabase 调用，等待用户登录后再同步
+        // 不在 init 中直接调用网络请求，避免阻塞主线程
+        print("✅ [奖励系统] WalkingRewardManager 初始化完成（本地数据）")
         print("📊 [奖励系统] 当前累计距离: \(String(format: "%.2f", totalWalkingDistance))m")
         print("🏆 [奖励系统] 已解锁等级: \(unlockedTiers.count) 个")
+    }
+
+    /// ✅ 新增：登录后调用此方法同步云端数据
+    func syncWithSupabaseIfNeeded() {
+        Task { @MainActor in
+            await loadTodayProgressFromSupabase()
+        }
     }
 
     // MARK: - Distance Tracking
 
     /// 更新行走距离（由 LocationManager 调用）
+    /// ✅ Day 20+21：实现每 10 秒采样一次的真实位移累加机制
     func updateDistance(newLocation: CLLocation) {
-        print("🏃 [奖励系统] 正在计算距离... 新位置: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude)")
-        print("🏃 [奖励系统] 当前累计距离: \(String(format: "%.2f", totalWalkingDistance))m")
+        let now = Date()
 
-        defer {
+        // 首次定位，初始化采样点
+        guard let sampleLoc = lastSampleLocation, let sampleTime = lastSampleTime else {
+            print("⚪️ [奖励系统] 首次定位，初始化采样点")
+            lastSampleLocation = newLocation
+            lastSampleTime = now
             lastLocation = newLocation
-            lastUpdateTime = Date()
-            print("💾 [奖励系统] 已保存当前位置为 lastLocation")
-        }
-
-        // 首次定位，不计算距离
-        guard let lastLoc = lastLocation, let lastTime = lastUpdateTime else {
-            print("⚪️ [奖励系统] 首次定位，初始化位置（不计算距离）")
+            lastUpdateTime = now
             return
         }
 
-        print("📏 [奖励系统] 上次位置: \(lastLoc.coordinate.latitude), \(lastLoc.coordinate.longitude)")
-        print("⏱️ [奖励系统] 上次时间: \(lastTime)")
+        // 检查是否超过 10 秒采样间隔
+        let timeSinceLastSample = now.timeIntervalSince(sampleTime)
+        guard timeSinceLastSample >= sampleInterval else {
+            // 未到 10 秒，仅更新当前位置（用于速度检测）
+            lastLocation = newLocation
+            lastUpdateTime = now
+            return
+        }
 
-        // 计算时间间隔
-        let timeInterval = Date().timeIntervalSince(lastTime)
-        guard timeInterval > 0 else { return }
+        // ✅ 到达 10 秒采样点，开始计算真实位移
+        print("⏰ [奖励系统] 到达 10 秒采样点，开始计算真实位移")
+        print("📍 [奖励系统] 采样起点: (\(sampleLoc.coordinate.latitude), \(sampleLoc.coordinate.longitude))")
+        print("📍 [奖励系统] 采样终点: (\(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude))")
 
-        // 计算距离
-        let distanceMoved = newLocation.distance(from: lastLoc)
+        // 计算 10 秒内的真实位移距离
+        let distanceMoved = newLocation.distance(from: sampleLoc)
 
-        // 速度检测：30 km/h 限制
-        let speed = distanceMoved / timeInterval  // 米/秒
-        let speedKmH = speed * 3.6  // 转换为 km/h
+        // 计算平均速度（10 秒内的平均速度）
+        let averageSpeed = distanceMoved / timeSinceLastSample  // 米/秒
+        let averageSpeedKmH = averageSpeed * 3.6  // 转换为 km/h
 
-        print("🚶 [奖励系统] 本次移动距离: \(String(format: "%.2f", distanceMoved))m, 速度: \(String(format: "%.1f", speedKmH)) km/h")
+        print("🚶 [奖励系统] 10 秒位移: \(String(format: "%.2f", distanceMoved))m")
+        print("🚶 [奖励系统] 平均速度: \(String(format: "%.1f", averageSpeedKmH)) km/h")
 
-        // ✅ 增强：连续超速检测
-        if speed > maxSpeedMPS {
+        // ✅ 速度检测：30 km/h 限制
+        if averageSpeed > maxSpeedMPS {
             if speedingStartTime == nil {
-                speedingStartTime = Date()
-                print("⚠️ [WalkingReward] 开始计时超速")
+                speedingStartTime = now
+                print("⚠️ [奖励系统] 检测到超速，开始计时（速度: \(String(format: "%.1f", averageSpeedKmH)) km/h）")
             } else {
-                let speedingDuration = Date().timeIntervalSince(speedingStartTime!)
-                if speedingDuration > maxSpeedingDuration {
+                let speedingDuration = now.timeIntervalSince(speedingStartTime!)
+                if speedingDuration >= maxSpeedingDuration {
                     if !isSpeedViolationActive {
                         isSpeedViolationActive = true
-                        print("🛑 [WalkingReward] 连续超速 \(Int(maxSpeedingDuration)) 秒，系统自动终止距离累计")
-                        // 可选：发送通知告知用户
+                        print("🛑 [奖励系统] 连续超速 \(Int(maxSpeedingDuration)) 秒，停止距离累计")
+                        print("🛑 [奖励系统] 当前速度: \(String(format: "%.1f", averageSpeedKmH)) km/h（限制: 30 km/h）")
                     }
+                    // 更新采样点但不累加距离
+                    lastSampleLocation = newLocation
+                    lastSampleTime = now
+                    lastLocation = newLocation
+                    lastUpdateTime = now
                     return
                 }
-                print("⚠️ [WalkingReward] 超速持续 \(String(format: "%.1f", speedingDuration)) 秒 (速度: \(String(format: "%.1f", speedKmH)) km/h)")
+                print("⚠️ [奖励系统] 超速持续 \(String(format: "%.1f", speedingDuration)) 秒")
             }
+            // 更新采样点但不累加距离
+            lastSampleLocation = newLocation
+            lastSampleTime = now
+            lastLocation = newLocation
+            lastUpdateTime = now
             return
         } else {
             // 恢复正常速度，重置超速计时
             if speedingStartTime != nil {
-                print("✅ [WalkingReward] 速度恢复正常")
+                print("✅ [奖励系统] 速度恢复正常，重置超速计时")
             }
             speedingStartTime = nil
             isSpeedViolationActive = false
         }
 
-        // 距离过滤：忽略小于3米的移动（降低阈值以便测试）
+        // 距离过滤：忽略小于 3 米的移动
         guard distanceMoved >= 3.0 else {
-            print("⏭️ [奖励系统] 距离太小(< 3m)，忽略: \(String(format: "%.2f", distanceMoved))m")
+            print("⏭️ [奖励系统] 10 秒位移太小(< 3m)，忽略: \(String(format: "%.2f", distanceMoved))m")
+            // 更新采样点
+            lastSampleLocation = newLocation
+            lastSampleTime = now
+            lastLocation = newLocation
+            lastUpdateTime = now
             return
         }
 
         print("✅ [奖励系统] 距离检查通过！准备累加: \(String(format: "%.2f", distanceMoved))m")
 
-        // 累加距离
+        // ✅ 累加距离
         let previousDistance = totalWalkingDistance
         totalWalkingDistance += distanceMoved
 
@@ -122,11 +160,18 @@ class WalkingRewardManager: ObservableObject {
 
         // 保存进度
         saveProgress()
+
+        // 更新采样点
+        lastSampleLocation = newLocation
+        lastSampleTime = now
+        lastLocation = newLocation
+        lastUpdateTime = now
     }
 
     // MARK: - Testing & Simulation
 
     /// 🧪 模拟行走（仅用于测试）
+    @available(*, deprecated, message: "仅用于测试，生产环境请使用真实 GPS 位移")
     func simulateWalking(distance: Double) {
         let oldDistance = totalWalkingDistance
         totalWalkingDistance += distance
@@ -178,6 +223,11 @@ class WalkingRewardManager: ObservableObject {
         rewardRecords.append(record)
 
         print("🎁 [WalkingReward] 发放奖励: \(rewards.map { $0.name }.joined(separator: ", "))")
+
+        // ✅ Day 21：同步到 Supabase
+        Task {
+            await saveRewardToSupabase(tier: tier)
+        }
     }
 
     // MARK: - Reset & Save
@@ -215,6 +265,80 @@ class WalkingRewardManager: ObservableObject {
         }
 
         print("📂 [WalkingReward] 加载进度: \(Int(totalWalkingDistance))m, 已解锁: \(unlockedTiers.count) 个等级")
+    }
+
+    // MARK: - Supabase Sync
+
+    /// 保存奖励记录到 Supabase
+    @MainActor
+    private func saveRewardToSupabase(tier: WalkingRewardTier) async {
+        do {
+            let session = try await supabase.auth.session
+            let userId = session.user.id.uuidString
+
+            struct WalkingRewardRecord: Encodable {
+                let user_id: String
+                let tier: Int
+                let distance_meters: Double
+                let items_received: [String]
+            }
+
+            let record = WalkingRewardRecord(
+                user_id: userId,
+                tier: tier.rawValue,
+                distance_meters: tier.distance,
+                items_received: tier.rewards.map { $0.itemId }
+            )
+
+            try await supabase
+                .from("walking_rewards")
+                .insert(record)
+                .execute()
+
+            print("☁️ [Supabase] 奖励记录已存入云端：\(tier.displayName)")
+        } catch {
+            print("❌ [Supabase] 存储失败：\(error.localizedDescription)")
+        }
+    }
+
+    /// 从 Supabase 加载今日进度
+    @MainActor
+    private func loadTodayProgressFromSupabase() async {
+        do {
+            let session = try await supabase.auth.session
+            let userId = session.user.id.uuidString
+
+            // 获取今日已解锁的等级
+            struct RewardRow: Decodable {
+                let tier: Int
+            }
+
+            // 获取今日开始时间（UTC 时区）
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let isoFormatter = ISO8601DateFormatter()
+            let todayString = isoFormatter.string(from: today)
+
+            let response: [RewardRow] = try await supabase
+                .from("walking_rewards")
+                .select("tier")
+                .eq("user_id", value: userId)
+                .gte("unlocked_at", value: todayString)
+                .execute()
+                .value
+
+            // 更新已解锁等级
+            let cloudTiers = Set(response.map { $0.tier })
+            if !cloudTiers.isEmpty {
+                unlockedTiers = cloudTiers
+                print("☁️ [Supabase] 从云端加载今日解锁等级: \(unlockedTiers.count) 个")
+            } else {
+                print("☁️ [Supabase] 今日尚未解锁任何等级")
+            }
+        } catch {
+            print("❌ [Supabase] 加载进度失败：\(error.localizedDescription)，使用本地数据")
+            // 出错时继续使用 UserDefaults 数据
+        }
     }
 
     // MARK: - Public Getters

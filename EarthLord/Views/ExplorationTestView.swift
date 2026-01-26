@@ -3,9 +3,12 @@
 //  EarthLord
 //
 //  测试探索功能的演示页面
+//  ⚠️ 仅在 DEBUG 模式下编译
 //
 
 import SwiftUI
+
+#if DEBUG
 
 struct ExplorationTestView: View {
     @State private var showResult = false
@@ -58,7 +61,20 @@ struct ExplorationTestView: View {
             .navigationTitle("探索功能测试")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showResult) {
-                ExplorationResultView(result: MockExplorationData.mockExplorationResult)
+                // ✅ 使用真实数据创建测试结果
+                let testResult = ExplorationResult(
+                    walkDistance: 1250.0,
+                    totalWalkDistance: WalkingRewardManager.shared.totalWalkingDistance,
+                    walkRanking: 12,
+                    exploredArea: 5600.0,
+                    totalExploredArea: 12300.0,
+                    areaRanking: 8,
+                    duration: 1800,
+                    itemsFound: ExplorationManager.shared.backpackItems.prefix(3).map { $0 },
+                    poisDiscovered: 3,
+                    experienceGained: 450
+                )
+                ExplorationResultView(result: testResult)
             }
         }
     }
@@ -106,3 +122,5 @@ struct ExplorationTestView: View {
 #Preview {
     ExplorationTestView()
 }
+
+#endif

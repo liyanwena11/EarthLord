@@ -10,16 +10,28 @@ class AuthManager: ObservableObject {
     @Published var currentUser: User? = nil
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
+    @Published var isSessionChecked = false  // ✅ 新增：标记 session 检查是否完成
 
     private let supabase = supabaseClient
     static let shared = AuthManager()
 
-    private init() { Task { await checkSession() } }
+    private init() {
+        // ✅ 修复：不在 init 中阻塞，改为延迟检查
+        Task { @MainActor in
+            await checkSession()
+        }
+    }
 
     func checkSession() async {
-        if let session = try? await supabase.auth.session {
+        defer { isSessionChecked = true }  // ✅ 无论成功失败都标记完成
+        do {
+            let session = try await supabase.auth.session
             self.currentUser = session.user
             self.isAuthenticated = true
+            print("✅ [AuthManager] Session 检查完成，已登录")
+        } catch {
+            print("⚠️ [AuthManager] Session 检查完成，未登录: \(error.localizedDescription)")
+            self.isAuthenticated = false
         }
     }
 
@@ -118,8 +130,11 @@ class AuthManager: ObservableObject {
             let response = try await supabase.auth.signIn(email: email, password: password)
             self.currentUser = response.user
             self.isAuthenticated = true
+            print("✅ [AuthManager] 邮箱登录成功: \(email)")
         } catch {
-            self.errorMessage = "登录失败：邮箱或密码错误"
+            // ✅ 显示真实错误原因
+            print("❌ [AuthManager] 登录失败: \(error)")
+            self.errorMessage = "登录失败：\(error.localizedDescription)"
         }
         self.isLoading = false
     }

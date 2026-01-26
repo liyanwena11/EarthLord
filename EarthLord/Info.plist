@@ -31,5 +31,9 @@
 	<string>260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb.apps.googleusercontent.com</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>《地球新主》需要获取您的位置来显示您在末日世界中的坐标，帮助您探索和圈定领地。</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>《地球新主》需要持续获取您的位置，以便追踪您的行走距离并发放奖励。</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>《地球新主》需要始终获取位置以追踪行走奖励。</string>
 </dict>
 </plist>

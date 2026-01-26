@@ -15,6 +15,7 @@
 
 /* Begin PBXFileReference section */
 		A46CE8A52F03E85800314E2B /* EarthLord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EarthLord.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4B7EE2A2F20668F00082C25 /* SimulatedRun.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = SimulatedRun.gpx; sourceTree = "<group>"; };
 		A4C93CEF2F07AB2A0029FEC2 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -56,6 +57,7 @@
 		A46CE89C2F03E85800314E2B = {
 			isa = PBXGroup;
 			children = (
+				A4B7EE2A2F20668F00082C25 /* SimulatedRun.gpx */,
 				A4C93CEF2F07AB2A0029FEC2 /* Localizable.xcstrings */,
 				A46CE8A72F03E85800314E2B /* EarthLord */,
 				A46CE8A62F03E85800314E2B /* Products */,

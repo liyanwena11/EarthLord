@@ -6,6 +6,7 @@ enum WalkingRewardTier: Int, CaseIterable {
     case tier2 = 500    // 500米
     case tier3 = 1000   // 1000米
     case tier4 = 2000   // 2000米
+    case tier5 = 3000   // 3000米
 
     var distance: Double {
         return Double(self.rawValue)
@@ -17,6 +18,7 @@ enum WalkingRewardTier: Int, CaseIterable {
         case .tier2: return "资深探索者"
         case .tier3: return "精英探索者"
         case .tier4: return "传奇探索者"
+        case .tier5: return "传说探索者"
         }
     }
 
@@ -55,6 +57,15 @@ enum WalkingRewardTier: Int, CaseIterable {
                 BackpackItem(id: UUID().uuidString, itemId: "tool_001",
                            name: "多功能工具", category: .tool, quantity: 1,
                            weight: 0.3, quality: .excellent, icon: "wrench.and.screwdriver.fill")
+            ]
+        case .tier5:
+            return [
+                BackpackItem(id: UUID().uuidString, itemId: "medical_003",
+                           name: "抗生素", category: .medical, quantity: 5,
+                           weight: 0.03, quality: .excellent, icon: "syringe.fill"),
+                BackpackItem(id: UUID().uuidString, itemId: "material_003",
+                           name: "燃料罐", category: .material, quantity: 2,
+                           weight: 2.0, quality: .excellent, icon: "fuelpump.fill")
             ]
         }
     }

@@ -3,9 +3,12 @@
 //  EarthLord
 //
 //  快速测试所有探索功能的完整流程
+//  ⚠️ 仅在 DEBUG 模式下编译
 //
 
 import SwiftUI
+
+#if DEBUG
 
 struct QuickTestView: View {
     var body: some View {
@@ -105,7 +108,20 @@ struct ExplorationTestSheetView: View {
             }
         }
         .sheet(isPresented: $showResult) {
-            ExplorationResultView(result: MockExplorationData.mockExplorationResult)
+            // ✅ 使用真实数据创建测试结果
+            let testResult = ExplorationResult(
+                walkDistance: 850.0,
+                totalWalkDistance: WalkingRewardManager.shared.totalWalkingDistance,
+                walkRanking: 15,
+                exploredArea: 3200.0,
+                totalExploredArea: 8900.0,
+                areaRanking: 11,
+                duration: 1200,
+                itemsFound: ExplorationManager.shared.backpackItems.prefix(3).map { $0 },
+                poisDiscovered: 2,
+                experienceGained: 320
+            )
+            ExplorationResultView(result: testResult)
         }
     }
 
@@ -153,3 +169,5 @@ struct ExplorationTestSheetView: View {
 #Preview {
     QuickTestView()
 }
+
+#endif

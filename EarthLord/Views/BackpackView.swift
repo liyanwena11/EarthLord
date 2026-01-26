@@ -81,5 +81,12 @@ struct BackpackView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("物资背包")
+        // ✅ Day 22：每次页面出现时强制刷新重量计算，确保数据同步
+        .onAppear {
+            manager.updateWeight()
+            print("📦 [BackpackView] 页面出现，当前 \(manager.backpackItems.count) 种物品")
+        }
+        // ✅ 使用 id 强制 SwiftUI 在数据变化时重建列表
+        .id(manager.backpackItems.count)
     }
 }
