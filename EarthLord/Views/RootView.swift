@@ -12,8 +12,8 @@ struct RootView: View {
     /// 启动页是否完成
     @State private var splashFinished = false
 
-    /// 认证管理器
-    @StateObject private var authManager = AuthManager.shared
+    /// 认证管理器（✅ 修复：shared 单例用 @ObservedObject）
+    @ObservedObject private var authManager = AuthManager.shared
 
     var body: some View {
         ZStack {

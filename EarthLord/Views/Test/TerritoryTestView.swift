@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct TerritoryTestView: View {
-
-    @EnvironmentObject var locationManager: LocationManager
+    @StateObject private var engine = EarthLordEngine.shared
     @ObservedObject var logger = TerritoryLogger.shared
     @State private var scrollProxy: ScrollViewProxy?
 
@@ -18,7 +17,7 @@ struct TerritoryTestView: View {
             // Log Display Area
             ScrollViewReader { proxy in
                 ScrollView {
-                    Text(logger.logText.isEmpty ? "No logs yet. Start tracking to see logs." : logger.logText)
+                    Text(logger.logText.isEmpty ? "暂无日志。开始圈地后会显示日志。" : logger.logText)
                         .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,7 +38,7 @@ struct TerritoryTestView: View {
                 }) {
                     HStack {
                         Image(systemName: "trash")
-                        Text("Clear Logs")
+                        Text("清空日志")
                     }
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white)
@@ -52,7 +51,7 @@ struct TerritoryTestView: View {
                 ShareLink(item: logger.export()) {
                     HStack {
                         Image(systemName: "square.and.arrow.up")
-                        Text("Export Logs")
+                        Text("导出日志")
                     }
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white)
@@ -64,10 +63,9 @@ struct TerritoryTestView: View {
             }
             .padding()
         }
-        .navigationTitle("Territory Test")
+        .navigationTitle("领地轨迹日志")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: logger.logText) { oldValue, newValue in
-            // Auto-scroll to bottom when new log arrives
+        .onChange(of: logger.logText) {
             withAnimation {
                 scrollProxy?.scrollTo("logBottom", anchor: .bottom)
             }
@@ -79,14 +77,18 @@ struct TerritoryTestView: View {
     private var statusIndicator: some View {
         HStack(spacing: 12) {
             Circle()
-                .fill(locationManager.isTracking ? Color.green : Color.gray)
+                .fill(Color.green)
                 .frame(width: 12, height: 12)
 
-            Text(locationManager.isTracking ? "● Tracking" : "○ Not Tracking")
+            Text("GPS 日志查看器")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(locationManager.isTracking ? .green : .secondary)
+                .foregroundColor(.primary)
 
             Spacer()
+
+            Text("POI: \(engine.nearbyPOIs.count)")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
     }
 }

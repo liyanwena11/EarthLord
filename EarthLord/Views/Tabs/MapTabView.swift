@@ -10,86 +10,79 @@ struct MapTabView: View {
     @State private var shouldCenterOnUser = false  // ✅ 定位按钮触发器
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // 1. 地图层 - 使用 GeometryReader 确保有明确尺寸
-                MapViewRepresentable(
-                    locationManager: locationManager,
-                    trackingPath: $locationManager.pathCoordinates,
-                    isPathClosed: $locationManager.isPathClosed,
-                    pathUpdateVersion: locationManager.pathUpdateVersion,
-                    shouldCenterOnUser: $shouldCenterOnUser
-                )
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .ignoresSafeArea()
-
-                // 2. UI 叠加层
-                VStack(spacing: 0) {
-                    // 顶部：行走状态栏
-                    WalkingDistanceStatusBar(manager: rewardManager)
-                        .padding(.top, 60)
-                        .padding(.horizontal)
-
-                    Spacer()
-                        .allowsHitTesting(false)
-
-                    // 底部控制区
-                    HStack(spacing: 12) {
-                        // 圈地按钮
-                        Button(action: { locationManager.isTracking.toggle() }) {
-                            VStack {
-                                Image(systemName: locationManager.isTracking ? "stop.fill" : "figure.walk")
-                                Text(locationManager.isTracking ? "停止" : "圈地")
-                            }
-                            .frame(maxWidth: .infinity).frame(height: 60)
-                            .background(locationManager.isTracking ? Color.red : Color.blue)
-                            .foregroundColor(.white).cornerRadius(12)
-                        }
-
-                        // 探索按钮
-                        Button(action: {
-                            isExploring = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                isExploring = false
-                                showExplorationResult = true
-                            }
-                        }) {
-                            VStack {
-                                if isExploring { ProgressView().tint(.white) }
-                                else { Image(systemName: "binoculars.fill"); Text("探索") }
-                            }
-                            .frame(maxWidth: .infinity).frame(height: 60)
-                            .background(isExploring ? Color.gray : Color.orange)
-                            .foregroundColor(.white).cornerRadius(12)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
+        // ✅ 核心修复：使用 overlay 方式叠加 UI，不会阻挡地图触摸
+        MapViewRepresentable(
+            locationManager: locationManager,
+            trackingPath: $locationManager.pathCoordinates,
+            isPathClosed: $locationManager.isPathClosed,
+            pathUpdateVersion: locationManager.pathUpdateVersion,
+            shouldCenterOnUser: $shouldCenterOnUser
+        )
+        .ignoresSafeArea()
+        // ✅ 顶部状态栏
+        .overlay(alignment: .top) {
+            WalkingDistanceStatusBar(manager: rewardManager)
+                .padding(.top, 60)
+                .padding(.horizontal)
+        }
+        // ✅ 接近起点引导横幅
+        .overlay(alignment: .bottom) {
+            VStack(spacing: 8) {
+                // 圈地时的接近起点提示
+                if locationManager.isNearStartPoint {
+                    StartPointGuideBar(distance: locationManager.distanceToStartPoint)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
 
-                // 3. 定位按钮（右下角）
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            shouldCenterOnUser = true
-                            print("📍 [MapTabView] 用户点击定位按钮")
-                        }) {
-                            Image(systemName: "location.fill")
-                                .font(.title2)
-                                .foregroundColor(.blue)
-                                .frame(width: 44, height: 44)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .shadow(radius: 4)
+                // 底部按钮区
+                HStack(spacing: 12) {
+                    Button(action: { locationManager.isTracking.toggle() }) {
+                        VStack {
+                            Image(systemName: locationManager.isTracking ? "stop.fill" : "figure.walk")
+                            Text(locationManager.isTracking ? "停止" : "圈地")
                         }
-                        .padding(.trailing, 20)
-                        .padding(.bottom, 110)
+                        .frame(maxWidth: .infinity).frame(height: 60)
+                        .background(locationManager.isTracking ? Color.red : Color.blue)
+                        .foregroundColor(.white).cornerRadius(12)
+                    }
+
+                    Button(action: {
+                        isExploring = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            isExploring = false
+                            showExplorationResult = true
+                        }
+                    }) {
+                        VStack {
+                            if isExploring { ProgressView().tint(.white) }
+                            else { Image(systemName: "binoculars.fill"); Text("探索") }
+                        }
+                        .frame(maxWidth: .infinity).frame(height: 60)
+                        .background(isExploring ? Color.gray : Color.orange)
+                        .foregroundColor(.white).cornerRadius(12)
                     }
                 }
-                .allowsHitTesting(true)
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 30)
+            .animation(.easeInOut(duration: 0.3), value: locationManager.isNearStartPoint)
+        }
+        // ✅ 定位按钮（右下角）
+        .overlay(alignment: .bottomTrailing) {
+            Button(action: {
+                shouldCenterOnUser = true
+                print("📍 [MapTabView] 用户点击定位按钮")
+            }) {
+                Image(systemName: "location.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+                    .frame(width: 44, height: 44)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .shadow(radius: 4)
+            }
+            .padding(.trailing, 20)
+            .padding(.bottom, 110)
         }
         // 🚀 核心修复：不再引用已删除的 MockData
         .sheet(isPresented: $showExplorationResult) {
@@ -123,7 +116,46 @@ struct MapTabView: View {
     }
 }
 
-// MARK: - ✅ 补全丢失的子组件
+// MARK: - 起点引导横幅
+
+struct StartPointGuideBar: View {
+    let distance: Double
+    @State private var isPulsing = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            // 闪烁圆点
+            Circle()
+                .fill(Color.green)
+                .frame(width: 12, height: 12)
+                .scaleEffect(isPulsing ? 1.4 : 0.8)
+                .opacity(isPulsing ? 0.6 : 1.0)
+                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isPulsing)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("接近起点，请回到起点完成圈地")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
+                Text("距起点 \(Int(distance))m（≤50m 自动闭合）")
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.7))
+            }
+
+            Spacer()
+
+            Image(systemName: "flag.checkered")
+                .font(.title3)
+                .foregroundColor(.green)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color.black.opacity(0.85))
+        .cornerRadius(12)
+        .onAppear { isPulsing = true }
+    }
+}
+
+// MARK: - 行走状态栏
 
 struct WalkingDistanceStatusBar: View {
     @ObservedObject var manager: WalkingRewardManager

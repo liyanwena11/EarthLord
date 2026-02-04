@@ -1,11 +1,9 @@
 import SwiftUI
 
 struct ProfileTabView: View {
-    @StateObject private var authManager = AuthManager.shared
-    @StateObject private var langManager = LanguageManager.shared
-    @StateObject private var walkingRewardManager = WalkingRewardManager.shared
-    @StateObject private var poiService = RealPOIService.shared
-    @EnvironmentObject var locationManager: LocationManager
+    @ObservedObject private var authManager = AuthManager.shared
+    @ObservedObject private var langManager = LanguageManager.shared
+    @StateObject private var engine = EarthLordEngine.shared
     @State private var showDeleteAlert = false
     @State private var deleteConfirmText = ""
     @State private var territoryCount = 0
@@ -27,9 +25,9 @@ struct ProfileTabView: View {
 
                     // 2. 数据行
                     HStack(spacing: 0) {
-                        StatItem(icon: "flag.fill", value: "\(territoryCount)", label: "领地")
-                        StatItem(icon: "mappin.circle.fill", value: "\(poiService.realPOIs.count)", label: "资源点")
-                        StatItem(icon: "figure.walk", value: "\(Int(walkingRewardManager.totalWalkingDistance))", label: "探索距离")
+                        StatItem(icon: "flag.fill", value: "\(engine.claimedTerritories.count)", label: "领地")
+                        StatItem(icon: "mappin.circle.fill", value: "\(engine.nearbyPOIs.count)", label: "资源点")
+                        StatItem(icon: "person.2.fill", value: "\(engine.nearbyPlayerCount)", label: "附近人数")
                     }.padding(.vertical, 20)
 
                     // 3. 菜单
@@ -73,18 +71,6 @@ struct ProfileTabView: View {
             Button("取消", role: .cancel) { deleteConfirmText = "" }
         } message: {
             Text("警告：此操作不可逆！您的所有数据将被永久删除。")
-        }
-        .onAppear {
-            // 加载领地数量
-            Task {
-                if let territories = try? await TerritoryManager.shared.loadMyTerritories() {
-                    territoryCount = territories.count
-                }
-            }
-            // 触发 POI 搜索（如果尚未搜索）
-            if poiService.realPOIs.isEmpty {
-                poiService.searchNearbyRealPOI(userLocation: locationManager.userLocation?.coordinate)
-            }
         }
     }
 }

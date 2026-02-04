@@ -6,18 +6,58 @@ class ExplorationManager: ObservableObject {
     static let shared = ExplorationManager()
 
     // 背包物品
-    @Published var backpackItems: [BackpackItem] = []
+    @Published var backpackItems: [BackpackItem] = [] {
+        didSet {
+            if !isLoadingFromStorage { saveToLocal() }
+        }
+    }
     // 当前总重量
     @Published var totalWeight: Double = 0
     // 最大容量
     @Published var maxCapacity: Double = 100.0
 
     private let supabase = supabaseClient
+    private static let localStorageKey = "EarthLord_BackpackItems"
+    private var isLoadingFromStorage = false
 
     private init() {
-        // ✅ 从 Supabase 加载真实数据
+        // 优先从本地加载（秒开）
+        loadFromLocal()
+        // 然后异步从 Supabase 同步（有网时覆盖本地）
         Task { @MainActor in
             await loadBackpackFromSupabase()
+        }
+    }
+
+    // MARK: - 本地持久化（UserDefaults + JSON）
+
+    /// 保存背包到本地
+    private func saveToLocal() {
+        do {
+            let data = try JSONEncoder().encode(backpackItems)
+            UserDefaults.standard.set(data, forKey: Self.localStorageKey)
+            print("💾 [本地] 背包已保存，\(backpackItems.count) 种物品")
+        } catch {
+            print("❌ [本地] 保存背包失败：\(error)")
+        }
+    }
+
+    /// 从本地加载背包
+    private func loadFromLocal() {
+        guard let data = UserDefaults.standard.data(forKey: Self.localStorageKey) else {
+            print("📦 [本地] 无本地背包数据")
+            return
+        }
+        do {
+            isLoadingFromStorage = true
+            let items = try JSONDecoder().decode([BackpackItem].self, from: data)
+            self.backpackItems = items
+            isLoadingFromStorage = false
+            updateWeight()
+            print("📦 [本地] 从本地加载 \(items.count) 种物品")
+        } catch {
+            isLoadingFromStorage = false
+            print("❌ [本地] 加载背包失败：\(error)")
         }
     }
 
@@ -43,6 +83,7 @@ class ExplorationManager: ObservableObject {
                 .value
 
             // 将 Supabase 数据转换为 BackpackItem
+            isLoadingFromStorage = true
             self.backpackItems = response.compactMap { dbItem in
                 guard let template = getItemTemplate(itemId: dbItem.item_id) else {
                     print("⚠️ 未知物品 ID: \(dbItem.item_id)")
@@ -61,11 +102,14 @@ class ExplorationManager: ObservableObject {
                 )
             }
 
+            isLoadingFromStorage = false
+            saveToLocal()
             updateWeight()
             print("📦 从云端加载 \(backpackItems.count) 种物品")
         } catch {
-            print("❌ 加载背包数据失败：\(error)")
-            self.backpackItems = []
+            isLoadingFromStorage = false
+            print("❌ 加载背包数据失败：\(error.localizedDescription)，使用本地数据")
+            // 不清空 - 保留本地数据
             updateWeight()
         }
     }
@@ -107,8 +151,9 @@ class ExplorationManager: ObservableObject {
             } else {
                 backpackItems.remove(at: index)
             }
-            // 使用后立即重新计算重量，触发界面刷新
             updateWeight()
+            objectWillChange.send()
+            print("🔧 [使用] \(item.name)，剩余 \(backpackItems.first(where: { $0.id == item.id })?.quantity ?? 0)")
         }
     }
 
@@ -139,7 +184,10 @@ class ExplorationManager: ObservableObject {
                     quantity: newItem.quantity,
                     weight: newItem.weight,
                     quality: newItem.quality,
-                    icon: newItem.icon
+                    icon: newItem.icon,
+                    backstory: newItem.backstory,
+                    isAIGenerated: newItem.isAIGenerated,
+                    itemRarity: newItem.itemRarity
                 )
                 backpackItems.append(itemToAdd)
                 print("📦 新增物品：\(newItem.name) x\(newItem.quantity)")

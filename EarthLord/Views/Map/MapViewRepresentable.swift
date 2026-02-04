@@ -17,7 +17,6 @@ class POIAnnotation: NSObject, MKAnnotation {
 
 struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var locationManager: LocationManager
-    @ObservedObject var poiService = RealPOIService.shared  // ✅ Day 22：观察 POI 服务
     @Binding var trackingPath: [CLLocationCoordinate2D]
     @Binding var isPathClosed: Bool
     var pathUpdateVersion: Int
@@ -112,8 +111,12 @@ struct MapViewRepresentable: UIViewRepresentable {
             mapView.setRegion(region, animated: true)
         }
 
-        // 6. ✅ Day 22：更新 POI 标注点
-        updatePOIAnnotations(on: mapView)
+        // 6. ✅ Day 22：更新 POI 标注点（优化：仅在数量变化时更新）
+        let currentPOICount = mapView.annotations.filter { $0 is POIAnnotation }.count
+        let newPOICount = RealPOIService.shared.realPOIs.count
+        if currentPOICount != newPOICount {
+            updatePOIAnnotations(on: mapView)
+        }
     }
 
     // MARK: - ✅ Day 22：POI 标注点更新逻辑
@@ -124,7 +127,7 @@ struct MapViewRepresentable: UIViewRepresentable {
         mapView.removeAnnotations(oldAnnotations)
 
         // 添加新的 POI 标注
-        for poi in poiService.realPOIs {
+        for poi in RealPOIService.shared.realPOIs {
             let annotation = POIAnnotation(poi: poi)
             mapView.addAnnotation(annotation)
         }

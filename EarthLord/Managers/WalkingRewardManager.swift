@@ -61,6 +61,11 @@ class WalkingRewardManager: ObservableObject {
     func updateDistance(newLocation: CLLocation) {
         let now = Date()
 
+        // ✅ GPS 异常点过滤：丢弃精度差的点
+        if newLocation.horizontalAccuracy > 50 {
+            return
+        }
+
         // 首次定位，初始化采样点
         guard let sampleLoc = lastSampleLocation, let sampleTime = lastSampleTime else {
             print("⚪️ [奖励系统] 首次定位，初始化采样点")
@@ -85,14 +90,24 @@ class WalkingRewardManager: ObservableObject {
         print("📍 [奖励系统] 采样起点: (\(sampleLoc.coordinate.latitude), \(sampleLoc.coordinate.longitude))")
         print("📍 [奖励系统] 采样终点: (\(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude))")
 
-        // 计算 10 秒内的真实位移距离
+        // 计算采样周期内的真实位移距离
         let distanceMoved = newLocation.distance(from: sampleLoc)
 
-        // 计算平均速度（10 秒内的平均速度）
+        // ✅ GPS 跳点过滤：采样周期内位移超过 200m 视为异常
+        if distanceMoved > 200 {
+            print("⚠️ [奖励系统] GPS 跳点！位移 \(String(format: "%.1f", distanceMoved))m，丢弃并重置采样点")
+            lastSampleLocation = newLocation
+            lastSampleTime = now
+            lastLocation = newLocation
+            lastUpdateTime = now
+            return
+        }
+
+        // 计算平均速度
         let averageSpeed = distanceMoved / timeSinceLastSample  // 米/秒
         let averageSpeedKmH = averageSpeed * 3.6  // 转换为 km/h
 
-        print("🚶 [奖励系统] 10 秒位移: \(String(format: "%.2f", distanceMoved))m")
+        print("🚶 [奖励系统] 采样位移: \(String(format: "%.2f", distanceMoved))m")
         print("🚶 [奖励系统] 平均速度: \(String(format: "%.1f", averageSpeedKmH)) km/h")
 
         // ✅ 速度检测：30 km/h 限制

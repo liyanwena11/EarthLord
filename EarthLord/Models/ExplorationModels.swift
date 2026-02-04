@@ -120,7 +120,7 @@ struct POIPoint: Identifiable {
 // MARK: - 物品相关模型
 
 /// 物品品质
-enum ItemQuality: String {
+enum ItemQuality: String, Codable {
     case poor = "破损"
     case normal = "普通"
     case good = "良好"
@@ -128,7 +128,7 @@ enum ItemQuality: String {
 }
 
 /// 物品类型
-enum ItemCategory: String {
+enum ItemCategory: String, Codable {
     case water = "水"
     case food = "食物"
     case medical = "医疗"
@@ -137,7 +137,7 @@ enum ItemCategory: String {
 }
 
 /// 物品稀有度
-enum ItemRarity: String {
+enum ItemRarity: String, Codable {
     case common = "常见"
     case uncommon = "罕见"
     case rare = "稀有"
@@ -145,7 +145,7 @@ enum ItemRarity: String {
 }
 
 /// 背包物品
-struct BackpackItem: Identifiable {
+struct BackpackItem: Identifiable, Codable {
     let id: String
     let itemId: String           // 物品ID
     let name: String             // 中文名称
@@ -154,6 +154,9 @@ struct BackpackItem: Identifiable {
     let weight: Double           // 单个重量（kg）
     let quality: ItemQuality?    // 品质（部分物品没有品质）
     let icon: String             // 图标名称
+    var backstory: String?       // AI 生成的背景故事
+    var isAIGenerated: Bool = false  // 是否为 AI 生成
+    var itemRarity: POIRarity?   // 物品稀有度（AI 掉落用）
 
     /// 总重量
     var totalWeight: Double {

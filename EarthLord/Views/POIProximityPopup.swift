@@ -174,15 +174,18 @@ struct POIProximityPopup: View {
         .sheet(isPresented: $showResult) {
             QuickLootResultView(lootItems: lootedItems)
         }
-        .task {
-            await checkCooldown()
+        .onAppear {
+            // ✅ 简化：使用本地冷却状态，不依赖网络请求
+            if !poi.isLootable {
+                cooldownMessage = poi.cooldownString
+            }
         }
     }
 
     // MARK: - Computed Properties
 
     private var canLoot: Bool {
-        poi.status != .looted && cooldownMessage == nil
+        poi.isLootable && poi.status != .looted && cooldownMessage == nil
     }
 
     private var dangerColor: Color {
@@ -203,13 +206,6 @@ struct POIProximityPopup: View {
     }
 
     // MARK: - Methods
-
-    private func checkCooldown() async {
-        let canLootPOI = await ExplorationManager.shared.canLootPOI(poi.id)
-        if !canLootPOI {
-            cooldownMessage = "冷却中，24小时后可再次搜刮"
-        }
-    }
 
     private func performLoot() {
         isLooting = true

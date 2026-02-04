@@ -61,6 +61,7 @@ class RealPOIService: ObservableObject {
             }
             self.isScanning = false
             print("🗺️ POI搜索完成：找到 \(self.realPOIs.count) 个地点")
+            print("🎯 [POI搜索] POI 列表已更新，距离检测将自动生效")
         }
     }
 

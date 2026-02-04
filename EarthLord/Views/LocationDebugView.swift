@@ -1,172 +1,311 @@
-//
-//  LocationDebugView.swift
-//  EarthLord
-//
-//  位置调试视图 - 用于测试 GPS、行走奖励和 POI 弹窗
-//
-
 import SwiftUI
 import CoreLocation
 
 struct LocationDebugView: View {
-    @EnvironmentObject var locationManager: LocationManager
-    @ObservedObject var walkingRewardManager = WalkingRewardManager.shared
-    @ObservedObject var poiService = RealPOIService.shared  // ✅ Day 22：观察 POI 服务
+    @StateObject private var engine = EarthLordEngine.shared
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("位置调试面板")
-                    .font(.title.bold())
-                    .padding()
+            VStack(alignment: .leading, spacing: 16) {
+                Text("开发测试面板")
+                    .font(.title2.bold())
+                    .foregroundColor(.orange)
+                    .padding(.horizontal)
 
-                // LocationManager 状态
-                GroupBox(label: Label("LocationManager 状态", systemImage: "location.circle.fill")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("当前位置: \(locationManager.userLocation?.coordinate.latitude ?? 0), \(locationManager.userLocation?.coordinate.longitude ?? 0)")
-                            .font(.caption)
-
-                        Text("是否追踪: \(locationManager.isTracking ? "是" : "否")")
-                            .font(.caption)
-
-                        Text("路径点数: \(locationManager.pathCoordinates.count)")
-                            .font(.caption)
-                    }
-                    .padding(8)
-                }
-
-                // WalkingRewardManager 状态
-                GroupBox(label: Label("行走奖励状态", systemImage: "figure.walk")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("累计距离: \(String(format: "%.2f", walkingRewardManager.totalWalkingDistance)) 米")
-                            .font(.caption.bold())
-                            .foregroundColor(.orange)
-
-                        Text("已解锁等级: \(walkingRewardManager.unlockedTiers.count) 个")
-                            .font(.caption)
-
-                        if let nextTier = walkingRewardManager.nextTier {
-                            Text("下一等级: \(nextTier.displayName) (\(Int(nextTier.distance))m)")
-                                .font(.caption)
+                // MARK: - GPS 状态
+                GroupBox(label: Label("GPS 状态", systemImage: "location.circle.fill")) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        if let loc = engine.userLocation {
+                            Text("纬度: \(String(format: "%.6f", loc.coordinate.latitude))")
+                            Text("经度: \(String(format: "%.6f", loc.coordinate.longitude))")
+                            Text("精度: \(String(format: "%.1f", loc.horizontalAccuracy))m")
+                        } else {
+                            Text("正在等待 GPS 信号...").foregroundColor(.orange)
                         }
                     }
-                    .padding(8)
+                    .font(.caption)
+                    .padding(4)
                 }
+                .padding(.horizontal)
 
-                // ✅ Day 22：POI 状态
-                GroupBox(label: Label("POI 状态", systemImage: "mappin.circle.fill")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("已加载 POI: \(poiService.realPOIs.count) 个")
-                            .font(.caption)
-
-                        let lootable = poiService.realPOIs.filter { $0.isLootable }.count
-                        Text("可搜刮: \(lootable) 个")
-                            .font(.caption)
-                            .foregroundColor(.green)
-
-                        Text("冷却中: \(poiService.realPOIs.count - lootable) 个")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-
-                        Text("弹窗状态: \(locationManager.showPOIPopup ? "显示中" : "隐藏")")
-                            .font(.caption)
-                            .foregroundColor(locationManager.showPOIPopup ? .green : .secondary)
-                    }
-                    .padding(8)
-                }
-
-                // 手动测试按钮
-                Button(action: {
-                    print("🧪 [调试] 手动触发位置读取")
-                    if let loc = locationManager.userLocation {
-                        print("🧪 [调试] 当前位置: \(loc.coordinate.latitude), \(loc.coordinate.longitude)")
-                        Task { @MainActor in
-                            WalkingRewardManager.shared.updateDistance(newLocation: loc)
+                // MARK: - 游戏状态
+                GroupBox(label: Label("游戏状态", systemImage: "gamecontroller.fill")) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("POI 数量:").foregroundColor(.secondary)
+                            Text("\(engine.nearbyPOIs.count)").bold()
+                            Spacer()
+                            Text("可搜刮:").foregroundColor(.secondary)
+                            Text("\(engine.nearbyPOIs.filter { !$0.isScavenged }.count)").bold().foregroundColor(.green)
                         }
+                        HStack {
+                            Text("领地数量:").foregroundColor(.secondary)
+                            Text("\(engine.claimedTerritories.count)").bold()
+                            Spacer()
+                            Text("附近人数:").foregroundColor(.secondary)
+                            Text("\(engine.nearbyPlayerCount)").bold()
+                        }
+                        HStack {
+                            Text("探索状态:").foregroundColor(.secondary)
+                            Text(engine.isExploring ? "扫描中..." : "待机")
+                                .foregroundColor(engine.isExploring ? .yellow : .gray)
+                                .bold()
+                            Spacer()
+                            Text("弹窗:").foregroundColor(.secondary)
+                            Text(engine.showProximityAlert ? "显示中" : "隐藏")
+                                .foregroundColor(engine.showProximityAlert ? .green : .gray)
+                        }
+                    }
+                    .font(.caption)
+                    .padding(4)
+                }
+                .padding(.horizontal)
+
+                // MARK: - POI 列表预览
+                if !engine.nearbyPOIs.isEmpty {
+                    GroupBox(label: Label("POI 列表", systemImage: "mappin.circle.fill")) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            ForEach(engine.nearbyPOIs) { poi in
+                                HStack {
+                                    Circle()
+                                        .fill(poi.rarity.color)
+                                        .frame(width: 8, height: 8)
+                                    Text(poi.name).font(.caption)
+                                    Spacer()
+                                    Text(poi.rarity.rawValue)
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(poi.rarity.color)
+                                    if poi.isScavenged {
+                                        Text("已搜刮").font(.system(size: 9)).foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(4)
+                    }
+                    .padding(.horizontal)
+                }
+
+                Divider().padding(.horizontal)
+
+                // MARK: - 操作按钮
+
+                Text("调试操作").font(.caption).foregroundColor(.gray).padding(.horizontal)
+
+                // 生成 POI
+                DebugButton(title: "生成 1 个测试 POI", icon: "plus.circle.fill", color: .blue) {
+                    engine.createTestPOI()
+                }
+
+                // 批量生成
+                DebugButton(title: "批量生成 5 个 POI", icon: "plus.circle.fill", color: .indigo) {
+                    engine.createMultipleTestPOIs(count: 5)
+                }
+
+                // 开始/停止采样圈地
+                DebugButton(
+                    title: engine.isTracking ? "停止采样圈地" : "开始采样圈地",
+                    icon: engine.isTracking ? "stop.fill" : "flag.2.crossed.fill",
+                    color: engine.isTracking ? .orange : .red
+                ) {
+                    if engine.isTracking {
+                        engine.stopTracking()
                     } else {
-                        print("🧪 [调试] locationManager.userLocation 为 nil")
+                        engine.startTracking()
                     }
-                }) {
-                    Label("手动测试位置更新", systemImage: "arrow.clockwise")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                 }
-                .padding(.horizontal)
 
-                // ✅ Day 22：一键模拟进入 POI 范围
-                Button(action: {
-                    // 先确保有 POI 数据
-                    if poiService.realPOIs.isEmpty {
-                        print("🧪 [调试] POI 列表为空，先搜索附近 POI...")
-                        poiService.searchNearbyRealPOI(userLocation: locationManager.userLocation?.coordinate)
-                        // 延迟触发弹窗
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                            locationManager.simulateEnterPOI()
-                        }
-                    } else {
-                        locationManager.simulateEnterPOI()
+                // 强制完成圈地
+                if engine.isTracking && engine.pathPoints.count >= 3 {
+                    DebugButton(title: "强制完成圈地（\(engine.pathPoints.count)点）", icon: "checkmark.circle.fill", color: .green) {
+                        engine.forceFinishTracking()
                     }
-                }) {
-                    Label("一键模拟进入 POI 范围", systemImage: "mappin.and.ellipse")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.orange)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                 }
-                .padding(.horizontal)
 
-                // ✅ Day 22：搜索附近 POI
-                Button(action: {
-                    print("🧪 [调试] 搜索附近 POI")
-                    poiService.searchNearbyRealPOI(userLocation: locationManager.userLocation?.coordinate)
-                }) {
-                    Label("搜索附近 POI", systemImage: "magnifyingglass")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.purple)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                // 快速圈地（旧）
+                DebugButton(title: "快速圈地（单点）", icon: "flag.2.crossed.fill", color: .gray) {
+                    engine.claimTerritory()
                 }
-                .padding(.horizontal)
+
+                // 模拟搜刮最近 POI
+                DebugButton(title: "强行搜刮最近 POI", icon: "shippingbox.fill", color: .purple) {
+                    forceScavengeNearest()
+                }
+
+                // 强行触发搜刮弹窗
+                DebugButton(title: "模拟进入 POI 范围（弹窗）", icon: "mappin.and.ellipse", color: .orange) {
+                    simulateEnterPOI()
+                }
+
+                // 刷新所有 POI
+                DebugButton(title: "刷新所有已搜刮 POI", icon: "arrow.clockwise", color: .green) {
+                    refreshAllPOIs()
+                }
 
                 // 打印完整状态
-                Button(action: {
-                    print("📊📊📊 [调试] ========== 完整状态 ==========")
-                    print("📍 userLocation: \(locationManager.userLocation?.coordinate ?? CLLocationCoordinate2D())")
-                    print("📊 totalWalkingDistance: \(walkingRewardManager.totalWalkingDistance)")
-                    print("🏆 unlockedTiers: \(walkingRewardManager.unlockedTiers)")
-                    print("🗺️ POI 数量: \(poiService.realPOIs.count)")
-                    print("🎯 弹窗状态: \(locationManager.showPOIPopup)")
-                }) {
-                    Label("打印完整状态到 Console", systemImage: "doc.text")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                DebugButton(title: "打印完整状态到 Console", icon: "doc.text", color: .mint) {
+                    printFullStatus()
                 }
-                .padding(.horizontal)
 
-                // 重置每日进度
-                Button(action: {
-                    walkingRewardManager.resetDailyProgress()
-                    print("🔄 [调试] 每日进度已重置")
-                }) {
-                    Label("重置每日进度", systemImage: "arrow.counterclockwise")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                // 测试掉落物品（预设）
+                DebugButton(title: "测试掉落（预设物品）", icon: "gift.fill", color: .yellow) {
+                    testLootDrop()
                 }
-                .padding(.horizontal)
 
-                Spacer()
+                // 测试 AI 掉落
+                DebugButton(title: "测试 AI 搜刮", icon: "brain.fill", color: .purple) {
+                    testAILoot()
+                }
+
+                // 查看背包
+                DebugButton(title: "打印背包内容", icon: "bag.fill", color: .cyan) {
+                    printBackpack()
+                }
+
+                // 清空背包
+                DebugButton(title: "清空背包", icon: "trash.circle", color: .pink) {
+                    ExplorationManager.shared.clearBackpack()
+                    print("🗑️ [调试] 已清空背包")
+                }
+
+                // 清空所有数据
+                DebugButton(title: "清空所有 POI 和领地", icon: "trash", color: .red) {
+                    engine.nearbyPOIs.removeAll()
+                    engine.claimedTerritories.removeAll()
+                    engine.showProximityAlert = false
+                    engine.activePOI = nil
+                    print("🗑️ [调试] 已清空所有数据")
+                }
+
+                Spacer().frame(height: 50)
+            }
+            .padding(.top)
+        }
+        .navigationTitle("开发测试")
+    }
+
+    // MARK: - 调试方法
+
+    private func forceScavengeNearest() {
+        guard let poi = engine.nearbyPOIs.first(where: { !$0.isScavenged }) else {
+            print("🧪 [调试] 没有可搜刮的 POI")
+            return
+        }
+        if let index = engine.nearbyPOIs.firstIndex(where: { $0.id == poi.id }) {
+            engine.nearbyPOIs[index].isScavenged = true
+            engine.nearbyPOIs[index].lastScavengedAt = Date()
+            print("🧪 [调试] 强行搜刮：\(poi.name)")
+        }
+    }
+
+    private func simulateEnterPOI() {
+        guard let poi = engine.nearbyPOIs.first(where: { !$0.isScavenged }) ?? engine.nearbyPOIs.first else {
+            print("🧪 [调试] 没有 POI 可模拟，先生成一个")
+            engine.createTestPOI()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if let newPOI = engine.nearbyPOIs.last {
+                    engine.activePOI = newPOI
+                    engine.showProximityAlert = true
+                    print("🧪 [调试] 模拟进入 POI 范围：\(newPOI.name)")
+                }
+            }
+            return
+        }
+        engine.activePOI = poi
+        engine.showProximityAlert = true
+        print("🧪 [调试] 模拟进入 POI 范围：\(poi.name)")
+    }
+
+    private func refreshAllPOIs() {
+        var count = 0
+        for index in engine.nearbyPOIs.indices {
+            if engine.nearbyPOIs[index].isScavenged {
+                engine.nearbyPOIs[index].isScavenged = false
+                engine.nearbyPOIs[index].lastScavengedAt = nil
+                count += 1
             }
         }
+        print("🔄 [调试] 已刷新 \(count) 个 POI")
+    }
+
+    private func testAILoot() {
+        engine.createTestPOI()
+        guard let poi = engine.nearbyPOIs.last else { return }
+        engine.activePOI = poi
+        Task {
+            let items = await engine.scavengeWithAI()
+            print("🤖 [调试] AI 搜刮结果（\(poi.rarity.rawValue)）：")
+            for item in items {
+                print("  🤖 \(item.name) [AI:\(item.isAIGenerated)] \(item.weight)kg")
+                if let story = item.backstory {
+                    print("     📜 \(story)")
+                }
+            }
+        }
+    }
+
+    private func testLootDrop() {
+        let rarities: [POIRarity] = [.common, .rare, .epic, .legendary]
+        let rarity = rarities.randomElement()!
+        // 创建一个临时 POI 用来测试掉落
+        engine.createTestPOI()
+        if let lastPOI = engine.nearbyPOIs.last {
+            var testPOI = lastPOI
+            testPOI.rarity = rarity
+            if let index = engine.nearbyPOIs.firstIndex(where: { $0.id == testPOI.id }) {
+                engine.nearbyPOIs[index] = testPOI
+            }
+            engine.activePOI = testPOI
+            let items = engine.scavengeWithLoot()
+            print("🧪 [调试] 测试掉落（\(rarity.rawValue)）：\(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+        }
+    }
+
+    private func printBackpack() {
+        let backpack = ExplorationManager.shared
+        print("🎒🎒🎒 [调试] ========== 背包内容 ==========")
+        print("📦 物品种类: \(backpack.backpackItems.count)")
+        print("⚖️ 总重量: \(String(format: "%.1f", backpack.totalWeight)) / \(Int(backpack.maxCapacity)) kg")
+        for item in backpack.backpackItems {
+            print("  📦 \(item.name) [\(item.category.rawValue)] x\(item.quantity) = \(String(format: "%.1f", item.totalWeight))kg")
+        }
+        print("🎒🎒🎒 ========== 背包结束 ==========")
+    }
+
+    private func printFullStatus() {
+        print("📊📊📊 [调试] ========== 完整状态 ==========")
+        print("📍 GPS: \(engine.userLocation?.coordinate.latitude ?? 0), \(engine.userLocation?.coordinate.longitude ?? 0)")
+        print("📍 精度: \(engine.userLocation?.horizontalAccuracy ?? -1)m")
+        print("🗺️ POI 总数: \(engine.nearbyPOIs.count)")
+        print("🗺️ 可搜刮: \(engine.nearbyPOIs.filter { !$0.isScavenged }.count)")
+        print("🚩 领地数: \(engine.claimedTerritories.count)")
+        print("👥 附近人数: \(engine.nearbyPlayerCount)")
+        print("🎯 弹窗状态: \(engine.showProximityAlert)")
+        print("📡 探索中: \(engine.isExploring)")
+        for (i, poi) in engine.nearbyPOIs.enumerated() {
+            print("  POI[\(i)]: \(poi.name) (\(poi.rarity.rawValue)) 搜刮:\(poi.isScavenged) 坐标:(\(String(format: "%.5f", poi.latitude)),\(String(format: "%.5f", poi.longitude)))")
+        }
+        print("📊📊📊 ========== 状态结束 ==========")
+    }
+}
+
+// MARK: - 调试按钮样式
+
+struct DebugButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(color.opacity(0.85))
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
+        .padding(.horizontal)
     }
 }

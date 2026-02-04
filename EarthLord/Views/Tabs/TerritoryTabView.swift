@@ -1,25 +1,21 @@
 import SwiftUI
 
 struct TerritoryTabView: View {
-    @State private var territories: [Territory] = []
-    @State private var isLoading = true
+    @StateObject private var engine = EarthLordEngine.shared
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // MARK: - 顶部统计区（两个横向卡片）
+                    // MARK: - 顶部统计
                     HStack(spacing: 15) {
-                        // 左侧：领地数量
                         StatCard(
                             icon: "flag.fill",
                             iconColor: .green,
                             title: "领地数量",
-                            value: "\(territories.count)",
+                            value: "\(engine.claimedTerritories.count)",
                             unit: "块"
                         )
-
-                        // 右侧：总面积
                         StatCard(
                             icon: "map.fill",
                             iconColor: .blue,
@@ -30,27 +26,18 @@ struct TerritoryTabView: View {
                     }
                     .padding(.horizontal)
 
-                    // MARK: - 列表区域
+                    // MARK: - 领地列表
                     VStack(alignment: .leading, spacing: 12) {
                         Text("我的领地")
                             .font(.headline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
 
-                        if isLoading {
-                            // 加载中
-                            ProgressView("加载中...")
-                                .frame(maxWidth: .infinity, minHeight: 200)
-                        } else if territories.isEmpty {
-                            // 空状态
+                        if engine.claimedTerritories.isEmpty {
                             EmptyTerritoryView()
                         } else {
-                            // 领地列表
-                            ForEach(territories) { territory in
-                                NavigationLink(destination: TerritoryDetailView(territory: territory)) {
-                                    TerritoryCard(territory: territory)
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                            ForEach(engine.claimedTerritories) { territory in
+                                LocalTerritoryCard(territory: territory)
                             }
                             .padding(.horizontal)
                         }
@@ -60,27 +47,11 @@ struct TerritoryTabView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("领地管理")
-            .refreshable {
-                await loadTerritories()
-            }
-            .task {
-                await loadTerritories()
-            }
         }
     }
 
-    // MARK: - 计算属性
-
     private var totalArea: Double {
-        territories.reduce(0) { $0 + $1.area }
-    }
-
-    // MARK: - 方法
-
-    private func loadTerritories() async {
-        isLoading = true
-        territories = (try? await TerritoryManager.shared.loadMyTerritories()) ?? []
-        isLoading = false
+        engine.claimedTerritories.reduce(0) { $0 + $1.area }
     }
 
     private func formatArea(_ area: Double) -> String {
@@ -92,7 +63,69 @@ struct TerritoryTabView: View {
     }
 }
 
-// MARK: - 统计卡片组件
+// MARK: - 实时领地卡片
+
+struct LocalTerritoryCard: View {
+    let territory: TerritoryModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                HStack(spacing: 10) {
+                    Image(systemName: "flag.checkered")
+                        .font(.title3)
+                        .foregroundColor(.orange)
+                        .frame(width: 36, height: 36)
+                        .background(Color.orange.opacity(0.15))
+                        .cornerRadius(8)
+
+                    Text(territory.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Text("\(Int(territory.area)) ㎡")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.blue)
+            }
+
+            Divider()
+                .padding(.vertical, 10)
+
+            HStack {
+                HStack(spacing: 4) {
+                    Image(systemName: "mappin.circle").font(.caption)
+                    Text("采样点: \(territory.pointCount) 个").font(.caption)
+                }
+                .foregroundColor(.secondary)
+
+                Spacer()
+
+                HStack(spacing: 4) {
+                    Image(systemName: "clock").font(.caption)
+                    Text(formatDate(territory.claimedAt)).font(.caption)
+                }
+                .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd HH:mm"
+        return formatter.string(from: date)
+    }
+}
+
+// MARK: - 统计卡片
 
 struct StatCard: View {
     let icon: String
@@ -103,7 +136,6 @@ struct StatCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 图标
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundColor(iconColor)
@@ -111,21 +143,11 @@ struct StatCard: View {
                 .background(iconColor.opacity(0.15))
                 .cornerRadius(10)
 
-            // 标题
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            Text(title).font(.caption).foregroundColor(.secondary)
 
-            // 数值
             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(value)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-
-                Text(unit)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(value).font(.title).fontWeight(.bold).foregroundColor(.primary)
+                Text(unit).font(.caption).foregroundColor(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -136,103 +158,7 @@ struct StatCard: View {
     }
 }
 
-// MARK: - 领地卡片组件
-
-struct TerritoryCard: View {
-    let territory: Territory
-
-    var body: some View {
-        VStack(spacing: 0) {
-            // 上半部分：标题 + 面积
-            HStack {
-                // 左侧：图标 + 标题
-                HStack(spacing: 10) {
-                    Image(systemName: "flag.checkered")
-                        .font(.title3)
-                        .foregroundColor(.orange)
-                        .frame(width: 36, height: 36)
-                        .background(Color.orange.opacity(0.15))
-                        .cornerRadius(8)
-
-                    Text(territory.name ?? "未命名领地")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                }
-
-                Spacer()
-
-                // 右侧：面积
-                Text("\(Int(territory.area)) ㎡")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.blue)
-            }
-
-            Divider()
-                .padding(.vertical, 10)
-
-            // 下半部分：点数 + 日期
-            HStack {
-                // 左下角：采样点数
-                HStack(spacing: 4) {
-                    Image(systemName: "mappin.circle")
-                        .font(.caption)
-                    Text("采样点: \(territory.pointCount ?? 0) 个")
-                        .font(.caption)
-                }
-                .foregroundColor(.secondary)
-
-                Spacer()
-
-                // 右下角：日期时间
-                HStack(spacing: 4) {
-                    Image(systemName: "clock")
-                        .font(.caption)
-                    Text(formatDate())
-                        .font(.caption)
-                }
-                .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
-    }
-
-    private func formatDate() -> String {
-        // 使用 Territory 的 createdAt 字段
-        guard let dateString = territory.createdAt else {
-            return "未知时间"
-        }
-
-        // 解析 ISO 格式日期
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        // 尝试多种格式
-        var date: Date?
-        if let parsed = isoFormatter.date(from: dateString) {
-            date = parsed
-        } else {
-            // 简化格式 "2026-01-13T15:30:00"
-            let simpleFormatter = DateFormatter()
-            simpleFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            date = simpleFormatter.date(from: dateString)
-        }
-
-        guard let finalDate = date else {
-            return dateString.prefix(10).replacingOccurrences(of: "-", with: "/")
-        }
-
-        let displayFormatter = DateFormatter()
-        displayFormatter.dateFormat = "MM-dd HH:mm"
-        return displayFormatter.string(from: finalDate)
-    }
-}
-
-// MARK: - 空状态视图
+// MARK: - 空状态
 
 struct EmptyTerritoryView: View {
     var body: some View {
@@ -240,15 +166,9 @@ struct EmptyTerritoryView: View {
             Image(systemName: "map")
                 .font(.system(size: 60))
                 .foregroundColor(.gray.opacity(0.5))
-
-            Text("暂无领地")
-                .font(.title3)
-                .fontWeight(.medium)
-                .foregroundColor(.secondary)
-
-            Text("快去地图页面圈地吧！")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            Text("暂无领地").font(.title3).fontWeight(.medium).foregroundColor(.secondary)
+            Text("前往地图页面，点击「圈地」按钮开始行走采样！")
+                .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, minHeight: 250)
         .padding()
@@ -256,8 +176,4 @@ struct EmptyTerritoryView: View {
         .cornerRadius(16)
         .padding(.horizontal)
     }
-}
-
-#Preview {
-    TerritoryTabView()
 }

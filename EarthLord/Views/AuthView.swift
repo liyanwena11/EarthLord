@@ -2,8 +2,8 @@ import SwiftUI
 import AuthenticationServices
 
 struct AuthView: View {
-    // 监听我们刚才改好的大脑
-    @StateObject private var authManager = AuthManager.shared
+    // 监听我们刚才改好的大脑（✅ 修复：shared 单例用 @ObservedObject）
+    @ObservedObject private var authManager = AuthManager.shared
     
     @State private var email = ""
     @State private var password = ""
