@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct MoreTabView: View {
     @AppStorage("push_notifications") private var pushEnabled = true
@@ -20,14 +21,6 @@ struct MoreTabView: View {
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 25) {
-
-                            // ✅ Day 22：开发者测试入口（恢复）
-                            SectionHeader(icon: "wrench.and.screwdriver.fill", title: "Developer Tools", subtitle: "Test and debug features")
-
-                            NavigationLink(destination: TestMenuView()) {
-                                QuickAccessButton(icon: "testtube.2", title: "Development Tests", color: .purple)
-                            }
-                            .buttonStyle(PlainButtonStyle())
 
                             // 快捷访问
                             SectionHeader(icon: "star.fill", title: "Quick Access", subtitle: "Quick access to common features")
@@ -68,6 +61,14 @@ struct MoreTabView: View {
 
                             // 数据与隐私
                             SectionHeader(icon: "shield.lefthalf.filled", title: "Data & Privacy", subtitle: "Manage your data and privacy settings")
+
+                            VStack(spacing: 1) {
+                                SettingLinkRow(icon: "globe.fill", title: "技术支持", subtitle: "访问我们的技术支持网站", url: URL(string: "https://liyanwena11.github.io/earthlord-support/")!, iconColor: .blue)
+                                SettingLinkRow(icon: "lock.fill", title: "隐私政策", subtitle: "查看我们的隐私政策", url: URL(string: "https://liyanwena11.github.io/earthlord-support/privacy.html")!, iconColor: .green)
+                            }
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(15)
+                            .overlay(RoundedRectangle(cornerRadius: 15).stroke(brandOrange.opacity(0.2), lineWidth: 1))
 
                         }
                         .padding(.horizontal)
@@ -165,5 +166,48 @@ struct SettingSwitchRow: View {
         }
         .padding()
         .background(Color.black.opacity(0.2))
+    }
+}
+
+struct SettingLinkRow: View {
+    let icon: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    let url: URL
+    let iconColor: Color
+
+    var body: some View {
+        Button(action: {
+            UIApplication.shared.open(url)
+        }) {
+            HStack(spacing: 15) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(iconColor.opacity(0.1))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: icon)
+                        .foregroundColor(iconColor)
+                        .font(.system(size: 16))
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundColor(.white)
+                    Text(subtitle)
+                        .font(.system(size: 10))
+                        .foregroundColor(.gray)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 14))
+            }
+            .padding()
+            .background(Color.black.opacity(0.2))
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }

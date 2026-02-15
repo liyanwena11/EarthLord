@@ -31,13 +31,28 @@ class TerritoryManager {
     func deleteTerritory(territoryId: String) async -> Bool {
         do {
             try await supabase.from("territories").update(["is_active": false]).eq("id", value: territoryId).execute()
+            NotificationCenter.default.post(name: .territoryDeleted, object: UUID(uuidString: territoryId))
             return true
         } catch {
             return false
         }
     }
     
+    func updateTerritoryName(territoryId: String, newName: String) async -> Bool {
+        do {
+            try await supabase.from("territories")
+                .update(["name": newName])
+                .eq("id", value: territoryId)
+                .execute()
+            return true
+        } catch {
+            print("[TerritoryManager] ❌ 重命名失败: \(error.localizedDescription)")
+            return false
+        }
+    }
+
     func uploadTerritory(coordinates: [CLLocationCoordinate2D], area: Double, startTime: Date) async throws {
         // 上传逻辑占位
     }
 }
+

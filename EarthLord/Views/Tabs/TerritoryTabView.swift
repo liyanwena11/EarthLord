@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct TerritoryTabView: View {
-    @StateObject private var engine = EarthLordEngine.shared
+    @State private var myTerritories: [Territory] = []
+    @State private var isLoading = false
+    @State private var selectedTerritory: Territory?
 
     var body: some View {
         NavigationStack {
@@ -13,7 +15,7 @@ struct TerritoryTabView: View {
                             icon: "flag.fill",
                             iconColor: .green,
                             title: "领地数量",
-                            value: "\(engine.claimedTerritories.count)",
+                            value: "\(myTerritories.count)",
                             unit: "块"
                         )
                         StatCard(
@@ -33,11 +35,14 @@ struct TerritoryTabView: View {
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
 
-                        if engine.claimedTerritories.isEmpty {
+                        if myTerritories.isEmpty {
                             EmptyTerritoryView()
                         } else {
-                            ForEach(engine.claimedTerritories) { territory in
-                                LocalTerritoryCard(territory: territory)
+                            ForEach(myTerritories) { territory in
+                                TerritoryCard(territory: territory)
+                                    .onTapGesture {
+                                        selectedTerritory = territory
+                                    }
                             }
                             .padding(.horizontal)
                         }
@@ -47,11 +52,42 @@ struct TerritoryTabView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("领地管理")
+            .task {
+                await loadMyTerritories()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .territoryUpdated)) { _ in
+                Task { await loadMyTerritories() }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .territoryDeleted)) { _ in
+                Task { await loadMyTerritories() }
+            }
+            .fullScreenCover(item: $selectedTerritory) { territory in
+                TerritoryDetailView(
+                    territory: territory,
+                    onDelete: {
+                        Task { await loadMyTerritories() }
+                    }
+                )
+            }
         }
     }
 
     private var totalArea: Double {
-        engine.claimedTerritories.reduce(0) { $0 + $1.area }
+        myTerritories.reduce(0) { $0 + $1.area }
+    }
+
+    private func loadMyTerritories() async {
+        isLoading = true
+        do {
+            let territories = try await TerritoryManager.shared.loadMyTerritories()
+            await MainActor.run {
+                self.myTerritories = territories
+                self.isLoading = false
+            }
+        } catch {
+            print("[TerritoryTabView] 加载领地失败: \(error.localizedDescription)")
+            await MainActor.run { self.isLoading = false }
+        }
     }
 
     private func formatArea(_ area: Double) -> String {
@@ -63,10 +99,10 @@ struct TerritoryTabView: View {
     }
 }
 
-// MARK: - 实时领地卡片
+// MARK: - 领地卡片
 
-struct LocalTerritoryCard: View {
-    let territory: TerritoryModel
+struct TerritoryCard: View {
+    let territory: Territory
 
     var body: some View {
         VStack(spacing: 0) {
@@ -79,7 +115,7 @@ struct LocalTerritoryCard: View {
                         .background(Color.orange.opacity(0.15))
                         .cornerRadius(8)
 
-                    Text(territory.name)
+                    Text(territory.displayName)
                         .font(.headline)
                         .foregroundColor(.primary)
                         .lineLimit(1)
@@ -97,31 +133,29 @@ struct LocalTerritoryCard: View {
                 .padding(.vertical, 10)
 
             HStack {
-                HStack(spacing: 4) {
-                    Image(systemName: "mappin.circle").font(.caption)
-                    Text("采样点: \(territory.pointCount) 个").font(.caption)
+                if let pointCount = territory.pointCount {
+                    HStack(spacing: 4) {
+                        Image(systemName: "mappin.circle").font(.caption)
+                        Text("采样点: \(pointCount) 个").font(.caption)
+                    }
+                    .foregroundColor(.secondary)
                 }
-                .foregroundColor(.secondary)
 
                 Spacer()
 
-                HStack(spacing: 4) {
-                    Image(systemName: "clock").font(.caption)
-                    Text(formatDate(territory.claimedAt)).font(.caption)
+                if let createdAt = territory.createdAt {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock").font(.caption)
+                        Text(createdAt.prefix(10)).font(.caption)
+                    }
+                    .foregroundColor(.secondary)
                 }
-                .foregroundColor(.secondary)
             }
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
-    }
-
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM-dd HH:mm"
-        return formatter.string(from: date)
     }
 }
 

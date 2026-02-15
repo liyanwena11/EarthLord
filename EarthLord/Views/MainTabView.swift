@@ -17,13 +17,17 @@ struct MainTabView: View {
                         .tabItem { Label("领地", systemImage: "flag.fill") }
                         .tag(1)
 
-                    BackpackView()
+                    ResourcesTabView()
                         .tabItem { Label("资源", systemImage: "bag.fill") }
                         .tag(2)
 
+                    CommunicationTabView()
+                        .tabItem { Label("通讯", systemImage: "antenna.radiowaves.left.and.right") }
+                        .tag(3)
+
                     ProfileTabView()
                         .tabItem { Label("个人", systemImage: "person.fill") }
-                        .tag(3)
+                        .tag(4)
                 }
                 .accentColor(.orange)
                 .onAppear {
@@ -33,7 +37,6 @@ struct MainTabView: View {
                     UITabBar.appearance().scrollEdgeAppearance = appearance
                 }
             } else {
-                // 直接使用我们自己的加载页，避免调用外部 SplashView 报错
                 loadingView
             }
         }

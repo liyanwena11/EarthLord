@@ -2,7 +2,6 @@ import Foundation
 import Supabase
 import GoogleSignIn
 import UIKit
-import AuthenticationServices // 必须导入，用于 Apple 登录
 
 @MainActor
 class AuthManager: ObservableObject {
@@ -95,13 +94,7 @@ class AuthManager: ObservableObject {
         self.isLoading = false
     }
 
-    // MARK: - Apple 登录 (简单实现方案)
-    func signInWithApple() async {
-        // 注意：Apple 登录在 iOS 上通常配合 SignInWithAppleButton 使用效果更好
-        // 这里提供一个逻辑入口，你需要在 View 中使用相应组件获取 Token 后传给此方法
-        print("🔵 [AuthManager] Apple 登录功能已准备就绪，等待 Token 接入")
-        self.errorMessage = "请在真机上测试 Apple 登录"
-    }
+
 
     // MARK: - 账户删除 (保持你原有的逻辑)
     func deleteAccount() async {

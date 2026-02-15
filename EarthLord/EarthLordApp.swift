@@ -2,8 +2,8 @@ import SwiftUI
 
 @main
 struct EarthLordApp: App {
-    // ⚠️ 开发模式开关：设为 true 跳过登录，直接进入主界面
-    private let skipAuthForTesting = true
+    // 生产模式：正式上架时必须为 false
+    private let skipAuthForTesting = false
 
     init() {
         print("🚀🚀🚀 [EarthLordApp] ========== App init 开始 ==========")

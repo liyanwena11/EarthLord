@@ -156,14 +156,8 @@ struct MapViewRepresentable: UIViewRepresentable {
         let currentUserId = AuthManager.shared.currentUser?.id.uuidString
 
         for territory in TerritoryManager.shared.territories {
-            let wgs84Coords = territory.toCoordinates()
-
-            // Coordinate conversion for China
-            let gcj02Coords = wgs84Coords.map { coord in
-                CoordinateConverter.wgs84ToGcj02(coord)
-            }
-
-            var coordinates = gcj02Coords
+            // Territory 坐标在数据库中已经是适配后的坐标，直接使用
+            var coordinates = territory.toCoordinates()
             let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
 
             // Determine if territory belongs to current user

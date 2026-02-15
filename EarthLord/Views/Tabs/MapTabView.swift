@@ -1,5 +1,6 @@
 import SwiftUI
 import MapKit
+import Foundation
 
 struct MapTabView: View {
     @EnvironmentObject var locationManager: LocationManager
@@ -8,6 +9,7 @@ struct MapTabView: View {
     @State private var isExploring = false
     @State private var showExplorationResult = false
     @State private var shouldCenterOnUser = false  // ✅ 定位按钮触发器
+    @State private var currentTime = Date()
 
     var body: some View {
         // ✅ 核心修复：使用 overlay 方式叠加 UI，不会阻挡地图触摸
@@ -21,9 +23,32 @@ struct MapTabView: View {
         .ignoresSafeArea()
         // ✅ 顶部状态栏
         .overlay(alignment: .top) {
-            WalkingDistanceStatusBar(manager: rewardManager)
+            VStack(spacing: 10) {
+                // 坐标和时间
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(formatTime(currentTime))
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Image(systemName: "location")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                    }
+                    Spacer()
+                    Text("当前坐标")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                    Text("23.1975, 114.4549")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(Color.black.opacity(0.7))
+                .cornerRadius(12)
                 .padding(.top, 60)
                 .padding(.horizontal)
+            }
         }
         // ✅ 接近起点引导横幅
         .overlay(alignment: .bottom) {
@@ -37,13 +62,39 @@ struct MapTabView: View {
                 // 底部按钮区
                 HStack(spacing: 12) {
                     Button(action: { locationManager.isTracking.toggle() }) {
-                        VStack {
-                            Image(systemName: locationManager.isTracking ? "stop.fill" : "figure.walk")
-                            Text(locationManager.isTracking ? "停止" : "圈地")
+                        HStack {
+                            Image(systemName: locationManager.isTracking ? "stop.fill" : "flag.fill")
+                            Text(locationManager.isTracking ? "停止圈地" : "开始圈地")
                         }
-                        .frame(maxWidth: .infinity).frame(height: 60)
-                        .background(locationManager.isTracking ? Color.red : Color.blue)
+                        .frame(maxWidth: .infinity).frame(height: 50)
+                        .background(locationManager.isTracking ? Color.red : Color.orange)
                         .foregroundColor(.white).cornerRadius(12)
+                        .font(.system(size: 14))
+                    }
+
+                    Button(action: { print("物资速递按钮点击") }) {
+                        VStack {
+                            Text("物资速递")
+                                .font(.system(size: 12))
+                                .foregroundColor(.white)
+                            HStack {
+                                Image(systemName: "cube")
+                                    .font(.system(size: 14))
+                                Text("$21")
+                                    .font(.system(size: 12))
+                                    .bold()
+                            }
+                        }
+                        .frame(width: 80, height: 50)
+                        .background(Color.blue)
+                        .foregroundColor(.white).cornerRadius(12)
+                    }
+
+                    Button(action: { print("定位按钮点击") }) {
+                        Image(systemName: "location.fill")
+                            .frame(width: 50, height: 50)
+                            .background(Color.orange)
+                            .foregroundColor(.white).cornerRadius(12)
                     }
 
                     Button(action: {
@@ -53,13 +104,14 @@ struct MapTabView: View {
                             showExplorationResult = true
                         }
                     }) {
-                        VStack {
+                        HStack {
                             if isExploring { ProgressView().tint(.white) }
-                            else { Image(systemName: "binoculars.fill"); Text("探索") }
+                            else { Image(systemName: "figure.walk"); Text("开始探索") }
                         }
-                        .frame(maxWidth: .infinity).frame(height: 60)
-                        .background(isExploring ? Color.gray : Color.orange)
+                        .frame(maxWidth: .infinity).frame(height: 50)
+                        .background(isExploring ? Color.gray : Color.green)
                         .foregroundColor(.white).cornerRadius(12)
+                        .font(.system(size: 14))
                     }
                 }
             }
@@ -86,7 +138,7 @@ struct MapTabView: View {
         }
         // 🚀 核心修复：不再引用已删除的 MockData
         .sheet(isPresented: $showExplorationResult) {
-            Text("探索结算功能开发中...") // 临时占位，防止编译报错
+            ExplorationResultView(result: createMockExplorationResult())
         }
         // Day 22：POI 接近弹窗 (修复：透明区域不拦截点击)
         .overlay(alignment: .bottom) {
@@ -113,6 +165,57 @@ struct MapTabView: View {
             .allowsHitTesting(locationManager.showPOIPopup) // ✅ 核心修复：弹窗隐藏时不拦截点击
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: locationManager.showPOIPopup)
+        .onAppear {
+            // 更新时间
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                currentTime = Date()
+            }
+        }
+    }
+    
+    // 格式化时间
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter.string(from: date)
+    }
+    
+    // 创建模拟探索结果
+    private func createMockExplorationResult() -> ExplorationResult {
+        let items = [
+            BackpackItem(
+                id: UUID().uuidString,
+                itemId: UUID().uuidString,
+                name: "食物",
+                category: .food,
+                quantity: 1,
+                weight: 0.5,
+                quality: .normal,
+                icon: "star.fill"
+            ),
+            BackpackItem(
+                id: UUID().uuidString,
+                itemId: UUID().uuidString,
+                name: "水",
+                category: .water,
+                quantity: 2,
+                weight: 1.0,
+                quality: .normal,
+                icon: "star.fill"
+            )
+        ]
+        return ExplorationResult(
+            walkDistance: 0,
+            totalWalkDistance: 0,
+            walkRanking: 156,
+            exploredArea: 0,
+            totalExploredArea: 0,
+            areaRanking: 99,
+            duration: 60,
+            itemsFound: items,
+            poisDiscovered: 1,
+            experienceGained: 10
+        )
     }
 }
 

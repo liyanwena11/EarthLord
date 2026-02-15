@@ -25,13 +25,13 @@ struct ResourcesTabView: View {
                     case 0:
                         POIListView()
                     case 1:
-                        BackpackView()
+                        ResourceBackpackView()
                     case 2:
                         PurchasedStoreView()
                     case 3:
                         TerritoryStatsView()
                     default:
-                        TradeComingSoonView()
+                        TradeMainView()
                     }
                 }
                 .animation(.easeInOut(duration: 0.2), value: selectedSegment)
@@ -39,6 +39,119 @@ struct ResourcesTabView: View {
             .navigationTitle("资源管理")
             .background(Color(.systemGroupedBackground))
         }
+    }
+}
+
+// MARK: - 资源背包视图
+
+struct ResourceBackpackView: View {
+    let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
+    
+    // 模拟资源数据
+    let resources = [
+        ResourceItem(name: "大米", quantity: 20, capacity: 100, unit: "kg"),
+        ResourceItem(name: "木材", quantity: 50, capacity: 200, unit: "个"),
+        ResourceItem(name: "金属", quantity: 30, capacity: 150, unit: "个"),
+        ResourceItem(name: "燃油", quantity: 15, capacity: 100, unit: "L"),
+        ResourceItem(name: "工具", quantity: 5, capacity: 50, unit: "个")
+    ]
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // 顶部标题
+                VStack(spacing: 12) {
+                    Text("资源").font(.caption).foregroundColor(brandOrange)
+                    
+                    // 背包容量
+                    VStack(spacing: 8) {
+                        HStack {
+                            Text("背包容量").foregroundColor(.white)
+                            Spacer()
+                            Text("20/100kg").foregroundColor(.white)
+                        }
+                        
+                        // 进度条
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .cornerRadius(5)
+                                
+                                Rectangle()
+                                    .fill(brandOrange)
+                                    .frame(width: geometry.size.width * 0.2)
+                                    .cornerRadius(5)
+                            }
+                        }
+                        .frame(height: 8)
+                    }
+                }
+                .padding(.vertical, 30)
+                .padding(.horizontal, 20)
+                
+                // 资源列表
+                ScrollView {
+                    VStack(spacing: 1) {
+                        ForEach(resources) {
+                            resource in
+                            ResourceRow(item: resource)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - 资源模型
+
+struct ResourceItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let quantity: Int
+    let capacity: Int
+    let unit: String
+}
+
+// MARK: - 资源行视图
+
+struct ResourceRow: View {
+    let item: ResourceItem
+    let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            // 资源图标和名称
+            HStack {
+                Image(systemName: "star.fill").foregroundColor(brandOrange)
+                Text(item.name).foregroundColor(.white)
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            // 资源数量
+            Text("\(item.quantity)\(item.unit)").foregroundColor(.white)
+            .padding(.horizontal, 20)
+            
+            // 使用按钮
+            Button(action: {}) {
+                Text("使用").foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .background(brandOrange)
+                .cornerRadius(12)
+            }
+            .padding(.horizontal, 20)
+        }
+        .frame(height: 60)
+        .background(Color.black)
+        
+        // 分割线
+        Divider().background(Color.white.opacity(0.1))
     }
 }
 

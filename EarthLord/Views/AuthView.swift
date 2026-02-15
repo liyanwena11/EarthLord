@@ -1,5 +1,4 @@
 import SwiftUI
-import AuthenticationServices
 
 struct AuthView: View {
     // 监听我们刚才改好的大脑（✅ 修复：shared 单例用 @ObservedObject）
@@ -95,20 +94,7 @@ struct AuthView: View {
                         Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
                     }
                     
-                    // APPLE 登录按钮
-                    Button(action: {
-                        Task { await authManager.signInWithApple() }
-                    }) {
-                        HStack {
-                            Image(systemName: "applelogo")
-                            Text("通过 Apple 登录")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.white)
-                        .foregroundColor(.black)
-                        .cornerRadius(10)
-                    }
+
                     
                     // GOOGLE 登录按钮
                     Button(action: {
