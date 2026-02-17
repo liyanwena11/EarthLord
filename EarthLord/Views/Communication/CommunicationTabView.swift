@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CommunicationTabView: View {
-    @State private var selectedSection: CommunicationSection = .channels
+    @State private var selectedSection: CommunicationSection = .devices
 
     var body: some View {
         NavigationStack {
@@ -101,7 +101,7 @@ struct CommunicationTabView: View {
         case .messages:
             MessageCenterPlaceholderView()
         case .channels:
-            ChannelListPlaceholderView()
+            ChannelCenterView()
         case .call:
             PTTCallPlaceholderView()
         case .devices:
@@ -129,80 +129,6 @@ struct MessageCenterPlaceholderView: View {
                     .foregroundColor(ApocalypseTheme.textSecondary)
                     .multilineTextAlignment(.center)
                 Spacer()
-            }
-        }
-    }
-}
-
-struct ChannelListPlaceholderView: View {
-    let sampleChannels = [
-        ("官方公告", "megaphone.fill", "官方频道", Color.orange),
-        ("末日求生", "globe", "公开频道", Color.blue),
-        ("本地玩家", "walkie.talkie.radio", "对讲频道", Color.green)
-    ]
-
-    var body: some View {
-        ZStack {
-            ApocalypseTheme.background.ignoresSafeArea()
-            ScrollView {
-                VStack(spacing: 12) {
-                    // 官方频道
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("已订阅频道")
-                            .font(.subheadline.bold())
-                            .foregroundColor(ApocalypseTheme.textSecondary)
-                            .padding(.horizontal)
-
-                        ForEach(sampleChannels, id: \.0) { name, icon, type, color in
-                            HStack(spacing: 14) {
-                                ZStack {
-                                    Circle()
-                                        .fill(color.opacity(0.15))
-                                        .frame(width: 44, height: 44)
-                                    Image(systemName: icon)
-                                        .foregroundColor(color)
-                                }
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(name)
-                                        .font(.subheadline.bold())
-                                        .foregroundColor(ApocalypseTheme.textPrimary)
-                                    Text(type)
-                                        .font(.caption)
-                                        .foregroundColor(ApocalypseTheme.textMuted)
-                                }
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(ApocalypseTheme.textMuted)
-                            }
-                            .padding()
-                            .background(ApocalypseTheme.cardBackground)
-                            .cornerRadius(12)
-                            .padding(.horizontal)
-                        }
-                    }
-                    .padding(.top)
-
-                    // 创建频道按钮
-                    Button(action: {}) {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                            Text("创建新频道")
-                        }
-                        .font(.subheadline.bold())
-                        .foregroundColor(ApocalypseTheme.primary)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(ApocalypseTheme.primary.opacity(0.1))
-                        .cornerRadius(12)
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ApocalypseTheme.primary.opacity(0.3), lineWidth: 1))
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.bottom, 100)
             }
         }
     }
@@ -257,33 +183,87 @@ struct PTTCallPlaceholderView: View {
 }
 
 struct DeviceManagementPlaceholderView: View {
-    let devices: [(DeviceType, Bool)] = [
-        (.radio, true),
-        (.walkieTalkie, true),
-        (.campRadio, false),
-        (.satellite, false)
-    ]
+    @StateObject private var communicationManager = CommunicationManager.shared
+    @State private var isLoading = true
 
     var body: some View {
         ZStack {
             ApocalypseTheme.background.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(devices, id: \.0) { device, isUnlocked in
+                    // 设备管理标题
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("设备管理")
+                            .font(.headline)
+                            .foregroundColor(ApocalypseTheme.textPrimary)
+                        Text("选择通讯设备，不同设备有不同覆盖范围")
+                            .font(.caption)
+                            .foregroundColor(ApocalypseTheme.textMuted)
+                    }
+                    .padding(.horizontal)
+                    .padding(.top)
+
+                    if isLoading {
+                        ProgressView()
+                            .padding()
+                    } else {
+                        // 收音机（选中状态）
                         HStack(spacing: 14) {
                             ZStack {
                                 Circle()
-                                    .fill(isUnlocked ? ApocalypseTheme.primary.opacity(0.15) : ApocalypseTheme.textMuted.opacity(0.1))
+                                    .fill(ApocalypseTheme.primary.opacity(0.15))
                                     .frame(width: 48, height: 48)
-                                Image(systemName: device.iconName)
-                                    .foregroundColor(isUnlocked ? ApocalypseTheme.primary : ApocalypseTheme.textMuted)
+                                Image(systemName: DeviceType.radio.iconName)
+                                    .foregroundColor(ApocalypseTheme.primary)
                             }
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(device.displayName)
+                                Text(DeviceType.radio.displayName)
                                     .font(.subheadline.bold())
-                                    .foregroundColor(isUnlocked ? ApocalypseTheme.textPrimary : ApocalypseTheme.textMuted)
-                                Text(device.description)
+                                    .foregroundColor(ApocalypseTheme.textPrimary)
+                                Text("覆盖范围：无限制（仅接收）")
+                                    .font(.caption)
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                                Text("仅接收")
+                                    .font(.caption2)
+                                    .foregroundColor(ApocalypseTheme.primary)
+                            }
+
+                            Spacer()
+                        }
+                        .padding()
+                        .background(ApocalypseTheme.cardBackground)
+                        .cornerRadius(14)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(ApocalypseTheme.primary, lineWidth: 2)
+                        )
+                        .padding(.horizontal)
+
+                        // 所有设备标题
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("所有设备")
+                                .font(.headline)
+                                .foregroundColor(ApocalypseTheme.textPrimary)
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 20)
+
+                        // 收音机
+                        HStack(spacing: 14) {
+                            ZStack {
+                                Circle()
+                                    .fill(ApocalypseTheme.primary.opacity(0.15))
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: DeviceType.radio.iconName)
+                                    .foregroundColor(ApocalypseTheme.primary)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(DeviceType.radio.displayName)
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(ApocalypseTheme.textPrimary)
+                                Text(DeviceType.radio.description)
                                     .font(.caption)
                                     .foregroundColor(ApocalypseTheme.textMuted)
                                     .lineLimit(2)
@@ -291,24 +271,120 @@ struct DeviceManagementPlaceholderView: View {
 
                             Spacer()
 
-                            if isUnlocked {
-                                Text("已解锁")
-                                    .font(.caption2.bold())
-                                    .foregroundColor(.green)
-                                    .padding(.horizontal, 8).padding(.vertical, 4)
-                                    .background(Color.green.opacity(0.15))
-                                    .cornerRadius(6)
-                            } else {
-                                Image(systemName: "lock.fill")
-                                    .foregroundColor(ApocalypseTheme.textMuted)
-                            }
+                            Text("已解锁")
+                                .font(.caption2.bold())
+                                .foregroundColor(.green)
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                                .background(Color.green.opacity(0.15))
+                                .cornerRadius(6)
                         }
                         .padding()
                         .background(ApocalypseTheme.cardBackground)
                         .cornerRadius(14)
+                        .padding(.horizontal)
+
+                        // 对讲机
+                        HStack(spacing: 14) {
+                            ZStack {
+                                Circle()
+                                    .fill(ApocalypseTheme.primary.opacity(0.15))
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: DeviceType.walkieTalkie.iconName)
+                                    .foregroundColor(ApocalypseTheme.primary)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(DeviceType.walkieTalkie.displayName)
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(ApocalypseTheme.textPrimary)
+                                Text(DeviceType.walkieTalkie.description)
+                                    .font(.caption)
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                                    .lineLimit(2)
+                            }
+
+                            Spacer()
+
+                            Text("切换")
+                                .font(.caption2.bold())
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                                .background(Color.orange.opacity(0.15))
+                                .cornerRadius(6)
+                        }
+                        .padding()
+                        .background(ApocalypseTheme.cardBackground)
+                        .cornerRadius(14)
+                        .padding(.horizontal)
+
+                        // 营地电台
+                        HStack(spacing: 14) {
+                            ZStack {
+                                Circle()
+                                    .fill(ApocalypseTheme.textMuted.opacity(0.1))
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: DeviceType.campRadio.iconName)
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(DeviceType.campRadio.displayName)
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                                Text(DeviceType.campRadio.description)
+                                    .font(.caption)
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                                    .lineLimit(2)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(ApocalypseTheme.textMuted)
+                        }
+                        .padding()
+                        .background(ApocalypseTheme.cardBackground)
+                        .cornerRadius(14)
+                        .padding(.horizontal)
+
+                        // 卫星通讯
+                        HStack(spacing: 14) {
+                            ZStack {
+                                Circle()
+                                    .fill(ApocalypseTheme.textMuted.opacity(0.1))
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: DeviceType.satellite.iconName)
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(DeviceType.satellite.displayName)
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                                Text(DeviceType.satellite.description)
+                                    .font(.caption)
+                                    .foregroundColor(ApocalypseTheme.textMuted)
+                                    .lineLimit(2)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(ApocalypseTheme.textMuted)
+                        }
+                        .padding()
+                        .background(ApocalypseTheme.cardBackground)
+                        .cornerRadius(14)
+                        .padding(.horizontal)
                     }
                 }
-                .padding()
+                .padding(.bottom, 30)
+            }
+        }
+        .onAppear {
+            Task {
+                await communicationManager.fetchUserDevices()
+                await MainActor.run { isLoading = false }
             }
         }
     }

@@ -204,10 +204,7 @@ struct TerritoryDetailView: View {
                         }
                     }
 
-                    #if DEBUG
-                    // 开发者测试按钮
-                    debugResourceButtons
-                    #endif
+
 
                     // 建筑区域
                     buildingSection
@@ -318,69 +315,7 @@ struct TerritoryDetailView: View {
         .disabled(isDeleting)
     }
 
-    // MARK: - Debug
 
-    #if DEBUG
-    @State private var isAddingResources = false
-
-    private var debugResourceButtons: some View {
-        VStack(spacing: 8) {
-            Text("开发者工具")
-                .font(.caption)
-                .foregroundColor(ApocalypseTheme.textMuted)
-
-            HStack(spacing: 12) {
-                Button(action: {
-                    isAddingResources = true
-                    Task {
-                        await InventoryManager.shared.addTestResources()
-                        await MainActor.run { isAddingResources = false }
-                    }
-                }) {
-                    HStack {
-                        if isAddingResources {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .scaleEffect(0.7)
-                        } else {
-                            Image(systemName: "plus.circle.fill")
-                        }
-                        Text("添加测试资源")
-                    }
-                    .font(.subheadline.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-                }
-                .buttonStyle(.plain)
-                .disabled(isAddingResources)
-
-                Button(action: {
-                    Task { await InventoryManager.shared.clearAllItems() }
-                }) {
-                    HStack {
-                        Image(systemName: "trash.circle.fill")
-                        Text("清空背包")
-                    }
-                    .font(.subheadline.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.gray)
-                    .cornerRadius(10)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-        )
-    }
-    #endif
 
     // MARK: - Methods
 

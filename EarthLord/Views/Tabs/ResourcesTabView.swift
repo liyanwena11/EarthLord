@@ -159,15 +159,119 @@ struct ResourceRow: View {
 
 /// 已购物品页面
 struct PurchasedStoreView: View {
+    @State private var selectedPurchase: PurchasedItem?
+    @State private var rating: Int = 5
+    @State private var comment: String = ""
+    
+    // 已购物品模型
+    struct PurchasedItem: Identifiable {
+        let id: String
+        let name: String
+        let icon: String
+        let rating: Int?
+        let comment: String?
+    }
+    
+    // 模拟已购物品数据
+    private var purchasedItems: [PurchasedItem] {
+        return [
+            PurchasedItem(id: "1", name: "新手生存礼包", icon: "shippingbox.fill", rating: nil, comment: nil),
+            PurchasedItem(id: "2", name: "成都区域地图", icon: "map.fill", rating: 5, comment: "地图非常详细"),
+            PurchasedItem(id: "3", name: "高级扫描雷达", icon: "antenna.radiowaves.left.and.right", rating: nil, comment: nil)
+        ]
+    }
+    
     var body: some View {
         List {
             Section("我的购买记录") {
-                Label("新手生存礼包", systemImage: "shippingbox.fill")
-                Label("成都区域地图", systemImage: "map.fill")
-                Label("高级扫描雷达", systemImage: "antenna.radiowaves.left.and.right")
+                ForEach(purchasedItems) { item in
+                    HStack {
+                        Label(item.name, systemImage: item.icon)
+                        Spacer()
+                        if item.rating == nil {
+                            Button("去评价") {
+                                selectedPurchase = item
+                            }
+                            .foregroundColor(.blue)
+                            .font(.subheadline)
+                        } else {
+                            HStack(spacing: 2) {
+                                ForEach(1...5, id: \.self) {star in
+                                    Image(systemName: star <= item.rating! ? "star.fill" : "star")
+                                        .foregroundColor(star <= item.rating! ? .yellow : .gray)
+                                        .font(.caption)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         .listStyle(.insetGrouped)
+        .sheet(item: $selectedPurchase) { purchase in
+            RatingView(item: purchase, onDismiss: { 
+                selectedPurchase = nil
+                rating = 5
+                comment = ""
+            })
+        }
+    }
+    
+    // 评价视图
+    struct RatingView: View {
+        let item: PurchasedItem
+        let onDismiss: () -> Void
+        @State private var rating: Int = 5
+        @State private var comment: String = ""
+        
+        var body: some View {
+            NavigationStack {
+                VStack(spacing: 20) {
+                    Text("评价：\(item.name)")
+                        .font(.title2.bold())
+                        .foregroundColor(ApocalypseTheme.textPrimary)
+                    
+                    Text("请给这次购买打分：")
+                        .font(.subheadline)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                    
+                    HStack(spacing: 10) {
+                        ForEach(1...5, id: \.self) { star in
+                            Button(action: { rating = star }) {
+                                Image(systemName: star <= rating ? "star.fill" : "star")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(star <= rating ? .yellow : .gray)
+                            }
+                        }
+                    }
+                    
+                    TextField("评语（可选）", text: $comment, axis: .vertical)
+                        .padding()
+                        .background(ApocalypseTheme.cardBackground)
+                        .cornerRadius(8)
+                        .foregroundColor(ApocalypseTheme.textPrimary)
+                        .lineLimit(3)
+                    
+                    Button(action: {
+                        // 提交评价逻辑
+                        print("提交评价：\(item.name), 评分：\(rating), 评语：\(comment)")
+                        onDismiss()
+                    }) {
+                        Text("提交评价")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(ApocalypseTheme.primary)
+                            .cornerRadius(8)
+                    }
+                }
+                .padding()
+                .navigationTitle("评价购买")
+                .navigationBarTitleDisplayMode(.inline)
+                .background(ApocalypseTheme.background)
+            }
+        }
     }
 }
 

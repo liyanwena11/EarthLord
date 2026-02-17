@@ -152,10 +152,35 @@ class InventoryManager: ObservableObject {
 
             await MainActor.run { self.items = displayItems; self.isLoading = false }
             print("✅ [背包] 背包加载完成，共 \(displayItems.count) 种")
+            
+            // 如果背包为空，添加一些初始物品用于测试
+            if displayItems.isEmpty {
+                Task {
+                    try? await addInitialItems()
+                }
+            }
         } catch {
             print("❌ [背包] 加载失败: \(error.localizedDescription)")
             await MainActor.run { self.isLoading = false; self.errorMessage = "加载背包失败" }
         }
+    }
+
+    // MARK: - Initial Items
+
+    func addInitialItems() async throws {
+        // 添加一些初始物品用于测试交易功能
+        let initialItems = [
+            ("wood", 10),   // 木材
+            ("stone", 15),  // 石头
+            ("glass", 5),   // 玻璃
+            ("metal", 8)    // 金属
+        ]
+        
+        for (itemId, quantity) in initialItems {
+            try await addItem(itemId: itemId, quantity: quantity)
+        }
+        
+        print("✅ [背包] 初始物品添加完成")
     }
 
     // MARK: - Item Operations

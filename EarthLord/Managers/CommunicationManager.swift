@@ -1,0 +1,572 @@
+//
+//  CommunicationManager.swift
+//  EarthLord
+//
+//  通讯管理器 - 管理通讯设备和频道
+//
+
+import Foundation
+import Combine
+import Supabase
+import CoreLocation
+
+class CommunicationManager: ObservableObject {
+
+    static let shared = CommunicationManager()
+
+    @Published var devices: [CommunicationDevice] = []
+    @Published var currentDevice: CommunicationDevice?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+
+    // Channel properties
+    @Published var channels: [CommunicationChannel] = []
+    @Published var subscribedChannels: [SubscribedChannel] = []
+    @Published var mySubscriptions: [ChannelSubscription] = []
+
+    // Message properties
+    @Published var channelMessages: [UUID: [ChannelMessage]] = [:]
+    @Published var isSendingMessage = false
+    @Published var subscribedChannelIds: Set<UUID> = []
+
+    // Realtime properties
+    private var realtimeChannel: RealtimeChannelV2?
+    private var messageSubscriptionTask: Task<Void, Never>?
+
+    private let supabase = supabaseClient
+    private var cancellables = Set<AnyCancellable>()
+
+    private init() {
+        print("📡 [通讯] CommunicationManager 初始化完成")
+    }
+
+    private func currentUserId() async -> UUID? {
+        await MainActor.run { AuthManager.shared.currentUser?.id }
+    }
+
+    // MARK: - Device Management
+
+    func fetchUserDevices() async {
+        guard let userId = await currentUserId() else { return }
+
+        await MainActor.run { self.isLoading = true }
+
+        do {
+            let devices: [CommunicationDevice] = try await supabase
+                .from("communication_devices")
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+                .value
+
+            await MainActor.run { 
+                self.devices = devices
+                self.currentDevice = devices.first(where: { $0.isCurrent })
+                self.isLoading = false 
+            }
+        } catch {
+            print("❌ [通讯] 获取设备失败: \(error.localizedDescription)")
+            await MainActor.run { 
+                self.isLoading = false 
+                self.errorMessage = "获取设备失败"
+            }
+        }
+    }
+
+    func setCurrentDevice(deviceId: UUID) async throws {
+        guard let userId = await currentUserId() else { throw CommunicationError.notConfigured }
+
+        // 先将所有设备设置为非当前
+        for device in devices {
+            try await supabase
+                .from("communication_devices")
+                .update(["is_current": false])
+                .eq("id", value: device.id.uuidString)
+                .execute()
+        }
+
+        // 将选中的设备设置为当前
+        try await supabase
+            .from("communication_devices")
+            .update(["is_current": true])
+            .eq("id", value: deviceId.uuidString)
+            .execute()
+
+        await fetchUserDevices()
+        print("📡 [通讯] ✅ 设置当前设备成功: \(deviceId)")
+    }
+
+    func unlockDevice(deviceType: DeviceType) async throws {
+        guard let userId = await currentUserId() else { throw CommunicationError.notConfigured }
+
+        let device = devices.first { $0.deviceType == deviceType }
+        if let device = device {
+            // 更新现有设备
+            try await supabase
+                .from("communication_devices")
+                .update(["is_unlocked": true])
+                .eq("id", value: device.id.uuidString)
+                .execute()
+        } else {
+            // 创建新设备
+            let newDevice = CommunicationDevice(
+                id: UUID(),
+                userId: userId,
+                deviceType: deviceType,
+                deviceLevel: 1,
+                isUnlocked: true,
+                isCurrent: devices.isEmpty,
+                createdAt: Date(),
+                updatedAt: Date()
+            )
+
+            try await supabase
+                .from("communication_devices")
+                .insert(newDevice)
+                .execute()
+        }
+
+        await fetchUserDevices()
+        print("📡 [通讯] ✅ 解锁设备成功: \(deviceType.displayName)")
+    }
+
+    // MARK: - Initialize Devices
+
+    func initializeUserDevices() async throws {
+        guard let userId = await currentUserId() else { throw CommunicationError.notConfigured }
+
+        // 检查用户是否已有设备
+        let existingDevices: [CommunicationDevice] = try await supabase
+            .from("communication_devices")
+            .select()
+            .eq("user_id", value: userId.uuidString)
+            .execute()
+            .value
+
+        if existingDevices.isEmpty {
+            // 创建默认设备
+            let defaultDevices = [
+                CommunicationDevice(
+                    id: UUID(),
+                    userId: userId,
+                    deviceType: .radio,
+                    deviceLevel: 1,
+                    isUnlocked: true,
+                    isCurrent: true,
+                    createdAt: Date(),
+                    updatedAt: Date()
+                ),
+                CommunicationDevice(
+                    id: UUID(),
+                    userId: userId,
+                    deviceType: .walkieTalkie,
+                    deviceLevel: 1,
+                    isUnlocked: true,
+                    isCurrent: false,
+                    createdAt: Date(),
+                    updatedAt: Date()
+                ),
+                CommunicationDevice(
+                    id: UUID(),
+                    userId: userId,
+                    deviceType: .campRadio,
+                    deviceLevel: 1,
+                    isUnlocked: false,
+                    isCurrent: false,
+                    createdAt: Date(),
+                    updatedAt: Date()
+                ),
+                CommunicationDevice(
+                    id: UUID(),
+                    userId: userId,
+                    deviceType: .satellite,
+                    deviceLevel: 1,
+                    isUnlocked: false,
+                    isCurrent: false,
+                    createdAt: Date(),
+                    updatedAt: Date()
+                )
+            ]
+
+            for device in defaultDevices {
+                try await supabase
+                    .from("communication_devices")
+                    .insert(device)
+                    .execute()
+            }
+
+            print("📡 [通讯] ✅ 初始化默认设备成功")
+        }
+
+        await fetchUserDevices()
+    }
+
+    // MARK: - Channel Methods
+
+    func loadPublicChannels() async {
+        do {
+            let result: [CommunicationChannel] = try await supabase
+                .from("communication_channels")
+                .select()
+                .eq("is_active", value: true)
+                .order("created_at", ascending: false)
+                .execute()
+                .value
+
+            await MainActor.run { self.channels = result }
+            print("📡 [频道] ✅ 加载公开频道: \(result.count) 个")
+        } catch {
+            print("❌ [频道] 加载公开频道失败: \(error.localizedDescription)")
+        }
+    }
+
+    func loadSubscribedChannels(userId: UUID) async {
+        do {
+            // 1. 查询用户的订阅
+            let subscriptions: [ChannelSubscription] = try await supabase
+                .from("channel_subscriptions")
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+                .value
+
+            await MainActor.run { self.mySubscriptions = subscriptions }
+
+            guard !subscriptions.isEmpty else {
+                await MainActor.run { self.subscribedChannels = [] }
+                return
+            }
+
+            // 2. 查询对应的频道详情
+            let channelIds = subscriptions.map { $0.channelId.uuidString }
+            let channelList: [CommunicationChannel] = try await supabase
+                .from("communication_channels")
+                .select()
+                .in("id", values: channelIds)
+                .execute()
+                .value
+
+            // 3. 组合成 SubscribedChannel
+            let combined = subscriptions.compactMap { sub in
+                guard let channel = channelList.first(where: { $0.id == sub.channelId }) else { return nil as SubscribedChannel? }
+                return SubscribedChannel(channel: channel, subscription: sub)
+            }
+
+            await MainActor.run { self.subscribedChannels = combined }
+            print("📡 [频道] ✅ 加载已订阅频道: \(combined.count) 个")
+        } catch {
+            print("❌ [频道] 加载已订阅频道失败: \(error.localizedDescription)")
+        }
+    }
+
+    func createChannel(userId: UUID, type: ChannelType, name: String, description: String?, latitude: Double? = nil, longitude: Double? = nil) async throws -> UUID {
+        let params: [String: AnyJSON] = [
+            "p_creator_id": .string(userId.uuidString),
+            "p_channel_type": .string(type == .publicChannel ? "public" : type.rawValue),
+            "p_name": .string(name),
+            "p_description": description.map { .string($0) } ?? .null,
+            "p_latitude": latitude.map { .double($0) } ?? .null,
+            "p_longitude": longitude.map { .double($0) } ?? .null
+        ]
+
+        let channelId: UUID = try await supabase
+            .rpc("create_channel_with_subscription", params: params)
+            .execute()
+            .value
+
+        await loadPublicChannels()
+        await loadSubscribedChannels(userId: userId)
+
+        print("📡 [频道] ✅ 创建频道成功: \(name)")
+        return channelId
+    }
+
+    func subscribeToChannel(userId: UUID, channelId: UUID) async throws {
+        let params: [String: AnyJSON] = [
+            "p_user_id": .string(userId.uuidString),
+            "p_channel_id": .string(channelId.uuidString)
+        ]
+
+        try await supabase
+            .rpc("subscribe_to_channel", params: params)
+            .execute()
+
+        await loadPublicChannels()
+        await loadSubscribedChannels(userId: userId)
+        print("📡 [频道] ✅ 订阅频道成功")
+    }
+
+    func unsubscribeFromChannel(userId: UUID, channelId: UUID) async throws {
+        let params: [String: AnyJSON] = [
+            "p_user_id": .string(userId.uuidString),
+            "p_channel_id": .string(channelId.uuidString)
+        ]
+
+        try await supabase
+            .rpc("unsubscribe_from_channel", params: params)
+            .execute()
+
+        await loadPublicChannels()
+        await loadSubscribedChannels(userId: userId)
+        print("📡 [频道] ✅ 取消订阅成功")
+    }
+
+    func deleteChannel(channelId: UUID) async throws {
+        guard let userId = await currentUserId() else { throw CommunicationError.notConfigured }
+
+        try await supabase
+            .from("communication_channels")
+            .delete()
+            .eq("id", value: channelId.uuidString)
+            .execute()
+
+        await loadPublicChannels()
+        await loadSubscribedChannels(userId: userId)
+        print("📡 [频道] ✅ 删除频道成功")
+    }
+
+    func isSubscribed(channelId: UUID) -> Bool {
+        mySubscriptions.contains { $0.channelId == channelId }
+    }
+
+    // MARK: - Message Methods
+
+    func loadChannelMessages(channelId: UUID) async {
+        do {
+            let messages: [ChannelMessage] = try await supabase
+                .from("channel_messages")
+                .select()
+                .eq("channel_id", value: channelId.uuidString)
+                .order("created_at", ascending: true)
+                .limit(50)
+                .execute()
+                .value
+
+            await MainActor.run {
+                self.channelMessages[channelId] = messages
+            }
+            print("📡 [消息] ✅ 加载消息: \(messages.count) 条")
+        } catch {
+            print("❌ [消息] 加载消息失败: \(error.localizedDescription)")
+            await MainActor.run {
+                self.errorMessage = "加载消息失败: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    func sendChannelMessage(
+        channelId: UUID,
+        content: String,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        deviceType: String? = nil
+    ) async -> Bool {
+        guard !content.trimmingCharacters(in: .whitespaces).isEmpty else {
+            await MainActor.run { self.errorMessage = "消息内容不能为空" }
+            return false
+        }
+
+        await MainActor.run { self.isSendingMessage = true }
+
+        do {
+            let params: [String: AnyJSON] = [
+                "p_channel_id": .string(channelId.uuidString),
+                "p_content": .string(content),
+                "p_latitude": latitude.map { .double($0) } ?? .null,
+                "p_longitude": longitude.map { .double($0) } ?? .null,
+                "p_device_type": deviceType.map { .string($0) } ?? .null
+            ]
+
+            let _: UUID = try await supabase
+                .rpc("send_channel_message", params: params)
+                .execute()
+                .value
+
+            await MainActor.run { self.isSendingMessage = false }
+            print("📡 [消息] ✅ 发送成功")
+            return true
+        } catch {
+            await MainActor.run {
+                self.errorMessage = "发送失败: \(error.localizedDescription)"
+                self.isSendingMessage = false
+            }
+            print("❌ [消息] 发送失败: \(error.localizedDescription)")
+            return false
+        }
+    }
+
+    // MARK: - Realtime
+
+    func startRealtimeSubscription() async {
+        await stopRealtimeSubscription()
+
+        realtimeChannel = await supabase.realtimeV2.channel("channel_messages_realtime")
+
+        guard let channel = realtimeChannel else { return }
+
+        let insertions = await channel.postgresChange(
+            InsertAction.self,
+            table: "channel_messages"
+        )
+
+        messageSubscriptionTask = Task { [weak self] in
+            for await insertion in insertions {
+                await self?.handleNewMessage(insertion: insertion)
+            }
+        }
+
+        await channel.subscribe()
+        print("📡 [Realtime] 消息订阅已启动")
+    }
+
+    func stopRealtimeSubscription() async {
+        messageSubscriptionTask?.cancel()
+        messageSubscriptionTask = nil
+
+        if let channel = realtimeChannel {
+            await channel.unsubscribe()
+            realtimeChannel = nil
+        }
+
+        print("📡 [Realtime] 消息订阅已停止")
+    }
+
+    private func handleNewMessage(insertion: InsertAction) async {
+        do {
+            let message = try insertion.decodeRecord(as: ChannelMessage.self, decoder: JSONDecoder())
+
+            guard subscribedChannelIds.contains(message.channelId) else {
+                return
+            }
+
+            // Day 35: 距离过滤
+            guard shouldReceiveMessage(message) else {
+                return
+            }
+
+            await MainActor.run {
+                if self.channelMessages[message.channelId] != nil {
+                    self.channelMessages[message.channelId]?.append(message)
+                } else {
+                    self.channelMessages[message.channelId] = [message]
+                }
+            }
+            print("📡 [Realtime] 收到新消息: \(message.content.prefix(20))...")
+        } catch {
+            print("❌ [Realtime] 解析消息失败: \(error)")
+        }
+    }
+
+    func subscribeToChannelMessages(channelId: UUID) {
+        subscribedChannelIds.insert(channelId)
+
+        if realtimeChannel == nil {
+            Task { await startRealtimeSubscription() }
+        }
+    }
+
+    func unsubscribeFromChannelMessages(channelId: UUID) {
+        subscribedChannelIds.remove(channelId)
+        channelMessages.removeValue(forKey: channelId)
+
+        if subscribedChannelIds.isEmpty {
+            Task { await stopRealtimeSubscription() }
+        }
+    }
+
+    func getMessages(for channelId: UUID) -> [ChannelMessage] {
+        channelMessages[channelId] ?? []
+    }
+
+    // MARK: - 距离过滤
+
+    /// 判断是否应该接收该消息（基于设备类型和距离）
+    func shouldReceiveMessage(_ message: ChannelMessage) -> Bool {
+        // 只对公共频道应用距离过滤
+        let channel = channels.first(where: { $0.id == message.channelId })
+            ?? subscribedChannels.first(where: { $0.channel.id == message.channelId })?.channel
+        if let channelType = channel?.channelType, channelType != .publicChannel {
+            return true  // 非公共频道不限制
+        }
+
+        guard let myDeviceType = currentDevice?.deviceType else {
+            print("⚠️ [距离过滤] 无法获取当前设备，保守显示消息")
+            return true
+        }
+        if myDeviceType == .radio {
+            print("📻 [距离过滤] 收音机用户，接收所有消息")
+            return true
+        }
+        guard let senderDevice = message.senderDeviceType else {
+            print("⚠️ [距离过滤] 消息缺少设备类型，保守显示（向后兼容）")
+            return true
+        }
+        if !senderDevice.canSend {
+            print("🚫 [距离过滤] 收音机不能发送消息")
+            return false
+        }
+        guard let senderLocation = message.senderLocation else {
+            print("⚠️ [距离过滤] 消息缺少位置信息，保守显示")
+            return true
+        }
+        guard let myLocation = getCurrentLocation() else {
+            print("⚠️ [距离过滤] 无法获取当前位置，保守显示")
+            return true
+        }
+
+        let distance = calculateDistance(
+            from: CLLocationCoordinate2D(latitude: myLocation.latitude, longitude: myLocation.longitude),
+            to: CLLocationCoordinate2D(latitude: senderLocation.latitude, longitude: senderLocation.longitude)
+        )
+
+        let maxRange = max(senderDevice.range, myDeviceType.range)
+        let result = distance <= maxRange
+
+        print(result
+            ? "✅ [距离过滤] 通过: \(senderDevice.rawValue)→\(myDeviceType.rawValue), \(String(format: "%.1f", distance))km"
+            : "🚫 [距离过滤] 丢弃: \(senderDevice.rawValue)→\(myDeviceType.rawValue), \(String(format: "%.1f", distance))km > \(maxRange)km")
+        return result
+    }
+
+    /// 计算两个坐标之间的距离（公里）
+    private func calculateDistance(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
+        let fromLoc = CLLocation(latitude: from.latitude, longitude: from.longitude)
+        let toLoc = CLLocation(latitude: to.latitude, longitude: to.longitude)
+        return fromLoc.distance(from: toLoc) / 1000.0
+    }
+
+    /// 获取当前用户位置（从 LocationManager 获取真实 GPS）
+    private func getCurrentLocation() -> LocationPoint? {
+        guard let location = LocationManager.shared.userLocation else {
+            return nil
+        }
+        return LocationPoint(
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude
+        )
+    }
+}
+
+// MARK: - CommunicationError
+
+enum CommunicationError: Error {
+    case notConfigured
+    case deviceNotFound
+    case deviceNotUnlocked
+    case operationFailed(String)
+}
+
+extension CommunicationError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .notConfigured:
+            return "通讯系统未配置"
+        case .deviceNotFound:
+            return "设备未找到"
+        case .deviceNotUnlocked:
+            return "设备未解锁"
+        case .operationFailed(let message):
+            return message
+        }
+    }
+}

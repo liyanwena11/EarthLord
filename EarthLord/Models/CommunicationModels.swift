@@ -99,8 +99,8 @@ struct CommunicationDevice: Codable, Identifiable {
 // MARK: - CommunicationSection
 
 enum CommunicationSection: String, CaseIterable {
-    case messages = "消息"
     case channels = "频道"
+    case messages = "消息"
     case call = "呼叫"
     case devices = "设备"
 
@@ -108,8 +108,8 @@ enum CommunicationSection: String, CaseIterable {
 
     var iconName: String {
         switch self {
-        case .messages: return "bell.fill"
         case .channels: return "dot.radiowaves.left.and.right"
+        case .messages: return "bell.fill"
         case .call: return "phone.fill"
         case .devices: return "gearshape.fill"
         }

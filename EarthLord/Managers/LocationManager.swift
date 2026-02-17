@@ -5,6 +5,8 @@ import UserNotifications
 import UIKit
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    static let shared = LocationManager()
+
     private let manager = CLLocationManager()
 
     // MARK: - 验证常量 (保留原有)

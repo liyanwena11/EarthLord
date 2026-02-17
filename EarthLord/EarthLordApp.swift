@@ -16,6 +16,7 @@ struct EarthLordApp: App {
         WindowGroup {
             if skipAuthForTesting {
                 MainTabView()
+                    .environmentObject(AuthManager.shared)
             } else {
                 AuthFlowView()
             }
@@ -33,6 +34,7 @@ struct AuthFlowView: View {
                 LaunchScreenView()
             } else if authManager.isAuthenticated {
                 MainTabView()
+                    .environmentObject(authManager)
             } else {
                 AuthView()
             }
