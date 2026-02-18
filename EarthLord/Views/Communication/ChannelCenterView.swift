@@ -16,6 +16,8 @@ struct ChannelCenterView: View {
     @State private var searchText = ""
     @State private var showCreateSheet = false
     @State private var selectedChannel: CommunicationChannel?
+    @State private var selectedOfficialChannel: CommunicationChannel?
+    @State private var showingOfficialChannel = false
 
     var body: some View {
         ZStack {
@@ -81,6 +83,11 @@ struct ChannelCenterView: View {
         .sheet(item: $selectedChannel) { channel in
             ChannelDetailView(channel: channel)
                 .environmentObject(authManager)
+        }
+        .sheet(isPresented: $showingOfficialChannel) {
+            if let channel = selectedOfficialChannel {
+                OfficialChannelDetailView(channel: channel)
+            }
         }
         .onAppear { loadData() }
     }
@@ -153,7 +160,14 @@ struct ChannelCenterView: View {
     // MARK: - Channel Row
 
     private func channelRow(channel: CommunicationChannel, isSubscribed: Bool) -> some View {
-        Button(action: { selectedChannel = channel }) {
+        Button(action: {
+            if channel.channelType == .official {
+                selectedOfficialChannel = channel
+                showingOfficialChannel = true
+            } else {
+                selectedChannel = channel
+            }
+        }) {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()
