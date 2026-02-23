@@ -5,7 +5,7 @@ import UIKit
 struct ProfileTabView: View {
     @ObservedObject private var authManager = AuthManager.shared
     @ObservedObject private var langManager = LanguageManager.shared
-    @StateObject private var engine = EarthLordEngine.shared
+    @ObservedObject private var territoryManager = TerritoryManager.shared
     @ObservedObject private var backpack = ExplorationManager.shared
 
     @State private var showDeleteAlert = false
@@ -113,7 +113,7 @@ struct ProfileTabView: View {
 
                         // MARK: - 数据统计（3 格）
                         HStack(spacing: 0) {
-                            StatItem(icon: "flag.fill", value: "\(engine.claimedTerritories.count)", label: "领地") {
+                            StatItem(icon: "flag.fill", value: "\(territoryManager.myTerritories.count)", label: "领地") {
                                 showStatDetail = .territories
                             }
                             Divider().frame(height: 40).background(Color.white.opacity(0.1))
@@ -288,7 +288,7 @@ struct ProfileTabView: View {
         }
         // ✅ 添加详情弹窗
         .sheet(item: $showStatDetail) { detailType in
-            StatDetailView(detailType: detailType, engine: engine, backpack: backpack)
+            StatDetailView(detailType: detailType, territoryManager: territoryManager, backpack: backpack)
         }
         .sheet(item: $showMiniStatDetail) { detailType in
             MiniStatDetailView(detailType: detailType, engine: engine, backpack: backpack)
@@ -407,7 +407,7 @@ enum MiniStatDetailType: String, Identifiable {
 
 struct StatDetailView: View {
     let detailType: StatDetailType
-    @ObservedObject var engine: EarthLordEngine
+    @ObservedObject var territoryManager: TerritoryManager
     @ObservedObject var backpack: ExplorationManager
     @Environment(\.dismiss) private var dismiss
 
@@ -417,7 +417,7 @@ struct StatDetailView: View {
                 VStack(spacing: 20) {
                     switch detailType {
                     case .territories:
-                        TerritoryDetailContent(engine: engine)
+                        TerritoryDetailContent(territoryManager: territoryManager)
                     case .backpack:
                         BackpackDetailContent(backpack: backpack)
                     case .survivors:
@@ -529,24 +529,24 @@ struct JoinDateDetailView: View {
 // MARK: - 详情内容视图
 
 struct TerritoryDetailContent: View {
-    @ObservedObject var engine: EarthLordEngine
+    @ObservedObject var territoryManager: TerritoryManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("已占领 \(engine.claimedTerritories.count) 个领地")
+            Text("已占领 \(territoryManager.myTerritories.count) 个领地")
                 .font(.headline)
 
-            if engine.claimedTerritories.isEmpty {
+            if territoryManager.myTerritories.isEmpty {
                 Text("尚未占领任何领地")
                     .foregroundColor(.secondary)
             } else {
-                ForEach(engine.claimedTerritories) { territory in
+                ForEach(territoryManager.myTerritories) { territory in
                     VStack(alignment: .leading, spacing: 8) {
                         Text(territory.name).font(.subheadline.bold())
                         Text("面积: \(Int(territory.area)) ㎡")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("采样点: \(territory.pointCount) 个")
+                        Text("采样点: \(territory.displayPointCount) 个")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

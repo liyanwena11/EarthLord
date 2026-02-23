@@ -1,0 +1,168 @@
+# 🚀 超简单修复步骤 - 5 分钟解决问题
+
+## 📝 问题分析
+
+从你的日志看：
+- ✅ 频道创建成功（数据库有写入权限）
+- ❌ 频道加载失败（数据库缺少字段，Swift 无法解码）
+
+**必须执行 SQL 修复！**
+
+---
+
+## 🔧 修复步骤（3 步完成）
+
+### 步骤 1: 打开 Supabase SQL Editor
+
+1. 访问：https://supabase.com/dashboard
+2. 选择项目：`EarthLord (lkekxzssfrspkyxtqysx)`
+3. 点击左侧 **"SQL Editor"**
+4. 点击 **"New query"**
+
+### 步骤 2: 复制粘贴以下 4 行 SQL
+
+**逐个复制并执行**（每次复制一行，点击 Run）：
+
+```sql
+ALTER TABLE public.communication_channels ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+```
+点击 **Run** ✅
+
+---
+
+```sql
+ALTER TABLE public.channel_subscriptions ADD COLUMN IF NOT EXISTS is_muted BOOLEAN DEFAULT false;
+```
+点击 **Run** ✅
+
+---
+
+```sql
+ALTER TABLE public.channel_messages ADD COLUMN IF NOT EXISTS sender_callsign TEXT;
+```
+点击 **Run** ✅
+
+---
+
+```sql
+ALTER TABLE public.channel_messages ADD COLUMN IF NOT EXISTS metadata JSONB;
+```
+点击 **Run** ✅
+
+### 步骤 3: 重启 App
+
+1. **完全关闭 App**（从 iPhone 后台清除）
+2. **重新启动 App**
+3. 进入"频道中心"
+4. 查看控制台日志
+
+---
+
+## ✅ 成功标志
+
+修复成功后，你会看到：
+
+```
+✅ [频道] 加载公开频道: 3 个
+✅ [频道] 加载已订阅频道: 1 个
+📊 [频道中心] 数据加载完成:
+  - 公开频道: 3 个
+  - 已订阅频道: 1 个
+```
+
+而不是：
+
+```
+❌ [频道] 加载公开频道失败: 未能读取数据，因为数据缺失。
+```
+
+---
+
+## 📞 如果遇到问题
+
+### 问题 A: Supabase 页面无法打开
+
+**解决方案 1**: 刷新页面
+- 按 `Cmd + R` 刷新
+
+**解决方案 2**: 使用无痕模式
+- Safari: `Cmd + Shift + N`
+- Chrome: `Cmd + Shift + N`
+
+**解决方案 3**: 清除缓存
+- Safari: 偏好设置 → 隐私 → 管理网站数据 → 移除全部
+
+### 问题 B: SQL 执行报错
+
+**如果看到错误**：`column already exists`
+- ✅ 这是好消息！说明字段已存在
+- 继续执行下一行即可
+
+**如果看到错误**：`relation "xxx" does not exist`
+- ❌ 说明表不存在
+- 需要先运行完整的表创建脚本
+
+### 问题 C: 执行后仍然失败
+
+**检查字段是否真的添加成功**：
+
+在 SQL Editor 中运行：
+
+```sql
+SELECT table_name, column_name
+FROM information_schema.columns
+WHERE table_schema = 'public'
+AND table_name IN ('communication_channels', 'channel_subscriptions', 'channel_messages')
+AND column_name IN ('updated_at', 'is_muted', 'sender_callsign', 'metadata')
+ORDER BY table_name, column_name;
+```
+
+**应该看到 4 行结果**。
+
+---
+
+## 📋 快速参考
+
+**4 行 SQL（直接复制）**：
+
+```sql
+ALTER TABLE public.communication_channels ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.channel_subscriptions ADD COLUMN IF NOT EXISTS is_muted BOOLEAN DEFAULT false;
+ALTER TABLE public.channel_messages ADD COLUMN IF NOT EXISTS sender_callsign TEXT;
+ALTER TABLE public.channel_messages ADD COLUMN IF NOT EXISTS metadata JSONB;
+```
+
+---
+
+## 🎯 其他问题
+
+### 商城问题
+
+```
+📦 [IAP] StoreKit 返回产品数量: 0
+```
+
+**原因**：App Store Connect 没有配置产品
+
+**解决方案**：
+1. 登录 App Store Connect
+2. 进入 App → In-App Purchases
+3. 创建 4 个消耗型产品：
+   - `com.earthlord.supply.survivor` - ¥6
+   - `com.earthlord.supply.explorer` - ¥18
+   - `com.earthlord.supply.lord` - ¥30
+   - `com.earthlord.supply.overlord` - ¥68
+
+### 交易系统问题
+
+```
+❌ [交易] 获取交易历史失败: column trade_history.seller_id does not exist
+```
+
+**暂时忽略**，这个不影响频道功能。
+
+---
+
+**现在立即去 Supabase 执行那 4 行 SQL！** 🚀
+
+执行完成后，重启 App，把新的控制台日志发给我！

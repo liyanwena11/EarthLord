@@ -78,6 +78,13 @@ struct PTTCallView: View {
             if selectedChannelId == nil {
                 selectedChannelId = sendableChannels.first?.channel.id
             }
+            // ✅ 初始化设备列表和当前设备
+            Task {
+                await communicationManager.fetchUserDevices()
+                if communicationManager.currentDevice == nil {
+                    try? await communicationManager.unlockDevice(deviceType: .radio)
+                }
+            }
         }
         .overlay(successToast)
         .onTapGesture {

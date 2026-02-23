@@ -99,6 +99,11 @@ struct Territory: Codable, Identifiable {
     var calculatedPointCount: Int {
         return pointCount ?? path.count
     }
+
+    /// 显示采样点数量的计算属性（兼容显示）
+    var displayPointCount: Int {
+        return pointCount ?? path.count
+    }
 }
 
 // Hashable conformance for sheet(item:)
