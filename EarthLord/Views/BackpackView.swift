@@ -4,6 +4,7 @@ struct BackpackView: View {
     @ObservedObject private var manager = ExplorationManager.shared
     @State private var usedItemName: String?
     @State private var showUsedToast = false
+    @State private var isLoading = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -74,8 +75,15 @@ struct BackpackView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("物资背包")
-        .onAppear { manager.updateWeight() }
-        .id(manager.backpackItems.count)
+        .onAppear {
+            manager.updateWeight()
+            isLoading = false
+        }
+        .refreshable {
+            // 下拉刷新重新加载数据
+            manager.updateWeight()
+        }
+        .id("backpack-\(manager.backpackItems.count)-\(manager.totalWeight)")
         // 使用提示 Toast
         .overlay(alignment: .top) {
             if showUsedToast, let name = usedItemName {

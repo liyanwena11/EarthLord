@@ -1,4 +1,6 @@
 //
+
+#if DEBUG
 //  SupabaseTestView.swift
 //  EarthLord
 //
@@ -214,3 +216,4 @@ struct EmptyResponse: Codable {
 #Preview {
     SupabaseTestView()
 }
+#endif

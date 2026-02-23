@@ -74,6 +74,7 @@ struct CreateChannelView: View {
                                             }
                                         }
                                         .padding()
+                                        .contentShape(Rectangle()) // ✅ 修复 iPad 点击区域
                                         .background(ApocalypseTheme.cardBackground)
                                         .cornerRadius(12)
                                         .overlay(
@@ -81,6 +82,7 @@ struct CreateChannelView: View {
                                                 .stroke(channelType == type ? ApocalypseTheme.primary : ApocalypseTheme.textMuted.opacity(0.3), lineWidth: 1)
                                         )
                                     }
+                                    .buttonStyle(PlainButtonStyle()) // ✅ 避免手势冲突
                                 }
                             }
                         }
@@ -140,10 +142,25 @@ struct CreateChannelView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(canCreate && !isCreating ? ApocalypseTheme.primary : ApocalypseTheme.primary.opacity(0.4))
+                            .background(canCreate && !isCreating ? ApocalypseTheme.primary : Color.gray.opacity(0.4))
                             .cornerRadius(12)
                         }
                         .disabled(!canCreate || isCreating)
+                        .buttonStyle(PlainButtonStyle()) // ✅ 修复 iPad 手势冲突
+                        .contentShape(Rectangle()) // ✅ 确保整个按钮区域可点击
+
+                        // 验证提示
+                        if !canCreate && !channelName.isEmpty {
+                            Text(nameValidation.message)
+                                .font(.caption)
+                                .foregroundColor(ApocalypseTheme.danger)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else if channelName.isEmpty {
+                            Text("请输入频道名称后创建")
+                                .font(.caption)
+                                .foregroundColor(ApocalypseTheme.textMuted)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
                     }
                     .padding()
                 }
@@ -177,17 +194,24 @@ struct CreateChannelView: View {
 
         Task {
             do {
-                _ = try await communicationManager.createChannel(
+                LogDebug("🔨 [创建频道] 开始创建频道: \(name)")
+                let channelId = try await communicationManager.createChannel(
                     userId: userId,
                     type: channelType,
                     name: name,
                     description: desc
                 )
+                LogInfo("✅ [创建频道] 频道创建成功: \(channelId)")
                 await MainActor.run {
                     isCreating = false
+
+                    // ✅ 发送通知刷新频道列表
+                    NotificationCenter.default.post(name: .channelUpdated, object: nil)
+                    LogDebug("📡 [创建频道] 已发送 channelUpdated 通知")
                     dismiss()
                 }
             } catch {
+                LogError("❌ [创建频道] 创建失败: \(error.localizedDescription)")
                 await MainActor.run {
                     isCreating = false
                     errorMessage = "创建失败: \(error.localizedDescription)"

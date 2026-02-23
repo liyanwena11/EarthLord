@@ -22,6 +22,7 @@ struct MainTabView: View {
                         .tag(2)
 
                     CommunicationTabView()
+                        .environmentObject(AuthManager.shared)
                         .tabItem { Label("通讯", systemImage: "antenna.radiowaves.left.and.right") }
                         .tag(3)
 

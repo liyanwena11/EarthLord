@@ -71,7 +71,7 @@ struct POIDetailView: View {
                             isSearching = false
                             showResult = true
 
-                            print("🎲 在 \(poi.name) 搜刮到：\(lootedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+                            LogDebug("🎲 在 \(poi.name) 搜刮到：\(lootedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
                         }
                     }) {
                         HStack {

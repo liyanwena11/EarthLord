@@ -1,4 +1,6 @@
 import SwiftUI
+
+#if DEBUG
 import Supabase
 
 struct TestView: View {
@@ -90,3 +92,4 @@ struct TestView: View {
 #Preview {
     TestView()
 }
+#endif

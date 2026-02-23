@@ -26,22 +26,30 @@ struct MoreTabView: View {
                             SectionHeader(icon: "star.fill", title: "Quick Access", subtitle: "Quick access to common features")
 
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
-                                Button(action: { print("Data Statistics tapped") }) {
+                                Button(action: {
+                                    LogDebug("Data Statistics tapped")
+                                }) {
                                     QuickAccessButton(icon: "chart.bar.fill", title: "Data Statistics", color: .blue)
                                 }
                                 .buttonStyle(PlainButtonStyle())
 
-                                Button(action: { print("Achievement tapped") }) {
+                                Button(action: {
+                                    LogDebug("Achievement tapped")
+                                }) {
                                     QuickAccessButton(icon: "trophy.fill", title: "Achievement System", color: .yellow)
                                 }
                                 .buttonStyle(PlainButtonStyle())
 
-                                Button(action: { print("Friends tapped") }) {
+                                Button(action: {
+                                    LogDebug("Friends tapped")
+                                }) {
                                     QuickAccessButton(icon: "person.2.fill", title: "Friends List", color: .green)
                                 }
                                 .buttonStyle(PlainButtonStyle())
 
-                                Button(action: { print("Messages tapped") }) {
+                                Button(action: {
+                                    LogDebug("Messages tapped")
+                                }) {
                                     QuickAccessButton(icon: "envelope.fill", title: "Message Center", color: .red)
                                 }
                                 .buttonStyle(PlainButtonStyle())

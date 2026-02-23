@@ -37,7 +37,7 @@ class CommunicationManager: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     private init() {
-        print("📡 [通讯] CommunicationManager 初始化完成")
+        LogDebug("📡 [通讯] CommunicationManager 初始化完成")
     }
 
     private func currentUserId() async -> UUID? {
@@ -65,7 +65,7 @@ class CommunicationManager: ObservableObject {
                 self.isLoading = false 
             }
         } catch {
-            print("❌ [通讯] 获取设备失败: \(error.localizedDescription)")
+            LogError("❌ [通讯] 获取设备失败: \(error.localizedDescription)")
             await MainActor.run { 
                 self.isLoading = false 
                 self.errorMessage = "获取设备失败"
@@ -93,7 +93,7 @@ class CommunicationManager: ObservableObject {
             .execute()
 
         await fetchUserDevices()
-        print("📡 [通讯] ✅ 设置当前设备成功: \(deviceId)")
+        LogInfo("📡 [通讯] ✅ 设置当前设备成功: \(deviceId)")
     }
 
     func unlockDevice(deviceType: DeviceType) async throws {
@@ -127,10 +127,54 @@ class CommunicationManager: ObservableObject {
         }
 
         await fetchUserDevices()
-        print("📡 [通讯] ✅ 解锁设备成功: \(deviceType.displayName)")
+        LogInfo("📡 [通讯] ✅ 解锁设备成功: \(deviceType.displayName)")
     }
 
     // MARK: - Initialize Devices
+
+    /// 确保用户有默认设备（如果没有任何设备则创建）
+    func ensureDefaultDevice() async {
+        guard let userId = await currentUserId() else { return }
+
+        // 检查用户是否已有设备
+        let existingDevices: [CommunicationDevice]
+        do {
+            existingDevices = try await supabase
+                .from("communication_devices")
+                .select()
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+                .value
+        } catch {
+            LogError("❌ [通讯] 检查设备失败: \(error.localizedDescription)")
+            return
+        }
+
+        if existingDevices.isEmpty {
+            // 创建默认对讲机设备
+            let defaultDevice = CommunicationDevice(
+                id: UUID(),
+                userId: userId,
+                deviceType: .walkieTalkie,
+                deviceLevel: 1,
+                isUnlocked: true,
+                isCurrent: true,
+                createdAt: Date(),
+                updatedAt: Date()
+            )
+
+            do {
+                try await supabase
+                    .from("communication_devices")
+                    .insert(defaultDevice)
+                    .execute()
+                LogInfo("📡 [通讯] ✅ 创建默认对讲机设备成功")
+                await fetchUserDevices()
+            } catch {
+                LogError("❌ [通讯] 创建默认设备失败: \(error.localizedDescription)")
+            }
+        }
+    }
 
     func initializeUserDevices() async throws {
         guard let userId = await currentUserId() else { throw CommunicationError.notConfigured }
@@ -195,7 +239,7 @@ class CommunicationManager: ObservableObject {
                     .execute()
             }
 
-            print("📡 [通讯] ✅ 初始化默认设备成功")
+            LogInfo("📡 [通讯] ✅ 初始化默认设备成功")
         }
 
         await fetchUserDevices()
@@ -204,6 +248,7 @@ class CommunicationManager: ObservableObject {
     // MARK: - Channel Methods
 
     func loadPublicChannels() async {
+        LogDebug("📡 [频道] 开始加载公开频道...")
         do {
             let result: [CommunicationChannel] = try await supabase
                 .from("communication_channels")
@@ -214,9 +259,36 @@ class CommunicationManager: ObservableObject {
                 .value
 
             await MainActor.run { self.channels = result }
-            print("📡 [频道] ✅ 加载公开频道: \(result.count) 个")
+            LogInfo("📡 [频道] ✅ 加载公开频道: \(result.count) 个")
+
+            // 详细日志
+            for (index, channel) in result.prefix(5).enumerated() {
+                LogDebug("  [\(index+1)] \(channel.name) - \(channel.channelType.displayName)")
+            }
+            if result.count > 5 {
+                LogDebug("  ... 还有 \(result.count - 5) 个频道")
+            }
         } catch {
-            print("❌ [频道] 加载公开频道失败: \(error.localizedDescription)")
+            LogError("❌ [频道] 加载公开频道失败")
+            LogError("  错误: \(error.localizedDescription)")
+
+            // 详细错误诊断
+            if let decodingError = error as? DecodingError {
+                switch decodingError {
+                case .typeMismatch(let type, let context):
+                    LogError("  类型不匹配: 期望 \(type), 路径: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))")
+                case .valueNotFound(let type, let context):
+                    LogError("  值未找到: 类型 \(type), 路径: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))")
+                case .keyNotFound(let key, let context):
+                    LogError("  键未找到: \(key.stringValue), 路径: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))")
+                default:
+                    LogError("  其他解码错误: \(decodingError)")
+                }
+            }
+
+            await MainActor.run {
+                self.errorMessage = "加载频道失败: \(error.localizedDescription)"
+            }
         }
     }
 
@@ -253,16 +325,16 @@ class CommunicationManager: ObservableObject {
             }
 
             await MainActor.run { self.subscribedChannels = combined }
-            print("📡 [频道] ✅ 加载已订阅频道: \(combined.count) 个")
+            LogInfo("📡 [频道] ✅ 加载已订阅频道: \(combined.count) 个")
         } catch {
-            print("❌ [频道] 加载已订阅频道失败: \(error.localizedDescription)")
+            LogError("❌ [频道] 加载已订阅频道失败: \(error.localizedDescription)")
         }
     }
 
     func createChannel(userId: UUID, type: ChannelType, name: String, description: String?, latitude: Double? = nil, longitude: Double? = nil) async throws -> UUID {
         let params: [String: AnyJSON] = [
             "p_creator_id": .string(userId.uuidString),
-            "p_channel_type": .string(type == .publicChannel ? "public" : type.rawValue),
+            "p_channel_type": .string(type.rawValue),
             "p_name": .string(name),
             "p_description": description.map { .string($0) } ?? .null,
             "p_latitude": latitude.map { .double($0) } ?? .null,
@@ -277,7 +349,7 @@ class CommunicationManager: ObservableObject {
         await loadPublicChannels()
         await loadSubscribedChannels(userId: userId)
 
-        print("📡 [频道] ✅ 创建频道成功: \(name)")
+        LogInfo("📡 [频道] ✅ 创建频道成功: \(name)")
         return channelId
     }
 
@@ -293,7 +365,13 @@ class CommunicationManager: ObservableObject {
 
         await loadPublicChannels()
         await loadSubscribedChannels(userId: userId)
-        print("📡 [频道] ✅ 订阅频道成功")
+
+        // ✅ 发送通知刷新界面
+        await MainActor.run {
+            NotificationCenter.default.post(name: .channelSubscribed, object: channelId)
+        }
+
+        LogInfo("📡 [频道] ✅ 订阅频道成功")
     }
 
     func unsubscribeFromChannel(userId: UUID, channelId: UUID) async throws {
@@ -308,7 +386,13 @@ class CommunicationManager: ObservableObject {
 
         await loadPublicChannels()
         await loadSubscribedChannels(userId: userId)
-        print("📡 [频道] ✅ 取消订阅成功")
+
+        // ✅ 发送通知刷新界面
+        await MainActor.run {
+            NotificationCenter.default.post(name: .channelUnsubscribed, object: channelId)
+        }
+
+        LogInfo("📡 [频道] ✅ 取消订阅成功")
     }
 
     func deleteChannel(channelId: UUID) async throws {
@@ -322,7 +406,7 @@ class CommunicationManager: ObservableObject {
 
         await loadPublicChannels()
         await loadSubscribedChannels(userId: userId)
-        print("📡 [频道] ✅ 删除频道成功")
+        LogInfo("📡 [频道] ✅ 删除频道成功")
     }
 
     func isSubscribed(channelId: UUID) -> Bool {
@@ -345,9 +429,9 @@ class CommunicationManager: ObservableObject {
             await MainActor.run {
                 self.channelMessages[channelId] = messages
             }
-            print("📡 [消息] ✅ 加载消息: \(messages.count) 条")
+            LogInfo("📡 [消息] ✅ 加载消息: \(messages.count) 条")
         } catch {
-            print("❌ [消息] 加载消息失败: \(error.localizedDescription)")
+            LogError("❌ [消息] 加载消息失败: \(error.localizedDescription)")
             await MainActor.run {
                 self.errorMessage = "加载消息失败: \(error.localizedDescription)"
             }
@@ -383,14 +467,14 @@ class CommunicationManager: ObservableObject {
                 .value
 
             await MainActor.run { self.isSendingMessage = false }
-            print("📡 [消息] ✅ 发送成功")
+            LogInfo("📡 [消息] ✅ 发送成功")
             return true
         } catch {
             await MainActor.run {
                 self.errorMessage = "发送失败: \(error.localizedDescription)"
                 self.isSendingMessage = false
             }
-            print("❌ [消息] 发送失败: \(error.localizedDescription)")
+            LogError("❌ [消息] 发送失败: \(error.localizedDescription)")
             return false
         }
     }
@@ -416,7 +500,7 @@ class CommunicationManager: ObservableObject {
         }
 
         await channel.subscribe()
-        print("📡 [Realtime] 消息订阅已启动")
+        LogDebug("📡 [Realtime] 消息订阅已启动")
     }
 
     func stopRealtimeSubscription() async {
@@ -428,7 +512,7 @@ class CommunicationManager: ObservableObject {
             realtimeChannel = nil
         }
 
-        print("📡 [Realtime] 消息订阅已停止")
+        LogDebug("📡 [Realtime] 消息订阅已停止")
     }
 
     private func handleNewMessage(insertion: InsertAction) async {
@@ -451,9 +535,9 @@ class CommunicationManager: ObservableObject {
                     self.channelMessages[message.channelId] = [message]
                 }
             }
-            print("📡 [Realtime] 收到新消息: \(message.content.prefix(20))...")
+            LogDebug("📡 [Realtime] 收到新消息: \(message.content.prefix(20))...")
         } catch {
-            print("❌ [Realtime] 解析消息失败: \(error)")
+            LogError("❌ [Realtime] 解析消息失败: \(error)")
         }
     }
 
@@ -490,27 +574,27 @@ class CommunicationManager: ObservableObject {
         }
 
         guard let myDeviceType = currentDevice?.deviceType else {
-            print("⚠️ [距离过滤] 无法获取当前设备，保守显示消息")
+            LogWarning("⚠️ [距离过滤] 无法获取当前设备，保守显示消息")
             return true
         }
         if myDeviceType == .radio {
-            print("📻 [距离过滤] 收音机用户，接收所有消息")
+            LogDebug("📻 [距离过滤] 收音机用户，接收所有消息")
             return true
         }
         guard let senderDevice = message.senderDeviceType else {
-            print("⚠️ [距离过滤] 消息缺少设备类型，保守显示（向后兼容）")
+            LogWarning("⚠️ [距离过滤] 消息缺少设备类型，保守显示（向后兼容）")
             return true
         }
         if !senderDevice.canSend {
-            print("🚫 [距离过滤] 收音机不能发送消息")
+            LogDebug("🚫 [距离过滤] 收音机不能发送消息")
             return false
         }
         guard let senderLocation = message.senderLocation else {
-            print("⚠️ [距离过滤] 消息缺少位置信息，保守显示")
+            LogWarning("⚠️ [距离过滤] 消息缺少位置信息，保守显示")
             return true
         }
         guard let myLocation = getCurrentLocation() else {
-            print("⚠️ [距离过滤] 无法获取当前位置，保守显示")
+            LogWarning("⚠️ [距离过滤] 无法获取当前位置，保守显示")
             return true
         }
 
@@ -522,7 +606,7 @@ class CommunicationManager: ObservableObject {
         let maxRange = max(senderDevice.range, myDeviceType.range)
         let result = distance <= maxRange
 
-        print(result
+        LogInfo(result
             ? "✅ [距离过滤] 通过: \(senderDevice.rawValue)→\(myDeviceType.rawValue), \(String(format: "%.1f", distance))km"
             : "🚫 [距离过滤] 丢弃: \(senderDevice.rawValue)→\(myDeviceType.rawValue), \(String(format: "%.1f", distance))km > \(maxRange)km")
         return result
@@ -555,15 +639,15 @@ class CommunicationManager: ObservableObject {
     func ensureOfficialChannelSubscribed(userId: UUID) async {
         let officialId = CommunicationManager.officialChannelId
         if subscribedChannels.contains(where: { $0.channel.id == officialId }) {
-            print("✅ [官方频道] 已订阅")
+            LogInfo("✅ [官方频道] 已订阅")
             return
         }
         do {
             try await subscribeToChannel(userId: userId, channelId: officialId)
             await loadSubscribedChannels(userId: userId)
-            print("✅ [官方频道] 已自动订阅")
+            LogInfo("✅ [官方频道] 已自动订阅")
         } catch {
-            print("❌ [官方频道] 订阅失败: \(error)")
+            LogError("❌ [官方频道] 订阅失败: \(error)")
         }
     }
 
@@ -619,7 +703,7 @@ class CommunicationManager: ObservableObject {
                     }
                 }
             } catch {
-                print("❌ [消息聚合] 加载频道 \(channelId) 失败: \(error)")
+                LogError("❌ [消息聚合] 加载频道 \(channelId) 失败: \(error)")
             }
         }
     }
@@ -647,4 +731,12 @@ extension CommunicationError: LocalizedError {
             return message
         }
     }
+}
+
+// MARK: - Notifications
+
+extension Notification.Name {
+    static let channelUpdated = Notification.Name("channelUpdated")
+    static let channelSubscribed = Notification.Name("channelSubscribed")
+    static let channelUnsubscribed = Notification.Name("channelUnsubscribed")
 }

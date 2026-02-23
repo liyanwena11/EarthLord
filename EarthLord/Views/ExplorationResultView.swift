@@ -70,7 +70,7 @@ struct ExplorationResultView: View {
                 Button(action: {
                     // ✅ 核心修复：调用 addItems 真正添加物品
                     let count = manager.addItems(items: result.itemsFound)
-                    print("✅ 已放入背包：\(count) 件物品")
+                    LogInfo("✅ 已放入背包：\(count) 件物品")
                     dismiss()
                 }) {
                     Text("好的")

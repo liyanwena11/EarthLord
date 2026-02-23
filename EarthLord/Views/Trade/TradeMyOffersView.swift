@@ -62,7 +62,7 @@ struct TradeMyOffersView: View {
         do {
             await tradeManager.fetchMyOffers()
         } catch {
-            print("❌ 刷新我的挂单失败: \(error.localizedDescription)")
+            LogError("❌ 刷新我的挂单失败: \(error.localizedDescription)")
         }
         await MainActor.run { isLoading = false }
     }
@@ -133,7 +133,7 @@ struct TradeMyOffersView: View {
         VStack(alignment: .leading, spacing: 12) {
             // 状态和时间
             HStack(spacing: 8) {
-                TradeStatusBadge(status: offer.status)
+                MyOfferStatusBadge(status: offer.status)
                 Spacer()
                 Text(offer.formattedRemainingTime)
                     .font(.caption)
@@ -226,7 +226,7 @@ struct TradeMyOffersView: View {
             alert.addAction(UIAlertAction(title: "确定", style: .default))
             UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
         } catch {
-            print("❌ 取消挂单失败: \(error.localizedDescription)")
+            LogError("❌ 取消挂单失败: \(error.localizedDescription)")
             await MainActor.run { isLoading = false }
             // 显示失败提示
             let alert = UIAlertController(title: "失败", message: "取消挂单失败，请重试。", preferredStyle: .alert)
@@ -237,7 +237,7 @@ struct TradeMyOffersView: View {
 }
 
 // MARK: - 状态标签组件
-struct TradeStatusBadge: View {
+struct MyOfferStatusBadge: View {
     let status: TradeOfferStatus
     
     var body: some View {

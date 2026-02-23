@@ -6,10 +6,11 @@ struct EarthLordApp: App {
     private let skipAuthForTesting = false
 
     init() {
-        print("🚀🚀🚀 [EarthLordApp] ========== App init 开始 ==========")
+        LogDebug("🚀🚀🚀 [EarthLordApp] ========== App init 开始 ==========")
         // 预热 EarthLordEngine（确保 GPS 在 App 启动时就开始）
         _ = EarthLordEngine.shared
-        print("🚀🚀🚀 [EarthLordApp] ========== App init 完成 ==========")
+        // ✅ 移除 StoreKitTransactionObserver - 应用使用 StoreKit 2，不需要旧的交易监听
+        LogDebug("🚀🚀🚀 [EarthLordApp] ========== App init 完成 ==========")
     }
 
     var body: some Scene {

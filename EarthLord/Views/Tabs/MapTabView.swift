@@ -72,7 +72,7 @@ struct MapTabView: View {
                         .font(.system(size: 14))
                     }
 
-                    Button(action: { print("物资速递按钮点击") }) {
+                    Button(action: { LogDebug("物资速递按钮点击") }) {
                         VStack {
                             Text("物资速递")
                                 .font(.system(size: 12))
@@ -90,7 +90,7 @@ struct MapTabView: View {
                         .foregroundColor(.white).cornerRadius(12)
                     }
 
-                    Button(action: { print("定位按钮点击") }) {
+                    Button(action: { LogDebug("定位按钮点击") }) {
                         Image(systemName: "location.fill")
                             .frame(width: 50, height: 50)
                             .background(Color.orange)
@@ -123,7 +123,7 @@ struct MapTabView: View {
         .overlay(alignment: .bottomTrailing) {
             Button(action: {
                 shouldCenterOnUser = true
-                print("📍 [MapTabView] 用户点击定位按钮")
+                LogDebug("📍 [MapTabView] 用户点击定位按钮")
             }) {
                 Image(systemName: "location.fill")
                     .font(.title2)

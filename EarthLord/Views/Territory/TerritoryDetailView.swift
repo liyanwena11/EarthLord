@@ -126,10 +126,15 @@ struct TerritoryDetailView: View {
                 BuildingBrowserView(
                     territoryId: territory.id,
                     onStartConstruction: { template in
+                        LogDebug("🏗️ [TerritoryDetailView] 用户选择建筑: \(template.name)")
                         showBuildingBrowser = false
-                        // 延迟 0.3s 避免 Sheet 动画冲突
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            selectedTemplateForConstruction = template
+                        // 使用 async/await 确保 Sheet 动画完成
+                        Task {
+                            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 秒
+                            await MainActor.run {
+                                LogDebug("🏗️ [TerritoryDetailView] 准备显示建造确认页")
+                                selectedTemplateForConstruction = template
+                            }
                         }
                     },
                     onDismiss: { showBuildingBrowser = false }
@@ -152,6 +157,12 @@ struct TerritoryDetailView: View {
             )
         }
         .onAppear {
+            LogDebug("🏰 [TerritoryDetailView] onAppear")
+            LogDebug("  - 领地 ID: \(territory.id)")
+            LogDebug("  - 领地名称: \(territory.displayName)")
+            LogDebug("  - 领地路径点数: \(territory.path.count)")
+            LogDebug("  - 转换后坐标数: \(territoryCoordinates.count)")
+
             buildingManager.loadTemplates()
             Task {
                 await buildingManager.fetchPlayerBuildings(territoryId: territory.id)
@@ -337,7 +348,7 @@ struct TerritoryDetailView: View {
             try await buildingManager.upgradeBuilding(buildingId: building.id)
             await buildingManager.fetchPlayerBuildings(territoryId: territory.id)
         } catch {
-            print("[TerritoryDetailView] 升级失败: \(error.localizedDescription)")
+            LogError("[TerritoryDetailView] 升级失败: \(error.localizedDescription)")
         }
     }
 
@@ -347,7 +358,7 @@ struct TerritoryDetailView: View {
             try await buildingManager.demolishBuilding(buildingId: building.id)
             await buildingManager.fetchPlayerBuildings(territoryId: territory.id)
         } catch {
-            print("[TerritoryDetailView] 拆除失败: \(error.localizedDescription)")
+            LogError("[TerritoryDetailView] 拆除失败: \(error.localizedDescription)")
         }
     }
 
@@ -374,7 +385,10 @@ struct TerritoryDetailView: View {
                     isActive: territory.isActive,
                     completedAt: territory.completedAt,
                     startedAt: territory.startedAt,
-                    createdAt: territory.createdAt
+                    createdAt: territory.createdAt,
+                    level: territory.level,
+                    experience: territory.experience,
+                    prosperity: territory.prosperity
                 )
 
                 // 发送通知刷新领地列表

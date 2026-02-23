@@ -14,10 +14,21 @@ struct ChannelCenterView: View {
 
     @State private var selectedTab = 0
     @State private var searchText = ""
-    @State private var showCreateSheet = false
-    @State private var selectedChannel: CommunicationChannel?
-    @State private var selectedOfficialChannel: CommunicationChannel?
-    @State private var showingOfficialChannel = false
+    @State private var activeSheet: ChannelSheet?
+
+    enum ChannelSheet: Identifiable {
+        case create
+        case detail(CommunicationChannel)
+        case official(CommunicationChannel)
+
+        var id: String {
+            switch self {
+            case .create: return "create"
+            case .detail(let c): return "detail-\(c.id)"
+            case .official(let c): return "official-\(c.id)"
+            }
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -32,7 +43,7 @@ struct ChannelCenterView: View {
 
                     Spacer()
 
-                    Button(action: { showCreateSheet = true }) {
+                    Button(action: { activeSheet = .create }) {
                         HStack(spacing: 4) {
                             Image(systemName: "plus.circle.fill")
                             Text("创建")
@@ -76,20 +87,31 @@ struct ChannelCenterView: View {
                 }
             }
         }
-        .sheet(isPresented: $showCreateSheet) {
-            CreateChannelView()
-                .environmentObject(authManager)
-        }
-        .sheet(item: $selectedChannel) { channel in
-            ChannelDetailView(channel: channel)
-                .environmentObject(authManager)
-        }
-        .sheet(isPresented: $showingOfficialChannel) {
-            if let channel = selectedOfficialChannel {
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .create:
+                CreateChannelView()
+                    .environmentObject(authManager)
+            case .detail(let channel):
+                ChannelDetailView(channel: channel)
+                    .environmentObject(authManager)
+            case .official(let channel):
                 OfficialChannelDetailView(channel: channel)
             }
         }
         .onAppear { loadData() }
+        .onReceive(NotificationCenter.default.publisher(for: .channelUpdated)) { _ in
+            LogDebug("📡 [频道中心] 收到 channelUpdated 通知，刷新数据")
+            loadData()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .channelSubscribed)) { _ in
+            LogDebug("📡 [频道中心] 收到 channelSubscribed 通知，刷新数据")
+            loadData()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .channelUnsubscribed)) { _ in
+            LogDebug("📡 [频道中心] 收到 channelUnsubscribed 通知，刷新数据")
+            loadData()
+        }
     }
 
     // MARK: - Tab Button
@@ -162,10 +184,9 @@ struct ChannelCenterView: View {
     private func channelRow(channel: CommunicationChannel, isSubscribed: Bool) -> some View {
         Button(action: {
             if channel.channelType == .official {
-                selectedOfficialChannel = channel
-                showingOfficialChannel = true
+                activeSheet = .official(channel)
             } else {
-                selectedChannel = channel
+                activeSheet = .detail(channel)
             }
         }) {
             HStack(spacing: 14) {
@@ -234,10 +255,21 @@ struct ChannelCenterView: View {
     // MARK: - Data Loading
 
     private func loadData() {
+        LogDebug("🔄 [频道中心] 开始加载频道数据...")
         Task {
-            guard let userId = authManager.currentUser?.id else { return }
+            guard let userId = authManager.currentUser?.id else {
+                LogWarning("⚠️ [频道中心] 用户未登录，无法加载数据")
+                return
+            }
+            LogDebug("📡 [频道中心] 用户ID: \(userId)")
             await communicationManager.loadPublicChannels()
             await communicationManager.loadSubscribedChannels(userId: userId)
+
+            await MainActor.run {
+                LogDebug("📊 [频道中心] 数据加载完成:")
+                LogDebug("  - 公开频道: \(communicationManager.channels.count) 个")
+                LogDebug("  - 已订阅频道: \(communicationManager.subscribedChannels.count) 个")
+            }
         }
     }
 }

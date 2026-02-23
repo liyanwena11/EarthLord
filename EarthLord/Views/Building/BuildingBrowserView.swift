@@ -35,10 +35,10 @@ struct BuildingBrowserView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(BuildingCategory.allCases, id: \.self) { category in
-                                CategoryChip(
+                                BuildingCategoryChip(
                                     category: category,
                                     isSelected: selectedCategory == category,
-                                    action: { selectedCategory = category }
+                                    onTap: { selectedCategory = category }
                                 )
                             }
                         }
@@ -99,8 +99,29 @@ struct BuildingBrowserView: View {
                 BuildingDetailView(template: template, territoryId: territoryId)
             }
             .onAppear {
-                Task { await buildingManager.fetchPlayerBuildings(territoryId: territoryId) }
-                if inventoryManager.items.isEmpty { Task { await inventoryManager.loadInventory() } }
+                LogDebug("🏗️ [BuildingBrowserView] onAppear 开始")
+                LogDebug("  - territoryId: \(territoryId)")
+                LogDebug("  - 建筑模板数量: \(buildingManager.buildingTemplates.count)")
+                LogDebug("  - 筛选后的模板数量: \(filteredTemplates.count)")
+                LogDebug("  - 当前分类: \(selectedCategory.rawValue)")
+
+                Task {
+                    await buildingManager.fetchPlayerBuildings(territoryId: territoryId)
+                    await MainActor.run {
+                        LogDebug("🏗️ [BuildingBrowserView] fetchPlayerBuildings 完成")
+                        LogDebug("  - 建筑模板数量: \(buildingManager.buildingTemplates.count)")
+                        LogDebug("  - 玩家建筑数量: \(buildingManager.playerBuildings.count)")
+                    }
+                }
+                if inventoryManager.items.isEmpty {
+                    Task {
+                        await inventoryManager.loadInventory()
+                        await MainActor.run {
+                            LogDebug("🏗️ [BuildingBrowserView] loadInventory 完成")
+                            LogDebug("  - 物品数量: \(inventoryManager.items.count)")
+                        }
+                    }
+                }
             }
         }
     }
@@ -108,13 +129,13 @@ struct BuildingBrowserView: View {
 
 // MARK: - Category Chip
 
-struct CategoryChip: View {
+struct BuildingCategoryChip: View {
     let category: BuildingCategory
     let isSelected: Bool
-    let action: () -> Void
+    let onTap: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: onTap) {
             HStack(spacing: 6) {
                 Image(systemName: category.icon)
                     .font(.system(size: 12))

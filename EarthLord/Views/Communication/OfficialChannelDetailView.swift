@@ -71,7 +71,7 @@ struct OfficialChannelDetailView: View {
     private var categoryFilter: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                CategoryChip(
+                OfficialCategoryChip(
                     title: "全部",
                     icon: "list.bullet",
                     color: ApocalypseTheme.primary,
@@ -79,7 +79,7 @@ struct OfficialChannelDetailView: View {
                 ) { selectedCategory = nil }
 
                 ForEach(MessageCategory.allCases, id: \.self) { cat in
-                    CategoryChip(
+                    OfficialCategoryChip(
                         title: cat.displayName,
                         icon: cat.iconName,
                         color: cat.color,
@@ -137,7 +137,7 @@ struct OfficialChannelDetailView: View {
 
 // MARK: - 分类标签组件
 
-struct CategoryChip: View {
+struct OfficialCategoryChip: View {
     let title: String
     let icon: String
     let color: Color

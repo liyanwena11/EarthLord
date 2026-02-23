@@ -1,4 +1,6 @@
 //
+
+#if DEBUG
 //  ExplorationTestView.swift
 //  EarthLord
 //
@@ -123,4 +125,5 @@ struct ExplorationTestView: View {
     ExplorationTestView()
 }
 
+#endif
 #endif

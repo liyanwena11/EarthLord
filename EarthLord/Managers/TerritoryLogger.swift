@@ -91,7 +91,7 @@ final class TerritoryLogger: ObservableObject {
         case .warning: prefix = "⚠️"
         case .error: prefix = "❌"
         }
-        print("\(prefix) [Territory] \(message)")
+        LogDebug("\(prefix) [Territory] \(message)")
     }
 
     /// Clear all logs

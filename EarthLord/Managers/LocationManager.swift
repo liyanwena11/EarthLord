@@ -66,7 +66,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         manager.requestWhenInUseAuthorization()
 
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            print("📢 [LocationManager] 通知权限: \(granted ? "已授予" : "被拒绝")")
+            LogDebug("📢 [LocationManager] 通知权限: \(granted ? "已授予" : "被拒绝")")
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
@@ -159,7 +159,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 let poiLoc = CLLocation(latitude: currentAlertPOI.coordinate.latitude, longitude: currentAlertPOI.coordinate.longitude)
                 let currentDist = location.distance(from: poiLoc)
                 if currentDist > poiExitRadius {
-                    print("🚪 [POI探测] 玩家已离开 \(currentAlertPOI.name)，关闭弹窗")
+                    LogDebug("🚪 [POI探测] 玩家已离开 \(currentAlertPOI.name)，关闭弹窗")
                     DispatchQueue.main.async {
                         self.showPOIPopup = false
                         self.alertPOI = nil
@@ -178,8 +178,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             if distance <= poiTriggerRadius {
                 if poiAlreadyTriggered.contains(poi.id) { continue }
 
-                print("🎯 [POI探测] 发现目标：\(poi.name)，距离：\(Int(distance))m，触发弹窗！")
-
+                LogDebug("🎯 [POI探测] 发现目标：\(poi.name)，距离：\(Int(distance))m，触发弹窗！")
                 DispatchQueue.main.async {
                     self.alertPOI = poi
                     self.showPOIPopup = true
@@ -212,9 +211,67 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func validateTerritory() {
-        // ... 此处保留你原本完整的验证逻辑代码 ...
-        // (为了篇幅，这里不重复粘贴你那段 validateTerritory、calculatePolygonArea 等函数)
-        // 请保留你原有的那段代码
+        guard pathCoordinates.count >= minimumPathPoints else {
+            territoryValidationPassed = false
+            territoryValidationError = "采样点不足，至少需要\(minimumPathPoints)个点，当前\(pathCoordinates.count)个"
+            LogError("❌ [圈地] 采样点不足: \(pathCoordinates.count)/\(minimumPathPoints)")
+            return
+        }
+
+        let area = calculatePolygonArea(from: pathCoordinates)
+        calculatedArea = area
+
+        guard area >= minimumEnclosedArea else {
+            territoryValidationPassed = false
+            territoryValidationError = "面积不足，最小\(Int(minimumEnclosedArea))㎡，当前\(Int(area))㎡"
+            LogError("❌ [圈地] 面积不足: \(Int(area)) < \(Int(minimumEnclosedArea))")
+            return
+        }
+
+        // 检查是否闭合（距离起点≤60米）
+        if let start = pathCoordinates.first, let end = pathCoordinates.last {
+            let startLoc = CLLocation(latitude: start.latitude, longitude: start.longitude)
+            let endLoc = CLLocation(latitude: end.latitude, longitude: end.longitude)
+            let distance = startLoc.distance(from: endLoc)
+
+            if distance > closureDistanceThreshold {
+                territoryValidationPassed = false
+                territoryValidationError = "未闭合到起点，距离起点\(Int(distance))米，需在\(Int(closureDistanceThreshold))米内"
+                LogError("❌ [圈地] 未闭合到起点: \(Int(distance))m > \(Int(closureDistanceThreshold))m")
+                return
+            }
+        }
+
+        territoryValidationPassed = true
+        territoryValidationError = nil
+        LogInfo("✅ [圈地] 验证通过！面积: \(Int(area))㎡，采样点: \(pathCoordinates.count)")
+    }
+
+    // MARK: - 多边形面积计算（Shoelace 公式）
+
+    private func calculatePolygonArea(from coordinates: [CLLocationCoordinate2D]) -> Double {
+        guard coordinates.count >= 3 else { return 0 }
+
+        // 以第一个点为原点，将经纬度转为平面米坐标
+        let origin = coordinates[0]
+        let metersPerDegreeLat = 111320.0
+        let metersPerDegreeLon = 111320.0 * cos(origin.latitude * .pi / 180)
+
+        let xyPoints = coordinates.map { coord -> (x: Double, y: Double) in
+            let x = (coord.longitude - origin.longitude) * metersPerDegreeLon
+            let y = (coord.latitude - origin.latitude) * metersPerDegreeLat
+            return (x, y)
+        }
+
+        // Shoelace 公式
+        var area: Double = 0
+        let n = xyPoints.count
+        for i in 0..<n {
+            let j = (i + 1) % n
+            area += xyPoints[i].x * xyPoints[j].y
+            area -= xyPoints[j].x * xyPoints[i].y
+        }
+        return abs(area) / 2.0
     }
 
     private func sendPOINotification(poi: POIPoint, isEntering: Bool) {

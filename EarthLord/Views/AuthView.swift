@@ -1,4 +1,5 @@
 import SwiftUI
+import AuthenticationServices
 
 struct AuthView: View {
     // 监听我们刚才改好的大脑（✅ 修复：shared 单例用 @ObservedObject）
@@ -23,11 +24,11 @@ struct AuthView: View {
                         .frame(width: 80, height: 80)
                         .foregroundColor(brandOrange)
                     
-                    Text("地球新主")
+                    Text("末世领主")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("征服世界，从脚下开始")
+                    Text("末日生存，探索领地")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -96,6 +97,16 @@ struct AuthView: View {
                     
 
                     
+                    // SIGN IN WITH APPLE 按钮（必须排在第三方登录首位）
+                    SignInWithAppleButton(.signIn) { request in
+                        request.requestedScopes = [.fullName, .email]
+                    } onCompletion: { result in
+                        Task { await authManager.handleAppleSignIn(result) }
+                    }
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(height: 50)
+                    .cornerRadius(10)
+
                     // GOOGLE 登录按钮
                     Button(action: {
                         Task { await authManager.signInWithGoogle() }

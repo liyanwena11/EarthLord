@@ -175,9 +175,11 @@ struct POIProximityPopup: View {
             QuickLootResultView(lootItems: lootedItems)
         }
         .onAppear {
-            // ✅ 简化：使用本地冷却状态，不依赖网络请求
+            // ✅ 修复：正确显示冷却状态
             if !poi.isLootable {
                 cooldownMessage = poi.cooldownString
+            } else {
+                cooldownMessage = nil
             }
         }
     }
@@ -185,7 +187,8 @@ struct POIProximityPopup: View {
     // MARK: - Computed Properties
 
     private var canLoot: Bool {
-        poi.isLootable && poi.status != .looted && cooldownMessage == nil
+        // ✅ 修复：移除 cooldownMessage 依赖，直接判断冷却时间
+        poi.isLootable && poi.status != .looted
     }
 
     private var dangerColor: Color {
@@ -229,8 +232,7 @@ struct POIProximityPopup: View {
             isLooting = false
             showResult = true
 
-            print("🎲 [POI搜刮] 在「\(poi.name)」搜刮到：\(lootedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
-
+            LogDebug("🎲 [POI搜刮] 在「\(poi.name)」搜刮到：\(lootedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
             // 通知外部完成
             onLoot()
         }

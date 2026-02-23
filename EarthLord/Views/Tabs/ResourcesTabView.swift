@@ -8,12 +8,12 @@ struct ResourcesTabView: View {
             VStack(spacing: 0) {
                 // 1. 顶部五段选择器 - 移除 ScrollView 修复触摸问题
                 Picker("板块", selection: $selectedSegment) {
-                    Text("POI").tag(0)
-                    Text("背包").tag(1)
-                    Text("已购").tag(2)
-                    Text("领地").tag(3)
-                    Text("交易").tag(4)
-                }
+                Text("POI").tag(0)
+                Text("背包").tag(1)
+                Text("邮箱").tag(2)
+                Text("领地").tag(3)
+                Text("交易").tag(4)
+            }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 .padding(.vertical, 10)
@@ -25,9 +25,9 @@ struct ResourcesTabView: View {
                     case 0:
                         POIListView()
                     case 1:
-                        ResourceBackpackView()
+                        BackpackView()
                     case 2:
-                        PurchasedStoreView()
+                        MailboxView()
                     case 3:
                         TerritoryStatsView()
                     default:
@@ -97,7 +97,7 @@ struct ResourceBackpackView: View {
                     VStack(spacing: 1) {
                         ForEach(resources) {
                             resource in
-                            ResourceRow(item: resource)
+                            ResourcesResourceRow(item: resource)
                         }
                     }
                 }
@@ -118,7 +118,7 @@ struct ResourceItem: Identifiable {
 
 // MARK: - 资源行视图
 
-struct ResourceRow: View {
+struct ResourcesResourceRow: View {
     let item: ResourceItem
     let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
     
@@ -254,7 +254,7 @@ struct PurchasedStoreView: View {
                     
                     Button(action: {
                         // 提交评价逻辑
-                        print("提交评价：\(item.name), 评分：\(rating), 评语：\(comment)")
+                        LogDebug("提交评价：\(item.name), 评分：\(rating), 评语：\(comment)")
                         onDismiss()
                     }) {
                         Text("提交评价")

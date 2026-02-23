@@ -52,8 +52,7 @@ class PlayerLocationManager: ObservableObject {
     func startReporting() {
         guard !isReporting else { return }
         isReporting = true
-        print("🚀 [位置上报] 开始位置上报")
-
+        LogDebug("🚀 [位置上报] 开始位置上报")
         Task { await reportCurrentLocation(isOnline: true) }
 
         reportTimer = Timer.scheduledTimer(withTimeInterval: reportInterval, repeats: true) { [weak self] _ in
@@ -71,7 +70,7 @@ class PlayerLocationManager: ObservableObject {
         locationCancellable?.cancel(); locationCancellable = nil
         appStateCancellable?.cancel(); appStateCancellable = nil
         Task { await reportCurrentLocation(isOnline: false) }
-        print("🛑 [位置上报] 停止上报")
+        LogDebug("🛑 [位置上报] 停止上报")
     }
 
     func reportCurrentLocation(isOnline: Bool = true) async {
@@ -89,7 +88,7 @@ class PlayerLocationManager: ObservableObject {
             lastReportTime = Date()
             lastReportedLocation = location
         } catch {
-            print("❌ [位置上报] 上报失败: \(error.localizedDescription)")
+            LogError("❌ [位置上报] 上报失败: \(error.localizedDescription)")
         }
     }
 
@@ -103,7 +102,7 @@ class PlayerLocationManager: ObservableObject {
     private func checkMovementAndReport(location: CLLocation) {
         guard let last = lastReportedLocation else { return }
         if location.distance(from: last) >= movementThreshold {
-            print("📍 [位置上报] 移动超过\(movementThreshold)米，立即上报")
+            LogDebug("📍 [位置上报] 移动超过\(movementThreshold)米，立即上报")
             Task { await reportCurrentLocation(isOnline: true) }
         }
     }
@@ -127,7 +126,7 @@ class PlayerLocationManager: ObservableObject {
             }
             return response
         } catch {
-            print("❌ [位置上报] 查询附近玩家失败: \(error.localizedDescription)")
+            LogError("❌ [位置上报] 查询附近玩家失败: \(error.localizedDescription)")
             return 0
         }
     }

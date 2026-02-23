@@ -1,4 +1,6 @@
 //
+
+#if DEBUG
 //  QuickTestView.swift
 //  EarthLord
 //
@@ -170,4 +172,5 @@ struct ExplorationTestSheetView: View {
     QuickTestView()
 }
 
+#endif
 #endif

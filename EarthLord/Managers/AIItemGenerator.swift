@@ -22,7 +22,7 @@ class AIItemGenerator {
 
             // 构建请求
             guard let url = URL(string: functionURL) else {
-                print("❌ [AI] URL 无效")
+                LogError("❌ [AI] URL 无效")
                 return fallbackItems(for: poi)
             }
 
@@ -58,7 +58,7 @@ class AIItemGenerator {
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else {
                 let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-                print("❌ [AI] 服务端错误 HTTP \(statusCode)")
+                LogError("❌ [AI] 服务端错误 HTTP \(statusCode)")
                 return fallbackItems(for: poi)
             }
 
@@ -80,11 +80,11 @@ class AIItemGenerator {
                 )
             }
 
-            print("🤖 [AI] 生成 \(items.count) 件物品：\(items.map { $0.name }.joined(separator: ", "))")
+            LogDebug("🤖 [AI] 生成 \(items.count) 件物品：\(items.map { $0.name }.joined(separator: ", "))")
             return items
 
         } catch {
-            print("❌ [AI] 生成失败：\(error.localizedDescription)，使用预设物品")
+            LogError("❌ [AI] 生成失败：\(error.localizedDescription)，使用预设物品")
             return fallbackItems(for: poi)
         }
     }
@@ -92,8 +92,7 @@ class AIItemGenerator {
     // MARK: - 静默降级：预设物品
 
     private func fallbackItems(for poi: POIModel) -> [BackpackItem] {
-        print("🔄 [AI] 降级：使用预设物品列表")
-
+        LogDebug("🔄 [AI] 降级：使用预设物品列表")
         let pool: [(id: String, name: String, cat: ItemCategory, w: Double, icon: String, story: String)]
 
         switch poi.rarity {

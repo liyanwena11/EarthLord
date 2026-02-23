@@ -25,7 +25,7 @@ class TradeManager: ObservableObject {
 
     private init() {
         startExpirationCheck()
-        print("💰 [交易] TradeManager 初始化完成")
+        LogDebug("💰 [交易] TradeManager 初始化完成")
     }
 
     private func currentUserId() async -> UUID? {
@@ -100,7 +100,7 @@ class TradeManager: ObservableObject {
         }
 
         await fetchMyOffers()
-        print("💰 [交易] ✅ 创建挂单成功: \(offerId)")
+        LogInfo("💰 [交易] ✅ 创建挂单成功: \(offerId)")
         return offerId
     }
 
@@ -130,7 +130,7 @@ class TradeManager: ObservableObject {
                 completedByUserId: nil,
                 completedByUsername: nil
             )
-            print("⚠️ [交易] 使用模拟挂单进行测试")
+            LogWarning("⚠️ [交易] 使用模拟挂单进行测试")
         }
         guard let offer = offer else { throw TradeError.offerNotFound }
         guard offer.isActive else { throw TradeError.offerNotActive }
@@ -151,8 +151,7 @@ class TradeManager: ObservableObject {
         // 测试模式：跳过物品检查和移除
 
         // 模拟模式：跳过实际的RPC调用，直接模拟交易成功
-        print("💰 [交易] 模拟交易成功 - 跳过RPC调用")
-        
+        LogInfo("💰 [交易] 模拟交易成功 - 跳过RPC调用")
         // 创建模拟交易历史记录
         let historyId = UUID()
         let history = TradeHistory(
@@ -177,8 +176,7 @@ class TradeManager: ObservableObject {
         await MainActor.run { 
             self.tradeHistory.insert(history, at: 0)
         }
-        print("⚠️ [交易] 添加模拟交易历史记录: \(historyId)")
-        
+        LogWarning("⚠️ [交易] 添加模拟交易历史记录: \(historyId)")
         // 模拟成功响应
         let response = AcceptTradeOfferResponse(
             success: true,
@@ -196,7 +194,7 @@ class TradeManager: ObservableObject {
         await fetchMarketOffers()
         await fetchMyOffers()
         // 不需要再调用 fetchTradeHistory()，因为我们已经手动添加了交易历史记录
-        print("💰 [交易] ✅ 接受挂单成功")
+        LogInfo("💰 [交易] ✅ 接受挂单成功")
     }
 
     // MARK: - Cancel Offer
@@ -222,7 +220,7 @@ class TradeManager: ObservableObject {
         }
 
         await fetchMyOffers()
-        print("💰 [交易] ✅ 取消挂单成功")
+        LogInfo("💰 [交易] ✅ 取消挂单成功")
     }
 
     // MARK: - Fetch Methods
@@ -244,7 +242,7 @@ class TradeManager: ObservableObject {
 
             await MainActor.run { self.marketOffers = offers.filter { $0.isActive }; self.isLoading = false }
         } catch {
-            print("❌ [交易] 获取市场挂单失败: \(error.localizedDescription)")
+            LogError("❌ [交易] 获取市场挂单失败: \(error.localizedDescription)")
             await MainActor.run { self.isLoading = false }
         }
     }
@@ -263,7 +261,7 @@ class TradeManager: ObservableObject {
 
             await MainActor.run { self.myOffers = offers }
         } catch {
-            print("❌ [交易] 获取我的挂单失败: \(error.localizedDescription)")
+            LogError("❌ [交易] 获取我的挂单失败: \(error.localizedDescription)")
         }
     }
 
@@ -281,7 +279,7 @@ class TradeManager: ObservableObject {
 
             await MainActor.run { self.tradeHistory = history }
         } catch {
-            print("❌ [交易] 获取交易历史失败: \(error.localizedDescription)")
+            LogError("❌ [交易] 获取交易历史失败: \(error.localizedDescription)")
         }
     }
 
@@ -320,7 +318,7 @@ class TradeManager: ObservableObject {
                 sellerComment: nil,
                 buyerComment: nil
             )
-            print("⚠️ [交易] 使用模拟历史记录进行评价测试")
+            LogWarning("⚠️ [交易] 使用模拟历史记录进行评价测试")
         }
         guard let history = history else { throw TradeError.historyNotFound }
 
@@ -336,8 +334,7 @@ class TradeManager: ObservableObject {
         )
 
         // 模拟模式：跳过实际的Supabase调用，直接模拟评价成功
-        print("💰 [交易] 模拟评价成功 - 跳过Supabase调用")
-        
+        LogInfo("💰 [交易] 模拟评价成功 - 跳过Supabase调用")
         // 模拟成功响应
         await fetchTradeHistory()
     }

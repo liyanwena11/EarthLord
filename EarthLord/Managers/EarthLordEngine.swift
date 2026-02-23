@@ -43,8 +43,8 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.distanceFilter = 5.0
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-        print("🚀 [Engine] EarthLordEngine 初始化完成")
-
+        LogDebug("🚀 [Engine] EarthLordEngine 初始化完成")
+        LogDebug("📍 [GPS] 定位服务已启动")
         survivorTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.updateSurvivorCount() }
         }
@@ -65,7 +65,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.isExploring = true
         self.exploringStatusText = "正在扫描周边信号..."
         self.nearbyPlayerCount = Int.random(in: 1...30)
-        print("📡 [探索] 雷达扫描中... 检测到 \(nearbyPlayerCount) 名幸存者")
+        LogDebug("📡 [探索] 雷达扫描中... 检测到 \(nearbyPlayerCount) 名幸存者")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             self?.isExploring = false
             self?.exploringStatusText = ""
@@ -85,27 +85,33 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
         }
         if refreshed > 0 {
-            print("🔄 [刷新] \(refreshed) 个 POI 已刷新")
+            LogDebug("🔄 [刷新] \(refreshed) 个 POI 已刷新")
         }
     }
 
     // MARK: - ========== 采样行走圈地 ==========
 
-    /// 开始圈地：清空旧路径，进入采样模式
+    /// 开始圈地：清空旧路径，进入圈地模式
     @MainActor
     func startTracking() {
         pathPoints.removeAll()
         trackingDistance = 0
         estimatedArea = 0
         isTracking = true
-        trackingStatusText = "开始圈地，请行走采集轨迹..."
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        print("🚩 [圈地] ========== 开始采样行走 ==========")
+        trackingStatusText = "开始圈地，请行走创建领地边界..."
 
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        LogDebug("🚩 [圈地] ========== 开始圈地 ==========")
+        LogDebug("🎯 [圈地] 采样点需求: \(requiredSamplingPoints) 个点 (当前负重: \(String(format: "%.1f", ExplorationManager.shared.totalWeight))kg)")
+        LogDebug("📍 [圈地] 距离过滤: ≥ \(GameConfig.SAMPLING_MIN_DISTANCE)m")
+        LogWarning("⚠️ [圈地] GPS 精度过滤: < 100m")
         // 立即记录第一个点
         if let loc = userLocation {
             pathPoints.append(loc)
-            print("📌 [采样] 起点: (\(String(format: "%.5f", loc.coordinate.latitude)), \(String(format: "%.5f", loc.coordinate.longitude)))")
+            LogInfo("📍 [圈地] ✅ 起点1已记录: (\(String(format: "%.5f", loc.coordinate.latitude)), \(String(format: "%.5f", loc.coordinate.longitude))), 精度: \(String(format: "%.1f", loc.horizontalAccuracy))m")
+        } else {
+            LogError("❌ [圈地] ⚠️ 警告：无法获取当前位置！")
         }
     }
 
@@ -117,28 +123,32 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         pathPoints.removeAll()
         trackingDistance = 0
         estimatedArea = 0
-        print("🛑 [圈地] 已取消圈地")
+        LogDebug("🛑 [圈地] 已取消圈地")
     }
 
-    /// GPS 回调中调用：采样逻辑
+    /// GPS 回调中调用：圈地逻辑（移除自动完成）
     @MainActor
     private func handleTrackingSample(_ location: CLLocation) {
         guard isTracking else { return }
 
-        // 精度过滤
-        if location.horizontalAccuracy > 50 {
-            print("⚠️ [采样] 精度差 \(String(format: "%.0f", location.horizontalAccuracy))m，跳过")
+        LogDebug("📍 [GPS回调] 收到位置更新，精度: \(String(format: "%.1f", location.horizontalAccuracy))m")
+        // 精度过滤（放���到100m，适应真机环境）
+        if location.horizontalAccuracy > 100 {
+            LogWarning("⚠️ [圈地] 精度差 \(String(format: "%.0f", location.horizontalAccuracy))m，跳过")
             return
         }
 
-        // 距离过滤：距上一个采样点 ≥ 10m 才记录
+        // 距离过滤：距上一个点 ≥ 10m 才记录
         if let lastPoint = pathPoints.last {
             let dist = location.distance(from: lastPoint)
-            if dist < GameConfig.SAMPLING_MIN_DISTANCE { return }
+            LogDebug("📏 [圈地] 距上一个点: \(String(format: "%.1f", dist))m (需要 ≥ \(GameConfig.SAMPLING_MIN_DISTANCE)m)")
+            if dist < GameConfig.SAMPLING_MIN_DISTANCE {
+                return
+            }
 
             // 跳点过滤：单步 > 200m 视为异常
             if dist > 200 {
-                print("⚠️ [采样] 跳点 \(String(format: "%.0f", dist))m，丢弃")
+                LogWarning("⚠️ [圈地] 跳点 \(String(format: "%.0f", dist))m，丢弃")
                 return
             }
 
@@ -149,15 +159,14 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         estimatedArea = calculatePolygonArea(pathPoints)
 
         let pointCount = pathPoints.count
-        let needed = requiredSamplingPoints
-        let weightPenalty = needed > GameConfig.SAMPLING_MIN_POINTS ? " [负重惩罚]" : ""
-        trackingStatusText = "采样 \(pointCount)/\(needed)\(weightPenalty) · 距离 \(Int(trackingDistance))m · 面积 \(Int(estimatedArea))㎡"
+        trackingStatusText = "圈地中 · 距离 \(Int(trackingDistance))m · 面积 \(Int(estimatedArea))㎡"
 
-        print("📌 [采样] 第\(pointCount)点 移动距离: \(String(format: "%.1f", trackingDistance))m")
-        print("📐 [面积] 当前闭合面积: \(String(format: "%.1f", estimatedArea))㎡")
-
-        // 达到最少采样点数 → 自动完成圈地
-        if pointCount >= needed {
+        LogInfo("✅ [圈地] 第\(pointCount)点已记录！移动距离: \(String(format: "%.1f", trackingDistance))m")
+        LogDebug("📐 [面积] 当前闭合面积: \(String(format: "%.1f", estimatedArea))㎡")
+        // 采样点达到要求后自动完成圈地
+        if pathPoints.count >= requiredSamplingPoints {
+            LogDebug("🎉 [圈地] 采样点达标 \(pathPoints.count)/\(requiredSamplingPoints)，自动完成圈地")
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
             finishTracking()
         }
     }
@@ -189,8 +198,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
 
-        print("🚩 [圈地] ✅ 领地确认！面积: \(String(format: "%.1f", area))㎡，采样点: \(pathPoints.count)")
-
+        LogInfo("🚩 [圈地] ✅ 领地确认！面积: \(String(format: "%.1f", area))㎡，采样点: \(pathPoints.count)")
         // 地理逆编码获取街道名
         let centerLocation = CLLocation(latitude: centerLat, longitude: centerLon)
         geocoder.reverseGeocodeLocation(centerLocation) { [weak self] placemarks, error in
@@ -203,7 +211,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
                         // 更新领地名称
                         if let index = self?.claimedTerritories.firstIndex(where: { $0.id == newTerritory.id }) {
                             self?.claimedTerritories[index].name = geocodedName
-                            print("🏷️ [圈地] 领地命名为: \(geocodedName)")
+                            LogDebug("🏷️ [圈地] 领地命名为: \(geocodedName)")
                         }
                     }
                 }
@@ -211,6 +219,56 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
 
         self.claimedTerritories.append(newTerritory)
+
+        LogDebug("🗺️ [圈地] 当前本地领地数量: \(claimedTerritories.count)")
+        LogDebug("🗺️ [圈地] 新领地 pathCoordinates 数量: \(newTerritory.pathCoordinates.count)")
+
+        // 上传领地上传到 Supabase
+        Task {
+            do {
+                let coordinates = pathPoints.map { $0.coordinate }
+                let startTime = Date()
+
+                // ✅ 获取当前用户会话
+                let session = try await supabaseClient.auth.session
+
+                try await TerritoryManager.shared.uploadTerritory(
+                    coordinates: coordinates,
+                    area: area,
+                    startTime: startTime
+                )
+                LogInfo("🚩 [圈地] 领地上传成功！")
+                // ✅ 立即刷新地图上的领土显示
+                await MainActor.run {
+                    NotificationCenter.default.post(name: .territoryUpdated, object: nil)
+                }
+
+                // ✅ 添加到Supabase领土列表以便立即显示
+                await MainActor.run {
+                    // 创建一个新的Territory对象用于立即显示
+                    let formatter = ISO8601DateFormatter()
+                    let territoryToAdd = Territory(
+                        id: newTerritory.id.uuidString,
+                        userId: session.user.id.uuidString,
+                        name: newTerritory.name,
+                        path: coordinates.map { ["lat": $0.latitude, "lon": $0.longitude] },
+                        area: area,
+                        pointCount: coordinates.count,
+                        isActive: true,
+                        completedAt: formatter.string(from: Date()),
+                        startedAt: formatter.string(from: startTime),
+                        createdAt: formatter.string(from: Date()),
+                        level: 1,
+                        experience: 0,
+                        prosperity: 0
+                    )
+                    // 通知地图添加新领土
+                    NotificationCenter.default.post(name: .territoryAdded, object: territoryToAdd)
+                }
+            } catch {
+                LogError("🚩 [圈地] 领地上传失败: \(error.localizedDescription)")
+            }
+        }
 
         // 重置状态
         isTracking = false
@@ -226,11 +284,18 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
     /// 强制完成圈地（调试用 / 手动闭合）
     @MainActor
     func forceFinishTracking() {
-        guard isTracking, pathPoints.count >= 3 else {
-            print("🧪 [调试] 采样点不足 3 个，无法强制完成")
+        guard isTracking else {
+            LogError("❌ [圈地] 当前未在圈地状态，无法完成")
             return
         }
-        print("🧪 [调试] 强制完成圈地，当前 \(pathPoints.count) 个点")
+
+        guard pathPoints.count >= 3 else {
+            LogError("❌ [圈地] 采样点不足 3 个（当前: \(pathPoints.count) 个），无法完成")
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            return
+        }
+
+        LogInfo("🧪 [圈地] ✅ 强制完成圈地！当前采样点: \(pathPoints.count) 个")
         finishTracking()
     }
 
@@ -265,6 +330,8 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
+
+        LogDebug("🛰��� [GPS] 位置更新: lat=\(String(format: "%.5f", location.coordinate.latitude)), lon=\(String(format: "%.5f", location.coordinate.longitude)), 精度=\(String(format: "%.1f", location.horizontalAccuracy))m")
         Task { @MainActor in
             self.userLocation = location
             self.checkProximity(location)
@@ -284,7 +351,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
                 self.activePOI = target
                 self.showProximityAlert = true
                 UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-                print("🎯 [搜刮] 进入 POI 范围：\(target.name)（\(target.rarity.rawValue)）")
+                LogDebug("🎯 [搜刮] 进入 POI 范围：\(target.name)（\(target.rarity.rawValue)）")
             }
         } else {
             if showProximityAlert {
@@ -302,7 +369,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         if let index = nearbyPOIs.firstIndex(where: { $0.id == poi.id }) {
             nearbyPOIs[index].isScavenged = true
             nearbyPOIs[index].lastScavengedAt = Date()
-            print("📦 [搜刮] 已搜刮 POI：\(poi.name)")
+            LogDebug("📦 [搜刮] 已搜刮 POI：\(poi.name)")
         }
         self.showProximityAlert = false
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -319,7 +386,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
 
         let backpack = ExplorationManager.shared
         if backpack.totalWeight >= backpack.maxCapacity {
-            print("⚠️ [搜刮] 背包已满，无法搜刮")
+            LogWarning("⚠️ [搜刮] 背包已满，无法搜刮")
             return []
         }
 
@@ -333,8 +400,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         backpack.addItems(items: items)
 
         UINotificationFeedbackGenerator().notificationOccurred(.success)
-        print("📦 [搜刮] 在「\(poi.name)」(\(poi.rarity.rawValue)) 获得：\(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
-
+        LogDebug("📦 [搜刮] 在「\(poi.name)」(\(poi.rarity.rawValue)) 获得：\(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
         return items
     }
 
@@ -345,7 +411,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
 
         let backpack = ExplorationManager.shared
         if backpack.totalWeight >= backpack.maxCapacity {
-            print("⚠️ [搜刮] 背包已满，无法搜刮")
+            LogWarning("⚠️ [搜刮] 背包已满，无法搜刮")
             return []
         }
 
@@ -372,8 +438,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         isScavenging = false
         lastScavengeResult = items
         UINotificationFeedbackGenerator().notificationOccurred(.success)
-        print("🤖 [AI搜刮] 在「\(poi.name)」获得：\(items.map { $0.name }.joined(separator: ", "))")
-
+        LogDebug("🤖 [AI搜刮] 在「\(poi.name)」获得：\(items.map { $0.name }.joined(separator: ", "))")
         return items
     }
 
@@ -412,9 +477,9 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
                     .insert(record)
                     .execute()
             }
-            print("☁️ [同步] \(items.count) 件物品已同步到 user_inventory")
+            LogDebug("☁️ [同步] \(items.count) 件物品已同步到 user_inventory")
         } catch {
-            print("❌ [同步] user_inventory 同步失败：\(error.localizedDescription)")
+            LogError("❌ [同步] user_inventory 同步失败：\(error.localizedDescription)")
         }
     }
 
@@ -509,10 +574,12 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         )
         self.claimedTerritories.append(newT)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
-        print("🚩 [圈地] 快速占领 @ (\(String(format: "%.5f", newT.lat)), \(String(format: "%.5f", newT.lon)))")
+        LogDebug("🚩 [圈地] 快速占领 @ (\(String(format: "%.5f", newT.lat)), \(String(format: "%.5f", newT.lon)))")
     }
 
     // MARK: - 测试 POI
+
+    #if DEBUG
 
     @MainActor
     func createTestPOI() {
@@ -526,12 +593,15 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
             rarity: rarity
         )
         self.nearbyPOIs.append(new)
-        print("📍 [测试] 生成 POI：\(new.name)（\(rarity.rawValue)）")
+        LogDebug("📍 [测试] 生成 POI：\(new.name)（\(rarity.rawValue)）")
     }
 
     @MainActor
     func createMultipleTestPOIs(count: Int = 5) {
         for _ in 0..<count { createTestPOI() }
-        print("📍 [测试] 批量生成 \(count) 个 POI")
+        LogDebug("📍 [测试] 批量生成 \(count) 个 POI")
     }
+
+    #endif
+
 }

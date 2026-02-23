@@ -55,6 +55,9 @@ struct LocationPickerMapView: UIViewRepresentable {
     @Binding var selectedCoordinate: CLLocationCoordinate2D?
 
     func makeUIView(context: Context) -> MKMapView {
+        LogDebug("🗺️ [BuildingLocationPickerView] 创建地图视图")
+        LogDebug("  - 领地坐标数量: \(territoryCoordinates.count)")
+
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.mapType = .hybrid
@@ -68,6 +71,10 @@ struct LocationPickerMapView: UIViewRepresentable {
 
             let region = regionForPolygon(territoryCoordinates)
             mapView.setRegion(region, animated: false)
+
+            LogDebug("✅ [BuildingLocationPickerView] 领地多边形已添加")
+        } else {
+            LogWarning("⚠️ [BuildingLocationPickerView] 坐标点不足 3 个，无法添加多边形")
         }
 
         // 已有建筑

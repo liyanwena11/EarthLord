@@ -97,7 +97,7 @@ struct DeviceManagementView: View {
 
                 Button(action: {
                     if isUnlocked && !isCurrent, let d = device {
-                        Task { await communicationManager.setCurrentDevice(deviceId: d.id) }
+                        Task { try? await communicationManager.setCurrentDevice(deviceId: d.id) }
                     }
                 }) {
                     deviceRow(type: type, isSelected: isCurrent, isUnlocked: isUnlocked, isCurrent: isCurrent)

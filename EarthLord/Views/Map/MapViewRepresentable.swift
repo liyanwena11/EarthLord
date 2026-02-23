@@ -26,8 +26,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     private let defaultCenter = CLLocationCoordinate2D(latitude: 30.565, longitude: 104.265)
 
     func makeUIView(context: Context) -> MKMapView {
-        print("🗺️ [MapView] makeUIView 开始创建地图")
-
+        LogDebug("🗺️ [MapView] makeUIView 开始创建地图")
         let mapView = MKMapView()
 
         // ✅ 1. 设置代理
@@ -54,10 +53,10 @@ struct MapViewRepresentable: UIViewRepresentable {
         let initialCenter: CLLocationCoordinate2D
         if let userLoc = locationManager.userLocation?.coordinate {
             initialCenter = userLoc
-            print("🗺️ [MapView] 使用用户位置: \(userLoc.latitude), \(userLoc.longitude)")
+            LogDebug("🗺️ [MapView] 使用用户位置: \(userLoc.latitude), \(userLoc.longitude)")
         } else {
             initialCenter = defaultCenter
-            print("🗺️ [MapView] 用户位置不可用，使用默认位置")
+            LogDebug("🗺️ [MapView] 用户位置不可用，使用默认位置")
         }
 
         let region = MKCoordinateRegion(
@@ -67,7 +66,7 @@ struct MapViewRepresentable: UIViewRepresentable {
         )
         mapView.setRegion(region, animated: false)
 
-        print("🗺️ [MapView] 地图创建完成，mapType=\(mapView.mapType.rawValue)")
+        LogDebug("🗺️ [MapView] 地图创建完成，mapType=\(mapView.mapType.rawValue)")
         return mapView
     }
 
@@ -88,7 +87,7 @@ struct MapViewRepresentable: UIViewRepresentable {
             )
             mapView.setRegion(region, animated: true)
             context.coordinator.hasInitiallyLocated = true
-            print("🗺️ [MapView] 首次定位到用户位置: \(userLoc.latitude), \(userLoc.longitude)")
+            LogDebug("🗺️ [MapView] 首次定位到用户位置: \(userLoc.latitude), \(userLoc.longitude)")
         }
 
         // 4. 定位按钮触发镜头定位
@@ -178,17 +177,17 @@ struct MapViewRepresentable: UIViewRepresentable {
 
         // ✅ 地图加载完成回调
         func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
-            print("🗺️ [MapView] 地图瓦片加载完成")
+            LogDebug("🗺️ [MapView] 地图瓦片加载完成")
         }
 
         // ✅ 地图加载失败回调
         func mapViewDidFailLoadingMap(_ mapView: MKMapView, withError error: Error) {
-            print("❌ [MapView] 地图加载失败: \(error.localizedDescription)")
+            LogError("❌ [MapView] 地图加载失败: \(error.localizedDescription)")
         }
 
         // ✅ 地图渲染完成
         func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
-            print("🗺️ [MapView] 地图渲染完成，fullyRendered=\(fullyRendered)")
+            LogDebug("🗺️ [MapView] 地图渲染完成，fullyRendered=\(fullyRendered)")
         }
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {

@@ -85,7 +85,7 @@ struct TerritoryTabView: View {
                 self.isLoading = false
             }
         } catch {
-            print("[TerritoryTabView] 加载领地失败: \(error.localizedDescription)")
+            LogError("[TerritoryTabView] 加载领地失败: \(error.localizedDescription)")
             await MainActor.run { self.isLoading = false }
         }
     }
@@ -110,15 +110,35 @@ struct TerritoryCard: View {
                 HStack(spacing: 10) {
                     Image(systemName: "flag.checkered")
                         .font(.title3)
-                        .foregroundColor(.orange)
+                        .foregroundColor(ApocalypseTheme.primary)
                         .frame(width: 36, height: 36)
-                        .background(Color.orange.opacity(0.15))
+                        .background(ApocalypseTheme.primary.opacity(0.15))
                         .cornerRadius(8)
 
-                    Text(territory.displayName)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text(territory.displayName)
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+
+                            // 等级徽章
+                            if let level = territory.level {
+                                Text("Lv.\(level)")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(ApocalypseTheme.primary)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(ApocalypseTheme.primary.opacity(0.2))
+                                    .cornerRadius(4)
+                            }
+                        }
+
+                        Text(territory.levelName)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()
@@ -126,20 +146,19 @@ struct TerritoryCard: View {
                 Text("\(Int(territory.area)) ㎡")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.blue)
+                    .foregroundColor(ApocalypseTheme.info)
             }
 
             Divider()
                 .padding(.vertical, 10)
 
             HStack {
-                if let pointCount = territory.pointCount {
-                    HStack(spacing: 4) {
-                        Image(systemName: "mappin.circle").font(.caption)
-                        Text("采样点: \(pointCount) 个").font(.caption)
-                    }
-                    .foregroundColor(.secondary)
+                // 采样点显示 - 始终显示，nil时使用path数组长度
+                HStack(spacing: 4) {
+                    Image(systemName: "mappin.circle").font(.caption)
+                    Text("采样点: \(territory.calculatedPointCount) 个").font(.caption)
                 }
+                .foregroundColor(.secondary)
 
                 Spacer()
 
@@ -150,6 +169,26 @@ struct TerritoryCard: View {
                     }
                     .foregroundColor(.secondary)
                 }
+            }
+
+            // 繁荣度进度条（如果有）
+            if let prosperity = territory.prosperity {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("繁荣度")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(Int(prosperity))/100")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    ProgressView(value: prosperity, total: 100)
+                        .tint(ApocalypseTheme.success)
+                        .scaleEffect(x: 1, y: 0.8, anchor: .center)
+                }
+                .padding(.top, 8)
             }
         }
         .padding()

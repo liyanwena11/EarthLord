@@ -82,7 +82,7 @@ class InventoryManager: ObservableObject {
     var capacityPercentage: Double { Double(totalItemCount) / Double(maxCapacity) }
 
     private init() {
-        print("🎒 [背包] InventoryManager 初始化完成")
+        LogDebug("🎒 [背包] InventoryManager 初始化完成")
     }
 
     // MARK: - Aggregated Resources
@@ -109,7 +109,7 @@ class InventoryManager: ObservableObject {
         await MainActor.run {
             self.itemDefinitions = Dictionary(uniqueKeysWithValues: definitions.map { ($0.id, $0) })
         }
-        print("✅ [背包] 物品定义加载完成，共 \(definitions.count) 种")
+        LogInfo("✅ [背包] 物品定义加载完成，共 \(definitions.count) 种")
     }
 
     func loadInventory() async {
@@ -151,8 +151,7 @@ class InventoryManager: ObservableObject {
             }
 
             await MainActor.run { self.items = displayItems; self.isLoading = false }
-            print("✅ [背包] 背包加载完成，共 \(displayItems.count) 种")
-            
+            LogInfo("✅ [背包] 背包加载完成，共 \(displayItems.count) 种")
             // 如果背包为空，添加一些初始物品用于测试
             if displayItems.isEmpty {
                 Task {
@@ -160,7 +159,7 @@ class InventoryManager: ObservableObject {
                 }
             }
         } catch {
-            print("❌ [背包] 加载失败: \(error.localizedDescription)")
+            LogError("❌ [背包] 加载失败: \(error.localizedDescription)")
             await MainActor.run { self.isLoading = false; self.errorMessage = "加载背包失败" }
         }
     }
@@ -180,7 +179,7 @@ class InventoryManager: ObservableObject {
             try await addItem(itemId: itemId, quantity: quantity)
         }
         
-        print("✅ [背包] 初始物品添加完成")
+        LogInfo("✅ [背包] 初始物品添加完成")
     }
 
     // MARK: - Item Operations
@@ -245,9 +244,9 @@ class InventoryManager: ObservableObject {
         for res in testResources {
             do {
                 try await addItem(itemId: res.id, quantity: res.qty)
-                print("🧪 [测试] 添加资源: \(res.id) x\(res.qty)")
+                LogDebug("🧪 [测试] 添加资源: \(res.id) x\(res.qty)")
             } catch {
-                print("❌ [测试] 添加 \(res.id) 失败: \(error.localizedDescription)")
+                LogError("❌ [测试] 添加 \(res.id) 失败: \(error.localizedDescription)")
             }
         }
         await loadInventory()
@@ -264,9 +263,9 @@ class InventoryManager: ObservableObject {
                 .eq("user_id", value: userId)
                 .execute()
             await MainActor.run { self.items = [] }
-            print("🧹 [测试] 背包已清空")
+            LogDebug("🧹 [测试] 背包已清空")
         } catch {
-            print("❌ [测试] 清空失败: \(error.localizedDescription)")
+            LogError("❌ [测试] 清空失败: \(error.localizedDescription)")
         }
     }
     #endif

@@ -28,7 +28,7 @@ enum DeviceType: String, Codable, CaseIterable {
     var iconName: String {
         switch self {
         case .radio: return "radio"
-        case .walkieTalkie: return "walkie.talkie.radio"
+        case .walkieTalkie: return "phone.connection" // ✅ 修复：替换不存在的图标
         case .campRadio: return "antenna.radiowaves.left.and.right"
         case .satellite: return "antenna.radiowaves.left.and.right.circle"
         }
@@ -139,7 +139,7 @@ enum ChannelType: String, Codable, CaseIterable {
         switch self {
         case .official: return "megaphone.fill"
         case .publicChannel: return "globe"
-        case .walkie: return "walkie.talkie.radio"
+        case .walkie: return "phone.connection" // ✅ 修复：替换不存在的图标
         case .camp: return "antenna.radiowaves.left.and.right"
         case .satellite: return "antenna.radiowaves.left.and.right.circle"
         }
@@ -237,18 +237,26 @@ struct CommunicationChannel: Codable, Identifiable, Hashable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(UUID.self, forKey: .id)
-        creatorId = try c.decode(UUID.self, forKey: .creatorId)
+        creatorId = try c.decodeIfPresent(UUID.self, forKey: .creatorId) ?? UUID()
+
+        // 安全解析 channelType
         let typeString = try c.decode(String.self, forKey: .channelType)
-        channelType = typeString == "public" ? .publicChannel : (ChannelType(rawValue: typeString) ?? .publicChannel)
+        if let type = ChannelType(rawValue: typeString) {
+            channelType = type
+        } else {
+            LogWarning("⚠️ [CommunicationChannel] 未知 channel_type: \(typeString), 使用默认值")
+            channelType = .publicChannel
+        }
+
         channelCode = try c.decode(String.self, forKey: .channelCode)
         name = try c.decode(String.self, forKey: .name)
         description = try c.decodeIfPresent(String.self, forKey: .description)
-        isActive = try c.decode(Bool.self, forKey: .isActive)
-        memberCount = try c.decode(Int.self, forKey: .memberCount)
+        isActive = try c.decodeIfPresent(Bool.self, forKey: .isActive) ?? true
+        memberCount = try c.decodeIfPresent(Int.self, forKey: .memberCount) ?? 0
         latitude = try c.decodeIfPresent(Double.self, forKey: .latitude)
         longitude = try c.decodeIfPresent(Double.self, forKey: .longitude)
-        createdAt = try c.decode(Date.self, forKey: .createdAt)
-        updatedAt = try c.decode(Date.self, forKey: .updatedAt)
+        createdAt = try c.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
+        updatedAt = try c.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
     }
 
     func encode(to encoder: Encoder) throws {

@@ -1,4 +1,6 @@
 import SwiftUI
+
+#if DEBUG
 import CoreLocation
 
 struct LocationDebugView: View {
@@ -165,7 +167,7 @@ struct LocationDebugView: View {
                 // 清空背包
                 DebugButton(title: "清空背包", icon: "trash.circle", color: .pink) {
                     ExplorationManager.shared.clearBackpack()
-                    print("🗑️ [调试] 已清空背包")
+                    LogDebug("🗑️ [调试] 已清空背包")
                 }
 
                 // 清空所有数据
@@ -174,7 +176,7 @@ struct LocationDebugView: View {
                     engine.claimedTerritories.removeAll()
                     engine.showProximityAlert = false
                     engine.activePOI = nil
-                    print("🗑️ [调试] 已清空所有数据")
+                    LogDebug("🗑️ [调试] 已清空所有数据")
                 }
 
                 Spacer().frame(height: 50)
@@ -188,32 +190,32 @@ struct LocationDebugView: View {
 
     private func forceScavengeNearest() {
         guard let poi = engine.nearbyPOIs.first(where: { !$0.isScavenged }) else {
-            print("🧪 [调试] 没有可搜刮的 POI")
+            LogDebug("🧪 [调试] 没有可搜刮的 POI")
             return
         }
         if let index = engine.nearbyPOIs.firstIndex(where: { $0.id == poi.id }) {
             engine.nearbyPOIs[index].isScavenged = true
             engine.nearbyPOIs[index].lastScavengedAt = Date()
-            print("🧪 [调试] 强行搜刮：\(poi.name)")
+            LogDebug("🧪 [调试] 强行搜刮：\(poi.name)")
         }
     }
 
     private func simulateEnterPOI() {
         guard let poi = engine.nearbyPOIs.first(where: { !$0.isScavenged }) ?? engine.nearbyPOIs.first else {
-            print("🧪 [调试] 没有 POI 可模拟，先生成一个")
+            LogDebug("🧪 [调试] 没有 POI 可模拟，先生成一个")
             engine.createTestPOI()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 if let newPOI = engine.nearbyPOIs.last {
                     engine.activePOI = newPOI
                     engine.showProximityAlert = true
-                    print("🧪 [调试] 模拟进入 POI 范围：\(newPOI.name)")
+                    LogDebug("🧪 [调试] 模拟进入 POI 范围：\(newPOI.name)")
                 }
             }
             return
         }
         engine.activePOI = poi
         engine.showProximityAlert = true
-        print("🧪 [调试] 模拟进入 POI 范围：\(poi.name)")
+        LogDebug("🧪 [调试] 模拟进入 POI 范围：\(poi.name)")
     }
 
     private func refreshAllPOIs() {
@@ -225,7 +227,7 @@ struct LocationDebugView: View {
                 count += 1
             }
         }
-        print("🔄 [调试] 已刷新 \(count) 个 POI")
+        LogDebug("🔄 [调试] 已刷新 \(count) 个 POI")
     }
 
     private func testAILoot() {
@@ -234,11 +236,11 @@ struct LocationDebugView: View {
         engine.activePOI = poi
         Task {
             let items = await engine.scavengeWithAI()
-            print("🤖 [调试] AI 搜刮结果（\(poi.rarity.rawValue)）：")
+            LogDebug("🤖 [调试] AI 搜刮结果（\(poi.rarity.rawValue)）：")
             for item in items {
-                print("  🤖 \(item.name) [AI:\(item.isAIGenerated)] \(item.weight)kg")
+                LogDebug("  🤖 \(item.name) [AI:\(item.isAIGenerated)] \(item.weight)kg")
                 if let story = item.backstory {
-                    print("     📜 \(story)")
+                    LogDebug("     📜 \(story)")
                 }
             }
         }
@@ -257,35 +259,35 @@ struct LocationDebugView: View {
             }
             engine.activePOI = testPOI
             let items = engine.scavengeWithLoot()
-            print("🧪 [调试] 测试掉落（\(rarity.rawValue)）：\(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+            LogDebug("🧪 [调试] 测试掉落（\(rarity.rawValue)）：\(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
         }
     }
 
     private func printBackpack() {
         let backpack = ExplorationManager.shared
-        print("🎒🎒🎒 [调试] ========== 背包内容 ==========")
-        print("📦 物品种类: \(backpack.backpackItems.count)")
-        print("⚖️ 总重量: \(String(format: "%.1f", backpack.totalWeight)) / \(Int(backpack.maxCapacity)) kg")
+        LogDebug("🎒🎒🎒 [调试] ========== 背包内容 ==========")
+        LogDebug("📦 物品种类: \(backpack.backpackItems.count)")
+        LogDebug("⚖️ 总重量: \(String(format: "%.1f", backpack.totalWeight)) / \(Int(backpack.maxCapacity)) kg")
         for item in backpack.backpackItems {
-            print("  📦 \(item.name) [\(item.category.rawValue)] x\(item.quantity) = \(String(format: "%.1f", item.totalWeight))kg")
+            LogDebug("  📦 \(item.name) [\(item.category.rawValue)] x\(item.quantity) = \(String(format: "%.1f", item.totalWeight))kg")
         }
-        print("🎒🎒🎒 ========== 背包结束 ==========")
+        LogDebug("🎒🎒🎒 ========== 背包结束 ==========")
     }
 
     private func printFullStatus() {
-        print("📊📊📊 [调试] ========== 完整状态 ==========")
-        print("📍 GPS: \(engine.userLocation?.coordinate.latitude ?? 0), \(engine.userLocation?.coordinate.longitude ?? 0)")
-        print("📍 精度: \(engine.userLocation?.horizontalAccuracy ?? -1)m")
-        print("🗺️ POI 总数: \(engine.nearbyPOIs.count)")
-        print("🗺️ 可搜刮: \(engine.nearbyPOIs.filter { !$0.isScavenged }.count)")
-        print("🚩 领地数: \(engine.claimedTerritories.count)")
-        print("👥 附近人数: \(engine.nearbyPlayerCount)")
-        print("🎯 弹窗状态: \(engine.showProximityAlert)")
-        print("📡 探索中: \(engine.isExploring)")
+        LogDebug("📊📊📊 [调试] ========== 完整状态 ==========")
+        LogDebug("📍 GPS: \(engine.userLocation?.coordinate.latitude ?? 0), \(engine.userLocation?.coordinate.longitude ?? 0)")
+        LogDebug("📍 精度: \(engine.userLocation?.horizontalAccuracy ?? -1)m")
+        LogDebug("🗺️ POI 总数: \(engine.nearbyPOIs.count)")
+        LogDebug("🗺️ 可搜刮: \(engine.nearbyPOIs.filter { !$0.isScavenged }.count)")
+        LogDebug("🚩 领地数: \(engine.claimedTerritories.count)")
+        LogDebug("👥 附近人数: \(engine.nearbyPlayerCount)")
+        LogDebug("🎯 弹窗状态: \(engine.showProximityAlert)")
+        LogDebug("📡 探索中: \(engine.isExploring)")
         for (i, poi) in engine.nearbyPOIs.enumerated() {
-            print("  POI[\(i)]: \(poi.name) (\(poi.rarity.rawValue)) 搜刮:\(poi.isScavenged) 坐标:(\(String(format: "%.5f", poi.latitude)),\(String(format: "%.5f", poi.longitude)))")
+            LogDebug("  POI[\(i)]: \(poi.name) (\(poi.rarity.rawValue)) 搜刮:\(poi.isScavenged) 坐标:(\(String(format: "%.5f", poi.latitude)),\(String(format: "%.5f", poi.longitude)))")
         }
-        print("📊📊📊 ========== 状态结束 ==========")
+        LogDebug("📊📊📊 ========== 状态结束 ==========")
     }
 }
 
@@ -309,3 +311,4 @@ struct DebugButton: View {
         .padding(.horizontal)
     }
 }
+#endif

@@ -36,16 +36,16 @@ class ExplorationManager: ObservableObject {
         do {
             let data = try JSONEncoder().encode(backpackItems)
             UserDefaults.standard.set(data, forKey: Self.localStorageKey)
-            print("💾 [本地] 背包已保存，\(backpackItems.count) 种物品")
+            LogDebug("💾 [本地] 背包已保存，\(backpackItems.count) 种物品")
         } catch {
-            print("❌ [本地] 保存背包失败：\(error)")
+            LogError("❌ [本地] 保存背包失败：\(error)")
         }
     }
 
     /// 从本地加载背包
     private func loadFromLocal() {
         guard let data = UserDefaults.standard.data(forKey: Self.localStorageKey) else {
-            print("📦 [本地] 无本地背包数据")
+            LogDebug("📦 [本地] 无本地背包数据")
             return
         }
         do {
@@ -54,10 +54,10 @@ class ExplorationManager: ObservableObject {
             self.backpackItems = items
             isLoadingFromStorage = false
             updateWeight()
-            print("📦 [本地] 从本地加载 \(items.count) 种物品")
+            LogDebug("📦 [本地] 从本地加载 \(items.count) 种物品")
         } catch {
             isLoadingFromStorage = false
-            print("❌ [本地] 加载背包失败：\(error)")
+            LogError("❌ [本地] 加载背包失败：\(error)")
         }
     }
 
@@ -84,13 +84,14 @@ class ExplorationManager: ObservableObject {
 
             // 将 Supabase 数据转换为 BackpackItem
             isLoadingFromStorage = true
-            self.backpackItems = response.compactMap { dbItem in
+            var newItems: [BackpackItem] = []
+            for dbItem in response {
                 guard let template = getItemTemplate(itemId: dbItem.item_id) else {
-                    print("⚠️ 未知物品 ID: \(dbItem.item_id)")
-                    return nil
+                    LogWarning("⚠️ 未知物品 ID: \(dbItem.item_id)")
+                    continue
                 }
 
-                return BackpackItem(
+                newItems.append(BackpackItem(
                     id: UUID().uuidString,
                     itemId: dbItem.item_id,
                     name: template.name,
@@ -99,16 +100,21 @@ class ExplorationManager: ObservableObject {
                     weight: template.weight,
                     quality: template.quality,
                     icon: template.icon
-                )
+                ))
             }
+
+            // ✅ 合并云端数据和本地数据（以云端为准，但保留本地独有的物品）
+            let cloudItemIds = Set(newItems.map { $0.itemId })
+            let localOnlyItems = self.backpackItems.filter { !cloudItemIds.contains($0.itemId) }
+            self.backpackItems = newItems + localOnlyItems
 
             isLoadingFromStorage = false
             saveToLocal()
             updateWeight()
-            print("📦 从云端加载 \(backpackItems.count) 种物品")
+            LogDebug("📦 从云端加载 \(newItems.count) 种物品，合并本地 \(localOnlyItems.count) 种独有物品")
         } catch {
             isLoadingFromStorage = false
-            print("❌ 加载背包数据失败：\(error.localizedDescription)，使用本地数据")
+            LogError("❌ 加载背包数据失败：\(error.localizedDescription)，保留本地数据")
             // 不清空 - 保留本地数据
             updateWeight()
         }
@@ -140,7 +146,7 @@ class ExplorationManager: ObservableObject {
     // 核心方法：刷新重量
     func updateWeight() {
         self.totalWeight = backpackItems.reduce(0) { $0 + ($1.weight * Double($1.quantity)) }
-        print("📝 系统：背包重量已更新为 \(self.totalWeight) kg")
+        LogDebug("📝 系统：背包重量已更新为 \(self.totalWeight) kg")
     }
     
     // 核心方法：使用物品
@@ -153,7 +159,7 @@ class ExplorationManager: ObservableObject {
             }
             updateWeight()
             objectWillChange.send()
-            print("🔧 [使用] \(item.name)，剩余 \(backpackItems.first(where: { $0.id == item.id })?.quantity ?? 0)")
+            LogDebug("🔧 [使用] \(item.name)，剩余 \(backpackItems.first(where: { $0.id == item.id })?.quantity ?? 0)")
         }
     }
 
@@ -173,7 +179,7 @@ class ExplorationManager: ObservableObject {
             if let index = backpackItems.firstIndex(where: { $0.itemId == newItem.itemId }) {
                 // 相同物品：增加数量
                 backpackItems[index].quantity += newItem.quantity
-                print("📦 合并物品：\(newItem.name) +\(newItem.quantity)，现有 \(backpackItems[index].quantity)")
+                LogDebug("📦 合并物品：\(newItem.name) +\(newItem.quantity)，现有 \(backpackItems[index].quantity)")
             } else {
                 // 新物品：直接添加（生成新 ID 避免冲突）
                 let itemToAdd = BackpackItem(
@@ -190,7 +196,7 @@ class ExplorationManager: ObservableObject {
                     itemRarity: newItem.itemRarity
                 )
                 backpackItems.append(itemToAdd)
-                print("📦 新增物品：\(newItem.name) x\(newItem.quantity)")
+                LogDebug("📦 新增物品：\(newItem.name) x\(newItem.quantity)")
             }
             addedCount += newItem.quantity
         }
@@ -200,8 +206,7 @@ class ExplorationManager: ObservableObject {
 
         // 更新总重量
         updateWeight()
-        print("🎒 背包更新完成，共添加 \(addedCount) 件物品，当前 \(backpackItems.count) 种物品")
-
+        LogDebug("🎒 背包更新完成，共添加 \(addedCount) 件物品，当前 \(backpackItems.count) 种物品")
         // ✅ 同步到 Supabase
         Task { @MainActor in
             await syncToSupabase(items: items)
@@ -221,6 +226,7 @@ class ExplorationManager: ObservableObject {
                 struct InventoryUpsert: Encodable {
                     let user_id: String
                     let item_id: String
+                    let name: String
                     let quantity: Int
                 }
 
@@ -230,6 +236,7 @@ class ExplorationManager: ObservableObject {
                 let upsertData = InventoryUpsert(
                     user_id: userId,
                     item_id: item.itemId,
+                    name: item.name,  // ✅ 添加 name 字段
                     quantity: currentQuantity
                 )
 
@@ -238,10 +245,124 @@ class ExplorationManager: ObservableObject {
                     .upsert(upsertData)
                     .execute()
 
-                print("☁️ 物品已存入云端：\(item.name) x\(currentQuantity)")
+                LogDebug("☁️ 物品已存入云端：\(item.name) x\(currentQuantity)")
             }
         } catch {
-            print("❌ Supabase 存储失败：\(error)")
+            LogError("❌ Supabase 存储失败：\(error)")
+        }
+    }
+
+    // MARK: - 探索会话管理
+
+    /// 当前探索会话开始时间
+    @Published var currentExplorationStartTime: Date?
+    /// 当前探索会话的 POI（如果有）
+    @Published var currentExplorationPOI: POIPoint?
+    /// 当前探索会话的行走距离（米）
+    @Published var currentExplorationDistance: Double = 0
+    /// 发现的 POI 数量
+    @Published var discoveredPOICount: Int = 0
+
+    /// 开始探索会话
+    @MainActor
+    func startExplorationSession(poi: POIPoint? = nil) {
+        currentExplorationStartTime = Date()
+        currentExplorationPOI = poi
+        currentExplorationDistance = 0
+        discoveredPOICount = 0
+        LogDebug("🚩 [探索] 开始探索会话 \(poi.map { "（POI: \($0.name))" } ?? "（自由探索）")")
+    }
+
+    /// 完成探索会话并记录到后端
+    @MainActor
+    func completeExplorationSession(itemsFound: [BackpackItem], walkDistance: Double? = nil) async -> ExplorationResult? {
+        guard let startTime = currentExplorationStartTime else {
+            LogError("❌ [探索] 没有活动的探索会话")
+            return nil
+        }
+
+        let duration = Date().timeIntervalSince(startTime)
+        let finalDistance = walkDistance ?? currentExplorationDistance
+
+        do {
+            let session = try await supabase.auth.session
+            let userId = session.user.id.uuidString
+
+            // 准备探索会话数据
+            struct LootedItem: Encodable {
+                let item_id: String
+                let name: String
+                let quantity: Int
+                let category: String
+                let quality: String?
+            }
+
+            struct ExplorationSessionRecord: Encodable {
+                let user_id: String
+                let poi_id: String?
+                let started_at: String
+                let completed_at: String
+                let duration_seconds: Int
+                let items_looted: [LootedItem]
+            }
+
+            // 物品数据转为 JSON
+            let itemsJson = itemsFound.map { item -> LootedItem in
+                LootedItem(
+                    item_id: item.itemId,
+                    name: item.name,
+                    quantity: item.quantity,
+                    category: item.category.rawValue,
+                    quality: item.quality?.rawValue
+                )
+            }
+
+            let formatter = ISO8601DateFormatter()
+            let record = ExplorationSessionRecord(
+                user_id: userId,
+                poi_id: currentExplorationPOI?.id,
+                started_at: formatter.string(from: startTime),
+                completed_at: formatter.string(from: Date()),
+                duration_seconds: Int(duration),
+                items_looted: itemsJson
+            )
+
+            // 保存到 Supabase
+            try await supabase
+                .from("exploration_sessions")
+                .insert(record)
+                .execute()
+
+            LogInfo("☁️ [探索] 探索会话已保存到云端")
+            LogDebug("   - 时长: \(Int(duration))秒")
+            LogDebug("   - 距离: \(Int(finalDistance))米")
+            LogDebug("   - 物品: \(itemsFound.count)种")
+            LogDebug("   - POI: \(currentExplorationPOI?.name ?? "无")")
+
+            // 创建探索结果
+            let result = ExplorationResult(
+                walkDistance: finalDistance,
+                totalWalkDistance: finalDistance, // TODO: 累计距离需要从数据库加载
+                walkRanking: 0, // TODO: 排名需要查询
+                exploredArea: 0, // 探索模式没有面积
+                totalExploredArea: 0,
+                areaRanking: 0,
+                duration: duration,
+                itemsFound: itemsFound,
+                poisDiscovered: discoveredPOICount,
+                experienceGained: itemsFound.count * 10 // 每个物品10点经验
+            )
+
+            // 清理会话状态
+            currentExplorationStartTime = nil
+            currentExplorationPOI = nil
+            currentExplorationDistance = 0
+
+            return result
+
+        } catch {
+            LogError("❌ [探索] 保存探索会话失败: \(error.localizedDescription)")
+            return nil
         }
     }
 
@@ -269,11 +390,11 @@ class ExplorationManager: ObservableObject {
 
             let canLoot = Date() > cooldownDate
             if !canLoot {
-                print("⏱️ [冷却] POI \(poiId) 冷却中，剩余时间：\(Int(cooldownDate.timeIntervalSinceNow / 60)) 分钟")
+                LogDebug("⏱️ [冷却] POI \(poiId) 冷却中，剩余时间：\(Int(cooldownDate.timeIntervalSinceNow / 60)) 分钟")
             }
             return canLoot
         } catch {
-            print("❌ [冷却] 检查冷却失败：\(error.localizedDescription)")
+            LogError("❌ [冷却] 检查冷却失败：\(error.localizedDescription)")
             return true  // 出错时允许搜刮
         }
     }
@@ -330,9 +451,9 @@ class ExplorationManager: ObservableObject {
                 .insert(sessionRecord)
                 .execute()
 
-            print("☁️ [冷却] POI 搜刮记录已存入云端，冷却 24 小时")
+            LogDebug("☁️ [冷却] POI 搜刮记录已存入云端，冷却 24 小时")
         } catch {
-            print("❌ [冷却] 记录搜刮失败：\(error.localizedDescription)")
+            LogError("❌ [冷却] 记录搜刮失败：\(error.localizedDescription)")
         }
     }
 
@@ -341,7 +462,7 @@ class ExplorationManager: ObservableObject {
     func clearBackpack() {
         backpackItems.removeAll()
         updateWeight()
-        print("🗑️ 背包已清空")
+        LogDebug("🗑️ 背包已清空")
     }
 
     // MARK: - Day 20 完善：根据 POI 类型生成随机掉落物品
@@ -418,7 +539,7 @@ class ExplorationManager: ObservableObject {
             generatedItems.append(item)
         }
 
-        print("🎲 生成掉落物品：\(generatedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+        LogDebug("🎲 生成掉落物品：\(generatedItems.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
         return generatedItems
     }
 }

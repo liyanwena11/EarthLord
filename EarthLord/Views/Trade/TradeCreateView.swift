@@ -287,7 +287,7 @@ struct TradeCreateView: View {
             }))
             UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
         } catch {
-            print("❌ 发布挂单失败: \(error.localizedDescription)")
+            LogError("❌ 发布挂单失败: \(error.localizedDescription)")
             // 显示失败提示
             let alert = UIAlertController(title: "失败", message: error.localizedDescription, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))

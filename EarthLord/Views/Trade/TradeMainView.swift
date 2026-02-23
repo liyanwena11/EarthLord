@@ -152,7 +152,7 @@ struct TradeMainView: View {
             await tradeManager.fetchAllData()
             await MainActor.run { isLoading = false }
         } catch {
-            print("❌ 加载交易数据失败: \(error.localizedDescription)")
+            LogError("❌ 加载交易数据失败: \(error.localizedDescription)")
             await MainActor.run { isLoading = false }
         }
     }

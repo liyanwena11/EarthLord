@@ -4,8 +4,11 @@ import Combine
 
 struct MainMapView: View {
     @StateObject private var engine = EarthLordEngine.shared
+    @StateObject private var explorationManager = ExplorationManager.shared
 
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var supabaseTerritories: [Territory] = []
+    @State private var mapRefreshTrigger = UUID() // ✅ 强制刷新地图
 
     // 探索状态
     @State private var isExploring = false
@@ -15,12 +18,20 @@ struct MainMapView: View {
     @State private var explorationTimer: Timer?
     @State private var showExplorationResults = false
     @State private var explorationResultItems: [BackpackItem] = []
+    @State private var explorationResult: ExplorationResult?
 
     var body: some View {
         ZStack {
             // MARK: - 地图主体
             Map(position: $cameraPosition) {
                 UserAnnotation()
+
+                // ✅ 添加自定义用户位置箭头图标
+                if let userLoc = engine.userLocation {
+                    Annotation("", coordinate: userLoc.coordinate) {
+                        CustomUserLocationArrow()
+                    }
+                }
 
                 // 领地标注
                 ForEach(engine.claimedTerritories) { territory in
@@ -42,17 +53,28 @@ struct MainMapView: View {
                     }
                 }
 
-                // 已完成领地多边形
-                ForEach(engine.claimedTerritories) { territory in
+                // 已完成领地多边形（本地内存，圈地完成后立即显示）
+                ForEach(Array(engine.claimedTerritories.enumerated()), id: \.element.id) { _, territory in
                     if !territory.pathCoordinates.isEmpty {
                         MapPolygon(coordinates: territory.pathCoordinates)
-                            .stroke(.blue.opacity(0.5), lineWidth: 2)
-                            .foregroundStyle(.blue.opacity(0.1))
+                            .stroke(Color.green.opacity(0.8), lineWidth: 3)
+                            .foregroundStyle(Color.green.opacity(0.25))
+                    }
+                }
+
+                // 从 Supabase 加载的历史领地多边形
+                ForEach(supabaseTerritories) { territory in
+                    let coords = territory.toCoordinates()
+                    if coords.count >= 3 {
+                        MapPolygon(coordinates: coords)
+                            .stroke(Color.green.opacity(0.7), lineWidth: 2)
+                            .foregroundStyle(Color.green.opacity(0.15))
                     }
                 }
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
             .mapControls { MapCompass() }
+            .id(mapRefreshTrigger) // ✅ 使用 trigger 强制刷新
             .edgesIgnoringSafeArea(.all)
             .preferredColorScheme(.dark)
 
@@ -95,17 +117,59 @@ struct MainMapView: View {
                 .transition(.opacity)
             }
         }
+        .task { await loadTerritories() }
+        .onReceive(NotificationCenter.default.publisher(for: .territoryUpdated)) { _ in
+            Task { await loadTerritories() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .territoryAdded)) { notification in
+            // ✅ 立即添加新领土到地图，无需等待服务器刷新
+            LogDebug("🗺️ [MainMapView] ===== 收到 territoryAdded 通知 =====")
+            if let newTerritory = notification.object as? Territory {
+                LogDebug("🗺️ [MainMapView] 新领地信息:")
+                LogDebug("  - ID: \(newTerritory.id)")
+                LogDebug("  - 名称: \(newTerritory.displayName)")
+                LogDebug("  - 坐标点数: \(newTerritory.path.count)")
+                LogDebug("  - 面积: \(newTerritory.area)㎡")
+                let coords = newTerritory.toCoordinates()
+                LogDebug("  - 解析后坐标数: \(coords.count)")
+                withAnimation {
+                    if !supabaseTerritories.contains(where: { $0.id == newTerritory.id }) {
+                        supabaseTerritories.append(newTerritory)
+                        LogInfo("✅ [MainMapView] 领地已添加到地图显示列表")
+                        LogDebug("📊 [MainMapView] 当前地图上共有 \(supabaseTerritories.count) 个领地")
+                        // ✅ 强制刷新地图
+                        mapRefreshTrigger = UUID()
+                    } else {
+                        LogWarning("⚠️ [MainMapView] 领地已存在，跳过添加")
+                    }
+                }
+            } else {
+                LogError("❌ [MainMapView] 无法解析通知对象为 Territory")
+            }
+        }
         .animation(.easeInOut(duration: 0.3), value: isExploring)
         .sheet(isPresented: $showExplorationResults) {
-            ExplorationStopResultView(
-                distance: explorationDistance,
-                duration: explorationElapsed,
-                items: explorationResultItems,
-                onDismiss: {
-                    showExplorationResults = false
-                    explorationResultItems = []
-                }
-            )
+            if let result = explorationResult {
+                ExplorationStopResultView(
+                    result: result,
+                    onDismiss: {
+                        showExplorationResults = false
+                        explorationResult = nil
+                        explorationResultItems = []
+                    }
+                )
+            } else {
+                // 降级方案：使用旧接口
+                ExplorationStopResultView(
+                    distance: explorationDistance,
+                    duration: explorationElapsed,
+                    items: explorationResultItems,
+                    onDismiss: {
+                        showExplorationResults = false
+                        explorationResultItems = []
+                    }
+                )
+            }
         }
     }
 
@@ -117,11 +181,33 @@ struct MainMapView: View {
         explorationElapsed = 0
         explorationDistance = 0
 
+        // ✅ 使用 ExplorationManager 开始探索会话
+        explorationManager.startExplorationSession()
+
         explorationTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             DispatchQueue.main.async {
                 explorationElapsed += 1
+                // 模拟行走距离（真机环境应该使用 GPS 计算）
                 explorationDistance += Double.random(in: 0.8 ... 1.5)
+                // 更新到管理器
+                explorationManager.currentExplorationDistance = explorationDistance
             }
+        }
+    }
+
+    private func loadTerritories() async {
+        LogDebug("🔄 [MainMapView] 开始加载领地数据...")
+        do {
+            let territories = try await TerritoryManager.shared.loadAllTerritories()
+            await MainActor.run {
+                supabaseTerritories = territories
+                LogInfo("✅ [MainMapView] 领地加载成功，共 \(territories.count) 个")
+                for territory in territories {
+                    LogDebug("  - \(territory.displayName): \(territory.path.count) 个坐标点")
+                }
+            }
+        } catch {
+            LogError("❌ [MainMapView] 领地加载失败: \(error.localizedDescription)")
         }
     }
 
@@ -133,14 +219,22 @@ struct MainMapView: View {
         // 根据探索时长决定掉落量（至少1件）
         let poiTypes: [POIType] = [.supermarket, .hospital, .gasStation, .factory, .warehouse]
         let randomType = poiTypes.randomElement() ?? .supermarket
-        let items = ExplorationManager.shared.generateLoot(for: randomType)
+        let items = explorationManager.generateLoot(for: randomType)
         explorationResultItems = items
 
-        Task { @MainActor in
-            ExplorationManager.shared.addItems(items: items)
-        }
+        // ✅ 将物品添加到背包
+        explorationManager.addItems(items: items)
 
-        showExplorationResults = true
+        // ✅ 完成探索会话并记录到后端
+        Task { @MainActor in
+            if let result = await explorationManager.completeExplorationSession(
+                itemsFound: items,
+                walkDistance: explorationDistance
+            ) {
+                explorationResult = result
+                showExplorationResults = true
+            }
+        }
     }
 }
 
@@ -165,11 +259,16 @@ struct MapBottomButtons: View {
                 .cornerRadius(14)
             }
 
-            // 斜向上箭头间隔
-            Image(systemName: "arrow.up.right.circle.fill")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundColor(.white.opacity(0.85))
-                .frame(width: 40)
+            // 中间分隔符 - 使用更美观的图标
+            ZStack {
+                Circle()
+                    .fill(.white.opacity(0.15))
+                    .frame(width: 36, height: 36)
+                Image(systemName: "circle.fill")
+                    .font(.system(size: 8))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            .frame(width: 40)
 
             // 开始圈地
             Button(action: onTerritory) {
@@ -280,12 +379,33 @@ struct ExploreStatCell: View {
 // MARK: - 停止探索结果卡片
 
 struct ExplorationStopResultView: View {
-    let distance: Double
-    let duration: TimeInterval
-    let items: [BackpackItem]
+    let result: ExplorationResult
     let onDismiss: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+
+    // 主初始化器
+    init(result: ExplorationResult, onDismiss: @escaping () -> Void) {
+        self.result = result
+        self.onDismiss = onDismiss
+    }
+
+    // 便捷初始化（支持旧接口）
+    init(distance: Double, duration: TimeInterval, items: [BackpackItem], onDismiss: @escaping () -> Void) {
+        self.result = ExplorationResult(
+            walkDistance: distance,
+            totalWalkDistance: distance,
+            walkRanking: 0,
+            exploredArea: 0,
+            totalExploredArea: 0,
+            areaRanking: 0,
+            duration: duration,
+            itemsFound: items,
+            poisDiscovered: 0,
+            experienceGained: 0
+        )
+        self.onDismiss = onDismiss
+    }
 
     var body: some View {
         ZStack {
@@ -299,15 +419,15 @@ struct ExplorationStopResultView: View {
                         .foregroundColor(.green)
                         .padding(.top, 40)
                     Text("探索结束").font(.title.bold()).foregroundColor(.white)
-                    Text("共探索了 \(formatDuration(duration))").font(.subheadline).foregroundColor(.gray)
+                    Text("共探索了 \(formatDuration(result.duration))").font(.subheadline).foregroundColor(.gray)
                 }
                 .padding(.bottom, 24)
 
                 // 统计卡
                 HStack(spacing: 12) {
-                    SummaryCard(icon: "figure.walk", color: .blue, label: "行走距离", value: formatDistance(distance))
-                    SummaryCard(icon: "clock.fill", color: .orange, label: "探索时长", value: formatDuration(duration))
-                    SummaryCard(icon: "shippingbox.fill", color: .green, label: "获得物品", value: "\(items.reduce(0) { $0 + $1.quantity }) 件")
+                    SummaryCard(icon: "figure.walk", color: .blue, label: "行走距离", value: formatDistance(result.walkDistance))
+                    SummaryCard(icon: "clock.fill", color: .orange, label: "探索时长", value: formatDuration(result.duration))
+                    SummaryCard(icon: "shippingbox.fill", color: .green, label: "获得物品", value: "\(result.itemsFound.reduce(0) { $0 + $1.quantity }) 件")
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
@@ -316,14 +436,14 @@ struct ExplorationStopResultView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("新增物品").font(.headline).foregroundColor(.white).padding(.horizontal, 20).padding(.bottom, 10)
 
-                    if items.isEmpty {
+                    if result.itemsFound.isEmpty {
                         HStack {
                             Spacer()
                             Text("此次探索未发现物资").font(.subheadline).foregroundColor(.gray)
                             Spacer()
                         }.padding(.vertical, 20)
                     } else {
-                        ForEach(items) { item in
+                        ForEach(result.itemsFound) { item in
                             HStack(spacing: 12) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 8)
@@ -348,6 +468,16 @@ struct ExplorationStopResultView: View {
                 .background(Color.white.opacity(0.05))
                 .cornerRadius(14)
                 .padding(.horizontal, 16)
+
+                // 探索经验值
+                if result.experienceGained > 0 {
+                    HStack {
+                        Image(systemName: "star.fill").foregroundColor(.yellow).font(.caption)
+                        Text("获得经验: \(result.experienceGained) 点")
+                            .font(.caption).foregroundColor(.gray)
+                    }
+                    .padding(.top, 8)
+                }
 
                 // 背包容量
                 let backpack = ExplorationManager.shared
@@ -508,3 +638,50 @@ struct RadarView: View {
         .padding(.horizontal).padding(.top, 4)
     }
 }
+
+// MARK: - 自定义用户位置箭头
+
+struct CustomUserLocationArrow: View {
+    @StateObject private var locationManager = LocationManager.shared
+
+    var body: some View {
+        ZStack {
+            // 脉冲效果圆环
+            Circle()
+                .stroke(Color.orange.opacity(0.5), lineWidth: 2)
+                .frame(width: 50, height: 50)
+                .scaleEffect(pulseScale)
+                .opacity(pulseOpacity)
+                .animation(
+                    Animation.easeInOut(duration: 1.5)
+                        .repeatForever(autoreverses: true),
+                    value: pulseScale
+                )
+                .animation(
+                    Animation.easeInOut(duration: 1.5)
+                        .repeatForever(autoreverses: true),
+                    value: pulseOpacity
+                )
+
+            // 中心箭头
+            Image(systemName: "location.north.fill")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.orange)
+                .rotationEffect(.degrees(-180)) // 指向北
+                .shadow(color: .orange, radius: 3)
+
+            // 外圈光晕
+            Circle()
+                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                .frame(width: 60, height: 60)
+        }
+        .onAppear {
+            pulseScale = 1.2
+            pulseOpacity = 0
+        }
+    }
+
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var pulseOpacity: Double = 1.0
+}
+

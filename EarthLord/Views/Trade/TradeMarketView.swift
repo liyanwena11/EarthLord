@@ -172,7 +172,7 @@ struct TradeMarketView: View {
         do {
             await tradeManager.fetchMarketOffers()
         } catch {
-            print("❌ 刷新市场挂单失败: \(error.localizedDescription)")
+            LogError("❌ 刷新市场挂单失败: \(error.localizedDescription)")
         }
         await MainActor.run { isLoading = false }
     }

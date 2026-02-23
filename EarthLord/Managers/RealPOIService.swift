@@ -18,11 +18,11 @@ class RealPOIService: ObservableObject {
            abs(loc.latitude) > 1.0 && abs(loc.longitude) > 1.0 {
             // 有效坐标（纬度和经度绝对值都大于1，排除原点附近）
             searchCenter = loc
-            print("🗺️ POI搜索：使用真实位置 (\(loc.latitude), \(loc.longitude))")
+            LogDebug("🗺️ POI搜索：使用真实位置 (\(loc.latitude), \(loc.longitude))")
         } else {
             // 无效坐标，回退到成都
             searchCenter = chengduFallback
-            print("🗺️ POI搜索：坐标无效，回退到成都龙泉驿 (30.565, 104.265)")
+            LogDebug("🗺️ POI搜索：坐标无效，回退到成都龙泉驿 (30.565, 104.265)")
         }
             
         let request = MKLocalSearch.Request()
@@ -60,8 +60,8 @@ class RealPOIService: ObservableObject {
                 )
             }
             self.isScanning = false
-            print("🗺️ POI搜索完成：找到 \(self.realPOIs.count) 个地点")
-            print("🎯 [POI搜索] POI 列表已更新，距离检测将自动生效")
+            LogDebug("🗺️ POI搜索完成：找到 \(self.realPOIs.count) 个地点")
+            LogDebug("🎯 [POI搜索] POI 列表已更新，距离检测将自动生效")
         }
     }
 
@@ -74,7 +74,7 @@ class RealPOIService: ObservableObject {
             realPOIs[index].status = .looted
             realPOIs[index].hasResources = false
             realPOIs[index].lastLootedTime = Date()  // ✅ Day 22：记录搜刮时间
-            print("🏴 POI 已搜空：\(realPOIs[index].name)，24小时后刷新")
+            LogDebug("🏴 POI 已搜空：\(realPOIs[index].name)，24小时后刷新")
         }
     }
 
@@ -90,7 +90,7 @@ class RealPOIService: ObservableObject {
             if realPOIs[index].isLootable && realPOIs[index].status == .looted {
                 realPOIs[index].status = .discovered
                 realPOIs[index].hasResources = true
-                print("🔄 POI 已刷新：\(realPOIs[index].name)")
+                LogDebug("🔄 POI 已刷新：\(realPOIs[index].name)")
             }
         }
     }

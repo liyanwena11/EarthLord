@@ -82,6 +82,19 @@ struct BuildingPlacementView: View {
                 )
             }
             .onAppear {
+                LogDebug("🏗️ [BuildingPlacementView] onAppear")
+                LogDebug("  - template: \(template.name)")
+                LogDebug("  - territoryId: \(territoryId)")
+                LogDebug("  - 领地坐标数量: \(territoryCoordinates.count)")
+
+                if territoryCoordinates.isEmpty {
+                    LogWarning("⚠️ [BuildingPlacementView] 领地坐标为空！")
+                } else if territoryCoordinates.count < 3 {
+                    LogWarning("⚠️ [BuildingPlacementView] 领地坐标不完整，只有 \(territoryCoordinates.count) 个点")
+                } else {
+                    LogDebug("✅ [BuildingPlacementView] 领地坐标完整")
+                }
+
                 // 确保建筑与背包数据就绪
                 Task {
                     await buildingManager.fetchPlayerBuildings(territoryId: territoryId)
@@ -136,7 +149,40 @@ struct BuildingPlacementView: View {
                 .font(.subheadline.bold())
                 .foregroundColor(ApocalypseTheme.textPrimary)
 
-            if let coord = selectedCoordinate {
+            // 验证领地坐标
+            if territoryCoordinates.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(ApocalypseTheme.warning)
+                        Text("领地坐标数据缺失")
+                            .font(.subheadline)
+                            .foregroundColor(ApocalypseTheme.textPrimary)
+                    }
+                    Text("该领地可能尚未完成圈地，或坐标数据损坏。请联系管理员或尝试重新圈地。")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                }
+                .padding()
+                .background(ApocalypseTheme.warning.opacity(0.1))
+                .cornerRadius(8)
+            } else if territoryCoordinates.count < 3 {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(ApocalypseTheme.warning)
+                        Text("领地坐标不完整")
+                            .font(.subheadline)
+                            .foregroundColor(ApocalypseTheme.textPrimary)
+                    }
+                    Text("坐标点数量不足（至少需要 3 个点），无法显示多边形边界。当前数量: \(territoryCoordinates.count)")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                }
+                .padding()
+                .background(ApocalypseTheme.warning.opacity(0.1))
+                .cornerRadius(8)
+            } else if let coord = selectedCoordinate {
                 Text("已选择位置：\(String(format: "%.4f", coord.latitude)), \(String(format: "%.4f", coord.longitude))")
                     .font(.caption)
                     .foregroundColor(ApocalypseTheme.textSecondary)
@@ -146,19 +192,22 @@ struct BuildingPlacementView: View {
                     .foregroundColor(ApocalypseTheme.textMuted)
             }
 
-            Button {
-                showLocationPicker = true
-            } label: {
-                HStack {
-                    Image(systemName: "map.fill")
-                    Text("在地图上选择位置")
-                        .fontWeight(.semibold)
+            // 只有在有足够坐标时才显示地图选择按钮
+            if territoryCoordinates.count >= 3 {
+                Button {
+                    showLocationPicker = true
+                } label: {
+                    HStack {
+                        Image(systemName: "map.fill")
+                        Text("在地图上选择位置")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(ApocalypseTheme.primary.opacity(0.1))
+                    .foregroundColor(ApocalypseTheme.primary)
+                    .cornerRadius(12)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 44)
-                .background(ApocalypseTheme.primary.opacity(0.1))
-                .foregroundColor(ApocalypseTheme.primary)
-                .cornerRadius(12)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -122,7 +122,7 @@ struct TradeOfferDetailView: View {
                         .foregroundColor(ApocalypseTheme.textMuted)
                 }
                 Spacer()
-                StatusBadge(status: offer.status)
+                TradeStatusBadge(status: offer.status)
             }
 
             if let remaining = offer.formattedRemainingTime as String?, offer.expiresAt != nil {
@@ -271,7 +271,7 @@ struct TradeOfferDetailView: View {
 }
 
 // MARK: - StatusBadge 组件
-struct StatusBadge: View {
+struct TradeStatusBadge: View {
     let status: TradeOfferStatus
     
     var body: some View {

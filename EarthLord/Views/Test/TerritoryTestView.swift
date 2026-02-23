@@ -1,5 +1,7 @@
 import SwiftUI
 
+#if DEBUG
+
 struct TerritoryTestView: View {
     @StateObject private var engine = EarthLordEngine.shared
     @ObservedObject var logger = TerritoryLogger.shared
@@ -92,3 +94,4 @@ struct TerritoryTestView: View {
         }
     }
 }
+#endif

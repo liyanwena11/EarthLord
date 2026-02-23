@@ -1,5 +1,7 @@
 import SwiftUI
 
+#if DEBUG
+
 struct TestMenuView: View {
     var body: some View {
         List {
@@ -16,3 +18,4 @@ struct TestMenuView: View {
         .navigationTitle("开发测试")
     }
 }
+#endif

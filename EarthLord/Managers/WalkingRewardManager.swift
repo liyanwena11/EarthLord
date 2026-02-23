@@ -37,14 +37,14 @@ class WalkingRewardManager: ObservableObject {
     private var isSpeedViolationActive = false
 
     private init() {
-        print("🚀 [奖励系统] WalkingRewardManager 初始化开始")
+        LogDebug("🚀 [奖励系统] WalkingRewardManager 初始化开始")
         loadProgress()
 
         // ✅ 修复：延迟 Supabase 调用，等待用户登录后再同步
         // 不在 init 中直接调用网络请求，避免阻塞主线程
-        print("✅ [奖励系统] WalkingRewardManager 初始化完成（本地数据）")
-        print("📊 [奖励系统] 当前累计距离: \(String(format: "%.2f", totalWalkingDistance))m")
-        print("🏆 [奖励系统] 已解锁等级: \(unlockedTiers.count) 个")
+        LogInfo("✅ [奖励系统] WalkingRewardManager 初始化完成（本地数据）")
+        LogDebug("📊 [奖励系统] 当前累计距离: \(String(format: "%.2f", totalWalkingDistance))m")
+        LogDebug("🏆 [奖励系统] 已解锁等级: \(unlockedTiers.count) 个")
     }
 
     /// ✅ 新增：登录后调用此方法同步云端数据
@@ -68,7 +68,7 @@ class WalkingRewardManager: ObservableObject {
 
         // 首次定位，初始化采样点
         guard let sampleLoc = lastSampleLocation, let sampleTime = lastSampleTime else {
-            print("⚪️ [奖励系统] 首次定位，初始化采样点")
+            LogDebug("⚪️ [奖励系统] 首次定位，初始化采样点")
             lastSampleLocation = newLocation
             lastSampleTime = now
             lastLocation = newLocation
@@ -86,16 +86,15 @@ class WalkingRewardManager: ObservableObject {
         }
 
         // ✅ 到达 10 秒采样点，开始计算真实位移
-        print("⏰ [奖励系统] 到达 10 秒采样点，开始计算真实位移")
-        print("📍 [奖励系统] 采样起点: (\(sampleLoc.coordinate.latitude), \(sampleLoc.coordinate.longitude))")
-        print("📍 [奖励系统] 采样终点: (\(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude))")
-
+        LogDebug("⏰ [奖励系统] 到达 10 秒采样点，开始计算真实位移")
+        LogDebug("📍 [奖励系统] 采样起点: (\(sampleLoc.coordinate.latitude), \(sampleLoc.coordinate.longitude))")
+        LogDebug("📍 [奖励系统] 采样终点: (\(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude))")
         // 计算采样周期内的真实位移距离
         let distanceMoved = newLocation.distance(from: sampleLoc)
 
         // ✅ GPS 跳点过滤：采样周期内位移超过 200m 视为异常
         if distanceMoved > 200 {
-            print("⚠️ [奖励系统] GPS 跳点！位移 \(String(format: "%.1f", distanceMoved))m，丢弃并重置采样点")
+            LogWarning("⚠️ [奖励系统] GPS 跳点！位移 \(String(format: "%.1f", distanceMoved))m，丢弃并重置采样点")
             lastSampleLocation = newLocation
             lastSampleTime = now
             lastLocation = newLocation
@@ -107,21 +106,20 @@ class WalkingRewardManager: ObservableObject {
         let averageSpeed = distanceMoved / timeSinceLastSample  // 米/秒
         let averageSpeedKmH = averageSpeed * 3.6  // 转换为 km/h
 
-        print("🚶 [奖励系统] 采样位移: \(String(format: "%.2f", distanceMoved))m")
-        print("🚶 [奖励系统] 平均速度: \(String(format: "%.1f", averageSpeedKmH)) km/h")
-
+        LogDebug("🚶 [奖励系统] 采样位移: \(String(format: "%.2f", distanceMoved))m")
+        LogDebug("🚶 [奖励系统] 平均速度: \(String(format: "%.1f", averageSpeedKmH)) km/h")
         // ✅ 速度检测：30 km/h 限制
         if averageSpeed > maxSpeedMPS {
             if speedingStartTime == nil {
                 speedingStartTime = now
-                print("⚠️ [奖励系统] 检测到超速，开始计时（速度: \(String(format: "%.1f", averageSpeedKmH)) km/h）")
+                LogWarning("⚠️ [奖励系统] 检测到超速，开始计时（速度: \(String(format: "%.1f", averageSpeedKmH)) km/h）")
             } else {
                 let speedingDuration = now.timeIntervalSince(speedingStartTime!)
                 if speedingDuration >= maxSpeedingDuration {
                     if !isSpeedViolationActive {
                         isSpeedViolationActive = true
-                        print("🛑 [奖励系统] 连续超速 \(Int(maxSpeedingDuration)) 秒，停止距离累计")
-                        print("🛑 [奖励系统] 当前速度: \(String(format: "%.1f", averageSpeedKmH)) km/h（限制: 30 km/h）")
+                        LogDebug("🛑 [奖励系统] 连续超速 \(Int(maxSpeedingDuration)) 秒，停止距离累计")
+                        LogDebug("🛑 [奖励系统] 当前速度: \(String(format: "%.1f", averageSpeedKmH)) km/h（限制: 30 km/h）")
                     }
                     // 更新采样点但不累加距离
                     lastSampleLocation = newLocation
@@ -130,7 +128,7 @@ class WalkingRewardManager: ObservableObject {
                     lastUpdateTime = now
                     return
                 }
-                print("⚠️ [奖励系统] 超速持续 \(String(format: "%.1f", speedingDuration)) 秒")
+                LogWarning("⚠️ [奖励系统] 超速持续 \(String(format: "%.1f", speedingDuration)) 秒")
             }
             // 更新采样点但不累加距离
             lastSampleLocation = newLocation
@@ -141,7 +139,7 @@ class WalkingRewardManager: ObservableObject {
         } else {
             // 恢复正常速度，重置超速计时
             if speedingStartTime != nil {
-                print("✅ [奖励系统] 速度恢复正常，重置超速计时")
+                LogInfo("✅ [奖励系统] 速度恢复正常，重置超速计时")
             }
             speedingStartTime = nil
             isSpeedViolationActive = false
@@ -149,7 +147,7 @@ class WalkingRewardManager: ObservableObject {
 
         // 距离过滤：忽略小于 3 米的移动
         guard distanceMoved >= 3.0 else {
-            print("⏭️ [奖励系统] 10 秒位移太小(< 3m)，忽略: \(String(format: "%.2f", distanceMoved))m")
+            LogDebug("⏭️ [奖励系统] 10 秒位移太小(< 3m)，忽略: \(String(format: "%.2f", distanceMoved))m")
             // 更新采样点
             lastSampleLocation = newLocation
             lastSampleTime = now
@@ -158,18 +156,16 @@ class WalkingRewardManager: ObservableObject {
             return
         }
 
-        print("✅ [奖励系统] 距离检查通过！准备累加: \(String(format: "%.2f", distanceMoved))m")
-
+        LogInfo("✅ [奖励系统] 距离检查通过！准备累加: \(String(format: "%.2f", distanceMoved))m")
         // ✅ 累加距离
         let previousDistance = totalWalkingDistance
         totalWalkingDistance += distanceMoved
 
-        print("🎉🎉🎉 [奖励系统] 累计距离更新！")
-        print("📊 [奖励系统] 之前: \(String(format: "%.2f", previousDistance))m")
-        print("📊 [奖励系统] 现在: \(String(format: "%.2f", totalWalkingDistance))m")
-        print("📊 [奖励系统] 新增: \(String(format: "%.2f", distanceMoved))m")
-        print("🏆 [奖励系统] 已解锁等级数: \(unlockedTiers.count)")
-
+        LogDebug("🎉🎉🎉 [奖励系统] 累计距离更新！")
+        LogDebug("📊 [奖励系统] 之前: \(String(format: "%.2f", previousDistance))m")
+        LogDebug("📊 [奖励系统] 现在: \(String(format: "%.2f", totalWalkingDistance))m")
+        LogDebug("📊 [奖励系统] 新增: \(String(format: "%.2f", distanceMoved))m")
+        LogDebug("🏆 [奖励系统] 已解锁等级数: \(unlockedTiers.count)")
         // 检查是否解锁新等级
         checkAndUnlockTiers(from: previousDistance, to: totalWalkingDistance)
 
@@ -190,8 +186,7 @@ class WalkingRewardManager: ObservableObject {
     func simulateWalking(distance: Double) {
         let oldDistance = totalWalkingDistance
         totalWalkingDistance += distance
-        print("🧪 [测试] 模拟行走 +\(Int(distance))m，当前总距离：\(Int(totalWalkingDistance))m")
-
+        LogDebug("🧪 [测试] 模拟行走 +\(Int(distance))m，当前总距离：\(Int(totalWalkingDistance))m")
         // 触发奖励检查
         checkAndUnlockTiers(from: oldDistance, to: totalWalkingDistance)
 
@@ -218,8 +213,7 @@ class WalkingRewardManager: ObservableObject {
         // 防止重复解锁
         guard !unlockedTiers.contains(tier.rawValue) else { return }
 
-        print("🎉 [WalkingReward] 解锁等级: \(tier.displayName) (\(Int(tier.distance))m)")
-
+        LogDebug("🎉 [WalkingReward] 解锁等级: \(tier.displayName) (\(Int(tier.distance))m)")
         unlockedTiers.insert(tier.rawValue)
         recentReward = tier
         showRewardNotification = true
@@ -237,8 +231,7 @@ class WalkingRewardManager: ObservableObject {
         )
         rewardRecords.append(record)
 
-        print("🎁 [WalkingReward] 发放奖励: \(rewards.map { $0.name }.joined(separator: ", "))")
-
+        LogDebug("🎁 [WalkingReward] 发放奖励: \(rewards.map { $0.name }.joined(separator: ", "))")
         // ✅ Day 21：同步到 Supabase
         Task {
             await saveRewardToSupabase(tier: tier)
@@ -249,7 +242,7 @@ class WalkingRewardManager: ObservableObject {
 
     /// 重置每日进度
     func resetDailyProgress() {
-        print("🔄 [WalkingReward] 重置每日进度")
+        LogDebug("🔄 [WalkingReward] 重置每日进度")
         totalWalkingDistance = 0.0
         unlockedTiers.removeAll()
         rewardRecords.removeAll()
@@ -279,7 +272,7 @@ class WalkingRewardManager: ObservableObject {
             rewardRecords = records
         }
 
-        print("📂 [WalkingReward] 加载进度: \(Int(totalWalkingDistance))m, 已解锁: \(unlockedTiers.count) 个等级")
+        LogDebug("📂 [WalkingReward] 加载进度: \(Int(totalWalkingDistance))m, 已解锁: \(unlockedTiers.count) 个等级")
     }
 
     // MARK: - Supabase Sync
@@ -310,9 +303,9 @@ class WalkingRewardManager: ObservableObject {
                 .insert(record)
                 .execute()
 
-            print("☁️ [Supabase] 奖励记录已存入云端：\(tier.displayName)")
+            LogDebug("☁️ [Supabase] 奖励记录已存入云端：\(tier.displayName)")
         } catch {
-            print("❌ [Supabase] 存储失败：\(error.localizedDescription)")
+            LogError("❌ [Supabase] 存储失败：\(error.localizedDescription)")
         }
     }
 
@@ -346,12 +339,12 @@ class WalkingRewardManager: ObservableObject {
             let cloudTiers = Set(response.map { $0.tier })
             if !cloudTiers.isEmpty {
                 unlockedTiers = cloudTiers
-                print("☁️ [Supabase] 从云端加载今日解锁等级: \(unlockedTiers.count) 个")
+                LogDebug("☁️ [Supabase] 从云端加载今日解锁等级: \(unlockedTiers.count) 个")
             } else {
-                print("☁️ [Supabase] 今日尚未解锁任何等级")
+                LogDebug("☁️ [Supabase] 今日尚未解锁任何等级")
             }
         } catch {
-            print("❌ [Supabase] 加载进度失败：\(error.localizedDescription)，使用本地数据")
+            LogError("❌ [Supabase] 加载进度失败：\(error.localizedDescription)，使用本地数据")
             // 出错时继续使用 UserDefaults 数据
         }
     }

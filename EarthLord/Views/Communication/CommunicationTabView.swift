@@ -35,6 +35,18 @@ struct CommunicationTabView: View {
         .onAppear {
             if let userId = authManager.currentUser?.id {
                 Task {
+                    await communicationManager.fetchUserDevices()
+
+                    // ✅ 修复：如果没有当前设备，自动创建并设置为对讲机
+                    await MainActor.run {
+                        if communicationManager.currentDevice == nil {
+                            LogDebug("📡 [通讯] 没有当前设备，自动创建对讲机...")
+                            Task {
+                                await communicationManager.ensureDefaultDevice()
+                            }
+                        }
+                    }
+
                     await communicationManager.ensureOfficialChannelSubscribed(userId: userId)
                 }
             }
@@ -45,14 +57,17 @@ struct CommunicationTabView: View {
 
     private var deviceStatusBar: some View {
         HStack(spacing: 12) {
-            Image(systemName: DeviceType.walkieTalkie.iconName)
+            // ✅ 修复：显示当前设备，而不是固定的 walkieTalkie
+            let currentType = communicationManager.currentDevice?.deviceType ?? .walkieTalkie
+
+            Image(systemName: currentType.iconName)
                 .foregroundColor(ApocalypseTheme.primary)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(DeviceType.walkieTalkie.displayName)
+                Text(currentType.displayName)
                     .font(.caption.bold())
                     .foregroundColor(ApocalypseTheme.textPrimary)
-                Text(DeviceType.walkieTalkie.rangeText)
+                Text(currentType.rangeText)
                     .font(.caption2)
                     .foregroundColor(ApocalypseTheme.textMuted)
             }

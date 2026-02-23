@@ -25,14 +25,14 @@ class BuildingManager: ObservableObject {
     private init() {
         loadTemplates()
         startConstructionCheck()
-        print("🏗️ [建筑] BuildingManager 初始化完成")
+        LogDebug("🏗️ [建筑] BuildingManager 初始化完成")
     }
 
     // MARK: - Template Loading
 
     func loadTemplates() {
         guard let url = Bundle.main.url(forResource: "building_templates", withExtension: "json") else {
-            print("❌ [建筑] 找不到 building_templates.json")
+            LogError("❌ [建筑] 找不到 building_templates.json")
             errorMessage = "找不到建筑模板配置文件"
             return
         }
@@ -40,9 +40,9 @@ class BuildingManager: ObservableObject {
             let data = try Data(contentsOf: url)
             let templates = try JSONDecoder().decode([BuildingTemplate].self, from: data)
             DispatchQueue.main.async { self.buildingTemplates = templates }
-            print("🏗️ [建筑] ✅ 加载 \(templates.count) 个建筑模板")
+            LogInfo("🏗️ [建筑] ✅ 加载 \(templates.count) 个建筑模板")
         } catch {
-            print("❌ [建筑] 加载模板失败: \(error.localizedDescription)")
+            LogError("❌ [建筑] 加载模板失败: \(error.localizedDescription)")
             DispatchQueue.main.async { self.errorMessage = "加载建筑模板失败: \(error.localizedDescription)" }
         }
     }
@@ -118,8 +118,7 @@ class BuildingManager: ObservableObject {
         }
         #endif
 
-        print("🏗️ [建筑] 开始建造: \(template.name)")
-
+        LogDebug("🏗️ [建筑] 开始建造: \(template.name)")
         let now = Date()
         let completedAt = now.addingTimeInterval(TimeInterval(template.buildTimeSeconds))
 
@@ -146,7 +145,7 @@ class BuildingManager: ObservableObject {
 
         await MainActor.run { self.playerBuildings.append(inserted) }
         NotificationCenter.default.post(name: .buildingUpdated, object: nil)
-        print("🏗️ [建筑] ✅ 建造开始: \(template.name)")
+        LogInfo("🏗️ [建筑] ✅ 建造开始: \(template.name)")
     }
 
     func completeConstruction(buildingId: UUID) async throws {
@@ -169,7 +168,7 @@ class BuildingManager: ObservableObject {
             self.playerBuildings[index].updatedAt = Date()
         }
         NotificationCenter.default.post(name: .buildingUpdated, object: nil)
-        print("🏗️ [建筑] ✅ 建造完成: \(playerBuildings[index].buildingName)")
+        LogInfo("🏗️ [建筑] ✅ 建造完成: \(playerBuildings[index].buildingName)")
     }
 
     // MARK: - Upgrade
@@ -239,7 +238,7 @@ class BuildingManager: ObservableObject {
             self.playerBuildings[index].updatedAt = Date()
         }
         NotificationCenter.default.post(name: .buildingUpdated, object: nil)
-        print("🏗️ [建筑] ✅ 升级完成: \(building.buildingName) -> Lv.\(newLevel)")
+        LogInfo("🏗️ [建筑] ✅ 升级完成: \(building.buildingName) -> Lv.\(newLevel)")
     }
 
     func demolishBuilding(buildingId: UUID) async throws {
@@ -255,7 +254,7 @@ class BuildingManager: ObservableObject {
 
         await MainActor.run { self.playerBuildings.remove(at: index) }
         NotificationCenter.default.post(name: .buildingUpdated, object: nil)
-        print("🏗️ [建筑] ✅ 拆除完成: \(building.buildingName)")
+        LogInfo("🏗️ [建筑] ✅ 拆除完成: \(building.buildingName)")
     }
 
     // MARK: - Fetch
@@ -273,9 +272,9 @@ class BuildingManager: ObservableObject {
             let buildings: [PlayerBuilding] = try await query.execute().value
             await MainActor.run { self.playerBuildings = buildings; self.isLoading = false }
             await checkAndCompleteConstructions()
-            print("🏗️ [建筑] ✅ 加载 \(buildings.count) 个建筑")
+            LogInfo("🏗️ [建筑] ✅ 加载 \(buildings.count) 个建筑")
         } catch {
-            print("❌ [建筑] 加载失败: \(error.localizedDescription)")
+            LogError("❌ [建筑] 加载失败: \(error.localizedDescription)")
             await MainActor.run { self.isLoading = false; self.errorMessage = "加载建筑失败" }
         }
     }
@@ -323,4 +322,5 @@ extension Notification.Name {
     static let buildingUpdated = Notification.Name("buildingUpdated")
     static let territoryUpdated = Notification.Name("territoryUpdated")
     static let territoryDeleted = Notification.Name("territoryDeleted")
+    static let territoryAdded = Notification.Name("territoryAdded")
 }

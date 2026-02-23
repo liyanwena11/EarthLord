@@ -12,6 +12,7 @@ import CoreLocation
 struct PTTCallView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject private var communicationManager = CommunicationManager.shared
+    @Environment(\.dismiss) private var dismiss
 
     @State private var selectedChannelId: UUID?
     @State private var messageContent: String = ""
@@ -29,9 +30,18 @@ struct PTTCallView: View {
     }
 
     private var canSend: Bool {
-        (communicationManager.currentDevice?.deviceType.canSend ?? false)
-            && selectedChannel != nil
-            && !messageContent.trimmingCharacters(in: .whitespaces).isEmpty
+        let deviceCanSend = communicationManager.currentDevice?.deviceType.canSend ?? false
+        let hasChannel = selectedChannel != nil
+        let hasContent = !messageContent.trimmingCharacters(in: .whitespaces).isEmpty
+
+        if !deviceCanSend || !hasChannel || !hasContent {
+            LogDebug("⚠️ [PTT] canSend 检查失败:")
+            LogDebug("  - 设备可发送: \(deviceCanSend)")
+            LogDebug("  - 已选频道: \(hasChannel)")
+            LogDebug("  - 有内容: \(hasContent)")
+        }
+
+        return deviceCanSend && hasChannel && hasContent
     }
 
     var body: some View {
@@ -39,6 +49,9 @@ struct PTTCallView: View {
             ApocalypseTheme.background.ignoresSafeArea()
 
             VStack(spacing: 0) {
+                // ✅ 添加返回按钮
+                backButtonBar
+
                 headerView
 
                 if let channel = selectedChannel {
@@ -67,6 +80,36 @@ struct PTTCallView: View {
             }
         }
         .overlay(successToast)
+        .onTapGesture {
+            // ✅ 点击空白区域关闭键盘
+            hideKeyboard()
+        }
+    }
+
+    // MARK: - 辅助方法
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
+    // MARK: - 返回按钮栏
+
+    private var backButtonBar: some View {
+        HStack {
+            Button(action: {
+                dismiss()
+            }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                    Text("返回")
+                }
+                .foregroundColor(ApocalypseTheme.primary)
+                .font(.subheadline)
+            }
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 
     // MARK: - 标题栏
@@ -222,17 +265,42 @@ struct PTTCallView: View {
                     .foregroundColor(.white)
             }
         }
-        .disabled(!canSend)
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.1)
-                .onChanged { _ in
-                    guard canSend else { return }
-                    isPressingPTT = true
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        .gesture(
+            LongPressGesture(minimumDuration: 0)
+                .sequenced(before: DragGesture(minimumDistance: 0))
+                .onChanged { phase in
+                    switch phase {
+                    case .first(true):
+                        // 长按开始
+                        guard canSend else {
+                            LogWarning("⚠️ [PTT] 无法发送：canSend=\(canSend)")
+                            UINotificationFeedbackGenerator().notificationOccurred(.error)
+                            return
+                        }
+                        guard !isPressingPTT else { return }
+
+                        isPressingPTT = true
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        LogDebug("📡 [PTT] 开始发送...")
+
+                    case .second(true, _):
+                        // 继续按住
+                        break
+
+                    default:
+                        break
+                    }
                 }
-                .onEnded { _ in
+                .onEnded { phase in
+                    guard isPressingPTT else { return }
                     isPressingPTT = false
-                    sendPTTMessage()
+
+                    if case .second(true, _) = phase {
+                        LogDebug("✅ [PTT] 发送完成")
+                        sendPTTMessage()
+                    } else {
+                        LogDebug("❌ [PTT] 发送取消")
+                    }
                 }
         )
     }
