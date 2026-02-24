@@ -90,10 +90,9 @@ struct ShopView: View {
             }
         }
         // Navigate to mailbox after animation
-        .background(
-            NavigationLink(destination: MailboxView(), isActive: $showMailbox) { EmptyView() }
-                .hidden()
-        )
+        .navigationDestination(isPresented: $showMailbox) {
+            MailboxView()
+        }
         .task {
             await mailbox.loadPendingItems()
             await store.loadProducts()

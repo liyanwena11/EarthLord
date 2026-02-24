@@ -78,7 +78,7 @@ struct Territory: Codable, Identifiable {
     /// 下一等级所需经验值
     var experienceToNextLevel: Int {
         guard let lvl = level else { return 100 }
-        return lvl * 500 // 简单的经验曲线
+        return (lvl) * 500 // 简单的经验曲线
     }
 
     /// 经验进度（0.0 ~ 1.0）

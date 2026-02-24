@@ -218,7 +218,7 @@ class InventoryManager: ObservableObject {
 
         if newQty <= 0 {
             try await supabase.from("inventory_items").delete().eq("id", value: existingItem.id.uuidString).execute()
-            await MainActor.run { self.items.remove(at: existingIndex) }
+            _ = await MainActor.run { self.items.remove(at: existingIndex) }
         } else {
             struct QuantityUpdate: Encodable { let quantity: Int }
             try await supabase
@@ -226,7 +226,7 @@ class InventoryManager: ObservableObject {
                 .update(QuantityUpdate(quantity: newQty))
                 .eq("id", value: existingItem.id.uuidString)
                 .execute()
-            await MainActor.run { self.items[existingIndex].quantity = newQty }
+            _ = await MainActor.run { self.items[existingIndex].quantity = newQty }
         }
     }
 

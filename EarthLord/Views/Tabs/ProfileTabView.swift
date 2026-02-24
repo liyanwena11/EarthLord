@@ -6,6 +6,7 @@ struct ProfileTabView: View {
     @ObservedObject private var authManager = AuthManager.shared
     @ObservedObject private var langManager = LanguageManager.shared
     @ObservedObject private var territoryManager = TerritoryManager.shared
+    @ObservedObject private var engine = EarthLordEngine.shared
     @ObservedObject private var backpack = ExplorationManager.shared
 
     @State private var showDeleteAlert = false
@@ -288,7 +289,7 @@ struct ProfileTabView: View {
         }
         // ✅ 添加详情弹窗
         .sheet(item: $showStatDetail) { detailType in
-            StatDetailView(detailType: detailType, territoryManager: territoryManager, backpack: backpack)
+            StatDetailView(detailType: detailType, territoryManager: territoryManager, engine: engine, backpack: backpack)
         }
         .sheet(item: $showMiniStatDetail) { detailType in
             MiniStatDetailView(detailType: detailType, engine: engine, backpack: backpack)
@@ -408,6 +409,7 @@ enum MiniStatDetailType: String, Identifiable {
 struct StatDetailView: View {
     let detailType: StatDetailType
     @ObservedObject var territoryManager: TerritoryManager
+    @ObservedObject var engine: EarthLordEngine
     @ObservedObject var backpack: ExplorationManager
     @Environment(\.dismiss) private var dismiss
 

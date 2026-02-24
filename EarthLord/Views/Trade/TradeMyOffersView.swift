@@ -59,11 +59,7 @@ struct TradeMyOffersView: View {
     // MARK: - 刷新挂单
     private func refreshOffers() async {
         await MainActor.run { isLoading = true }
-        do {
-            await tradeManager.fetchMyOffers()
-        } catch {
-            LogError("❌ 刷新我的挂单失败: \(error.localizedDescription)")
-        }
+        await tradeManager.fetchMyOffers()
         await MainActor.run { isLoading = false }
     }
     
@@ -224,14 +220,20 @@ struct TradeMyOffersView: View {
             // 显示成功提示
             let alert = UIAlertController(title: "成功", message: "挂单已取消，物品已退回您的背包。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController?.present(alert, animated: true)
+            }
         } catch {
             LogError("❌ 取消挂单失败: \(error.localizedDescription)")
             await MainActor.run { isLoading = false }
             // 显示失败提示
             let alert = UIAlertController(title: "失败", message: "取消挂单失败，请重试。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController?.present(alert, animated: true)
+            }
         }
     }
 }

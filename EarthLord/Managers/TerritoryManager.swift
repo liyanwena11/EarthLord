@@ -1,14 +1,20 @@
 import Foundation
 import CoreLocation
 import Supabase
+import Combine
 
-class TerritoryManager {
+class TerritoryManager: ObservableObject {
     static let shared = TerritoryManager()
     
     // ✅ 修复：直接使用项目里的全局 supabaseClient
     private let supabase = supabaseClient
     
-    var territories: [Territory] = []
+    @Published var territories: [Territory] = []
+    
+    /// 我的领地列表（别名）
+    var myTerritories: [Territory] {
+        return territories
+    }
     
     private init() {}
 

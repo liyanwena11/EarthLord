@@ -127,7 +127,7 @@ struct ProductionQueueView: View {
 
     private func collectJob(_ job: ProductionJob) async {
         do {
-            let (resourceId, amount) = try await productionManager.collectProduction(jobId: job.id)
+            let (_, amount) = try await productionManager.collectProduction(jobId: job.id)
             LogInfo("✅ 收集成功: \(job.resourceName) x\(amount)")
             await loadProductions()
         } catch {

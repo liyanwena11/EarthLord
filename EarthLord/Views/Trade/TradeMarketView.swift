@@ -169,11 +169,7 @@ struct TradeMarketView: View {
     // MARK: - 刷新挂单
     private func refreshOffers() async {
         await MainActor.run { isLoading = true }
-        do {
-            await tradeManager.fetchMarketOffers()
-        } catch {
-            LogError("❌ 刷新市场挂单失败: \(error.localizedDescription)")
-        }
+        await tradeManager.fetchMarketOffers()
         await MainActor.run { isLoading = false }
     }
 }
