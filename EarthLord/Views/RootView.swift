@@ -20,6 +20,10 @@ struct RootView: View {
 
     /// 是否显示新手引导
     @State private var showOnboarding = false
+    /// 调试：强制显示新手引导
+    @AppStorage("debug_force_show_onboarding") private var debugForceShowOnboarding = false
+    /// 是否已检查过引导
+    @State private var hasCheckedOnboarding = false
 
     var body: some View {
         ZStack {
@@ -37,16 +41,7 @@ struct RootView: View {
                     .transition(.opacity)
                     .onAppear {
                         // 检查是否需要显示新手引导
-                        Task {
-                            await onboardingManager.checkOnboardingStatus()
-                            if onboardingManager.shouldShowOnboarding {
-                                await MainActor.run {
-                                    withAnimation {
-                                        showOnboarding = true
-                                    }
-                                }
-                            }
-                        }
+                        checkAndShowOnboarding()
                     }
             }
 
@@ -64,6 +59,45 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.3), value: splashFinished)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
         .animation(.easeInOut(duration: 0.3), value: showOnboarding)
+        // 监听登录状态变化
+        .onChange(of: authManager.isAuthenticated) { oldValue, newValue in
+            if newValue {
+                // 用户刚刚登录，重置检查标志并检查引导
+                hasCheckedOnboarding = false
+                checkAndShowOnboarding()
+            } else {
+                // 用户退出登录，重置状态
+                hasCheckedOnboarding = false
+                showOnboarding = false
+            }
+        }
+    }
+
+    private func checkAndShowOnboarding() {
+        Task {
+            // 防止重复检查
+            if hasCheckedOnboarding { return }
+            hasCheckedOnboarding = true
+
+            // 调试模式：强制显示引导
+            if debugForceShowOnboarding {
+                await MainActor.run {
+                    withAnimation {
+                        showOnboarding = true
+                    }
+                }
+                return
+            }
+
+            await onboardingManager.checkOnboardingStatus()
+            if onboardingManager.shouldShowOnboarding {
+                await MainActor.run {
+                    withAnimation {
+                        showOnboarding = true
+                    }
+                }
+            }
+        }
     }
 }
 

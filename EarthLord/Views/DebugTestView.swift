@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 // MARK: - 调试测试视图
@@ -108,6 +109,12 @@ struct DebugTestView: View {
 
                             testButton("🧪 运行完整诊断", color: .purple) {
                                 await runFullDiagnostic()
+                            }
+
+                            testButton("🎯 测试新手引导", color: .blue) {
+                                // 重置本地缓存，强制显示新手引导
+                                UserDefaults.standard.set(false, forKey: "has_seen_onboarding")
+                                UserDefaults.standard.set(true, forKey: "debug_force_show_onboarding")
                             }
                         }
                         .padding(.horizontal, 20)
@@ -256,3 +263,5 @@ struct DebugTestView: View {
 
 #endif
 
+
+#endif

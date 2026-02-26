@@ -37,9 +37,13 @@ class OnboardingManager: ObservableObject {
         isLoading = true
 
         // 首先检查本地缓存
-        if UserDefaults.standard.bool(forKey: onboardingShownKey) {
+        let localCache = UserDefaults.standard.bool(forKey: onboardingShownKey)
+        LogDebug("🎯 [OnboardingManager] 本地缓存: has_seen_onboarding = \(localCache)")
+
+        if localCache {
             shouldShowOnboarding = false
             isLoading = false
+            LogDebug("�� [OnboardingManager] 本地缓存显示已看过引导，跳过")
             return
         }
 
@@ -60,17 +64,22 @@ class OnboardingManager: ObservableObject {
                 .execute()
                 .value
 
+            LogDebug("☁️ [OnboardingManager] 服务器返回: has_seen_onboarding = \(response.hasSeenOnboarding ?? nil)")
+
             // 如果用户已看过引导，则不显示
             if let hasSeen = response.hasSeenOnboarding, hasSeen {
                 UserDefaults.standard.set(true, forKey: onboardingShownKey)
                 shouldShowOnboarding = false
+                LogDebug("⏭️ [OnboardingManager] 用户已看过引导，跳过")
             } else {
                 shouldShowOnboarding = true
+                LogDebug("✅ [OnboardingManager] 需要显示引导！shouldShowOnboarding = true")
             }
         } catch {
             // 如果查询失败，默认显示引导
             print("Error checking onboarding status: \(error)")
             shouldShowOnboarding = true
+            LogDebug("⚠️ [OnboardingManager] 查询失败，默认显示引导")
         }
 
         isLoading = false
