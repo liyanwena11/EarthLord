@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 #if DEBUG
@@ -18,4 +19,6 @@ struct TestMenuView: View {
         .navigationTitle("开发测试")
     }
 }
+#endif
+
 #endif

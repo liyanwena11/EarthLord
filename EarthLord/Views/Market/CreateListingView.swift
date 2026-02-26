@@ -167,7 +167,7 @@ struct CreateListingView: View {
                 }
 
                 // 调用 TradeManager 创建挂单
-                try await TradeManager.shared.createOffer(
+                _ = try await TradeManager.shared.createOffer(
                     offeringItems: offeringItems,
                     requestingItems: requestingItems,
                     message: message.isEmpty ? nil : message,

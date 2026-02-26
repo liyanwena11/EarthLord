@@ -18,6 +18,8 @@ struct PTTCallView: View {
     @State private var messageContent: String = ""
     @State private var isPressingPTT: Bool = false
     @State private var showingSuccess: Bool = false
+    @State private var showErrorAlert: Bool = false
+    @State private var errorText: String = ""
 
     private var sendableChannels: [SubscribedChannel] {
         communicationManager.subscribedChannels.filter {
@@ -27,6 +29,10 @@ struct PTTCallView: View {
 
     private var selectedChannel: CommunicationChannel? {
         sendableChannels.first { $0.channel.id == selectedChannelId }?.channel
+    }
+
+    private var sendableDevices: [CommunicationDevice] {
+        communicationManager.devices.filter { $0.isUnlocked && $0.deviceType.canSend }
     }
 
     private var canSend: Bool {
@@ -58,6 +64,8 @@ struct PTTCallView: View {
                     frequencyCard(channel: channel)
                 }
 
+                deviceSwitcherBar
+
                 channelTabBar
 
                 Spacer()
@@ -75,21 +83,17 @@ struct PTTCallView: View {
             }
         }
         .onAppear {
-            if selectedChannelId == nil {
-                selectedChannelId = sendableChannels.first?.channel.id
-            }
-            // ✅ 初始化设备列表和当前设备
-            Task {
-                await communicationManager.fetchUserDevices()
-                if communicationManager.currentDevice == nil {
-                    try? await communicationManager.unlockDevice(deviceType: .radio)
-                }
-            }
+            Task { await initializePTTData() }
         }
         .overlay(successToast)
         .onTapGesture {
             // ✅ 点击空白区域关闭键盘
             hideKeyboard()
+        }
+        .alert("提示", isPresented: $showErrorAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(errorText)
         }
     }
 
@@ -97,6 +101,48 @@ struct PTTCallView: View {
 
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
+    private func initializePTTData() async {
+        await communicationManager.fetchUserDevices()
+
+        if communicationManager.currentDevice == nil {
+            await communicationManager.ensureDefaultDevice()
+            await communicationManager.fetchUserDevices()
+        }
+
+        if communicationManager.currentDevice?.deviceType.canSend != true {
+            do {
+                if let fallbackDevice = communicationManager.devices.first(where: { $0.isUnlocked && $0.deviceType.canSend }) {
+                    try await communicationManager.setCurrentDevice(deviceId: fallbackDevice.id)
+                } else {
+                    try await communicationManager.unlockDevice(deviceType: .walkieTalkie)
+                    guard let walkie = communicationManager.devices.first(where: { $0.deviceType == .walkieTalkie }) else {
+                        throw CommunicationError.operationFailed("对讲机初始化失败")
+                    }
+                    try await communicationManager.setCurrentDevice(deviceId: walkie.id)
+                }
+            } catch {
+                await MainActor.run {
+                    errorText = "初始化发送设备失败：\(error.localizedDescription)"
+                    showErrorAlert = true
+                }
+            }
+        }
+
+        if let userId = authManager.currentUser?.id {
+            await communicationManager.loadSubscribedChannels(userId: userId)
+        }
+
+        await MainActor.run {
+            if let selected = selectedChannelId,
+               !sendableChannels.contains(where: { $0.channel.id == selected }) {
+                selectedChannelId = nil
+            }
+            if selectedChannelId == nil {
+                selectedChannelId = sendableChannels.first?.channel.id
+            }
+        }
     }
 
     // MARK: - 返回按钮栏
@@ -177,32 +223,91 @@ struct PTTCallView: View {
         .padding(.horizontal)
     }
 
-    // MARK: - 频道切换标签栏
+    // MARK: - 呼叫设备切换
 
-    private var channelTabBar: some View {
+    private var deviceSwitcherBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(sendableChannels) { sc in
-                    let isSelected = sc.channel.id == selectedChannelId
-                    Button(action: { selectedChannelId = sc.channel.id }) {
-                        HStack(spacing: 4) {
-                            Text(sc.channel.channelCode)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                            Text(sc.channel.name)
-                                .font(.caption)
-                                .lineLimit(1)
+                ForEach(sendableDevices) { device in
+                    let isCurrent = communicationManager.currentDevice?.id == device.id
+
+                    Button(action: {
+                        guard !isCurrent else { return }
+                        Task {
+                            do {
+                                try await communicationManager.setCurrentDevice(deviceId: device.id)
+                            } catch {
+                                await MainActor.run {
+                                    errorText = "切换设备失败：\(error.localizedDescription)"
+                                    showErrorAlert = true
+                                }
+                            }
                         }
-                        .foregroundColor(isSelected ? .white : ApocalypseTheme.textPrimary)
-                        .padding(.horizontal, 12)
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: device.deviceType.iconName)
+                                .font(.caption)
+                            Text(device.deviceType.displayName)
+                                .font(.caption.bold())
+                            Text(device.deviceType.rangeText)
+                                .font(.caption2)
+                                .foregroundColor(isCurrent ? .white.opacity(0.85) : ApocalypseTheme.textMuted)
+                        }
+                        .padding(.horizontal, 10)
                         .padding(.vertical, 8)
-                        .background(isSelected ? ApocalypseTheme.primary : ApocalypseTheme.cardBackground)
+                        .background(isCurrent ? ApocalypseTheme.primary : ApocalypseTheme.cardBackground)
+                        .foregroundColor(isCurrent ? .white : ApocalypseTheme.textPrimary)
                         .cornerRadius(8)
                     }
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, 10)
+            .padding(.top, 8)
+            .padding(.bottom, 2)
+        }
+    }
+
+    // MARK: - 频道切换标签栏
+
+    private var channelTabBar: some View {
+        Group {
+            if sendableChannels.isEmpty {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.yellow)
+                    Text("暂无可呼叫频道，请先在“频道”页订阅非官方频道")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(sendableChannels) { sc in
+                            let isSelected = sc.channel.id == selectedChannelId
+                            Button(action: { selectedChannelId = sc.channel.id }) {
+                                HStack(spacing: 4) {
+                                    Text(sc.channel.channelCode)
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                    Text(sc.channel.name)
+                                        .font(.caption)
+                                        .lineLimit(1)
+                                }
+                                .foregroundColor(isSelected ? .white : ApocalypseTheme.textPrimary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(isSelected ? ApocalypseTheme.primary : ApocalypseTheme.cardBackground)
+                                .cornerRadius(8)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                }
+            }
         }
     }
 
@@ -272,42 +377,25 @@ struct PTTCallView: View {
                     .foregroundColor(.white)
             }
         }
-        .gesture(
-            LongPressGesture(minimumDuration: 0)
-                .sequenced(before: DragGesture(minimumDistance: 0))
-                .onChanged { phase in
-                    switch phase {
-                    case .first(true):
-                        // 长按开始
-                        guard canSend else {
-                            LogWarning("⚠️ [PTT] 无法发送：canSend=\(canSend)")
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.1)
+                .onChanged { _ in
+                    guard canSend else {
+                        if !isPressingPTT {
                             UINotificationFeedbackGenerator().notificationOccurred(.error)
-                            return
                         }
-                        guard !isPressingPTT else { return }
-
-                        isPressingPTT = true
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        LogDebug("📡 [PTT] 开始发送...")
-
-                    case .second(true, _):
-                        // 继续按住
-                        break
-
-                    default:
-                        break
+                        return
                     }
+                    guard !isPressingPTT else { return }
+                    isPressingPTT = true
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    LogDebug("📡 [PTT] 开始发送...")
                 }
-                .onEnded { phase in
+                .onEnded { _ in
                     guard isPressingPTT else { return }
                     isPressingPTT = false
-
-                    if case .second(true, _) = phase {
-                        LogDebug("✅ [PTT] 发送完成")
-                        sendPTTMessage()
-                    } else {
-                        LogDebug("❌ [PTT] 发送取消")
-                    }
+                    LogDebug("✅ [PTT] 发送完成")
+                    sendPTTMessage()
                 }
         )
     }
@@ -346,14 +434,15 @@ struct PTTCallView: View {
               !messageContent.trimmingCharacters(in: .whitespaces).isEmpty else { return }
 
         let content = messageContent
-        let location = LocationManager.shared.userLocation
+        let deviceType = communicationManager.currentDevice?.deviceType.rawValue
 
         Task {
             let success = await communicationManager.sendChannelMessage(
                 channelId: channelId,
                 content: content,
-                latitude: location?.coordinate.latitude,
-                longitude: location?.coordinate.longitude
+                latitude: nil, // Day 36: PTT 不依赖实时定位
+                longitude: nil,
+                deviceType: deviceType
             )
             if success {
                 await MainActor.run {
@@ -363,6 +452,11 @@ struct PTTCallView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                         withAnimation { showingSuccess = false }
                     }
+                }
+            } else {
+                await MainActor.run {
+                    errorText = communicationManager.errorMessage ?? "PTT 发送失败，请稍后重试"
+                    showErrorAlert = true
                 }
             }
         }

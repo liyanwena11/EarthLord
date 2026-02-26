@@ -23,6 +23,15 @@ enum TradeOfferStatus: String, Codable, CaseIterable {
         case .expired: return "已过期"
         }
     }
+
+    var systemIcon: String {
+        switch self {
+        case .active: return "clock.fill"
+        case .completed: return "checkmark.circle.fill"
+        case .cancelled: return "xmark.circle.fill"
+        case .expired: return "exclamationmark.triangle.fill"
+        }
+    }
 }
 
 // MARK: - TradeItem

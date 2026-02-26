@@ -3,6 +3,7 @@ import CoreLocation
 import UIKit
 import Supabase
 
+@MainActor
 class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
     static let shared = EarthLordEngine()
     private let locationManager = CLLocationManager()
@@ -19,6 +20,12 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var showProximityAlert: Bool = false
     @Published var isExploring: Bool = false
     @Published var exploringStatusText: String = ""
+
+    // ✅ 新增：速度和用时状态
+    @Published var currentSpeed: Double = 0  // 当前速度 m/min
+    @Published var trackingDuration: TimeInterval = 0  // 圈地用时（秒）
+    private var trackingStartTime: Date?  // 圈地开始时间
+    private var lastSpeedUpdateTime: Date?  // 上次速度更新时间
 
     // MARK: - 采样圈地状态
     @Published var isTracking: Bool = false              // 是否正在圈地
@@ -45,6 +52,12 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.startUpdatingLocation()
         LogDebug("🚀 [Engine] EarthLordEngine 初始化完成")
         LogDebug("📍 [GPS] 定位服务已启动")
+
+        // ✅ 新增：用时更新定时器（每秒更新）
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.updateTrackingDuration() }
+        }
+
         survivorTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.updateSurvivorCount() }
         }
@@ -100,18 +113,26 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         isTracking = true
         trackingStatusText = "开始圈地，请行走创建领地边界..."
 
+        // ✅ 新增：记录开始时间和初始化速度
+        trackingStartTime = Date()
+        trackingDuration = 0
+        currentSpeed = 0
+        lastSpeedUpdateTime = Date()
+
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
         LogDebug("🚩 [圈地] ========== 开始圈地 ==========")
         LogDebug("🎯 [圈地] 采样点需求: \(requiredSamplingPoints) 个点 (当前负重: \(String(format: "%.1f", ExplorationManager.shared.totalWeight))kg)")
         LogDebug("📍 [圈地] 距离过滤: ≥ \(GameConfig.SAMPLING_MIN_DISTANCE)m")
-        LogWarning("⚠️ [圈地] GPS 精度过滤: < 100m")
+        LogWarning("⚠️ [圈地] GPS 精度过滤: ≤ \(Int(GameConfig.SAMPLING_MAX_ACCURACY))m")
         // 立即记录第一个点
-        if let loc = userLocation {
+        if let loc = userLocation,
+           loc.horizontalAccuracy > 0,
+           loc.horizontalAccuracy <= GameConfig.SAMPLING_MAX_ACCURACY {
             pathPoints.append(loc)
             LogInfo("📍 [圈地] ✅ 起点1已记录: (\(String(format: "%.5f", loc.coordinate.latitude)), \(String(format: "%.5f", loc.coordinate.longitude))), 精度: \(String(format: "%.1f", loc.horizontalAccuracy))m")
         } else {
-            LogError("❌ [圈地] ⚠️ 警告：无法获取当前位置！")
+            LogWarning("⚠️ [圈地] 起点未记录（当前位置缺失或精度不足），等待下一次高精度定位")
         }
     }
 
@@ -123,6 +144,13 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         pathPoints.removeAll()
         trackingDistance = 0
         estimatedArea = 0
+
+        // ✅ 新增：重置速度和用时
+        currentSpeed = 0
+        trackingDuration = 0
+        trackingStartTime = nil
+        lastSpeedUpdateTime = nil
+
         LogDebug("🛑 [圈地] 已取消圈地")
     }
 
@@ -132,9 +160,16 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard isTracking else { return }
 
         LogDebug("📍 [GPS回调] 收到位置更新，精度: \(String(format: "%.1f", location.horizontalAccuracy))m")
-        // 精度过滤（放���到100m，适应真机环境）
-        if location.horizontalAccuracy > 100 {
-            LogWarning("⚠️ [圈地] 精度差 \(String(format: "%.0f", location.horizontalAccuracy))m，跳过")
+        // 时间过滤：丢弃明显过期的缓存坐标
+        let sampleAge = abs(location.timestamp.timeIntervalSinceNow)
+        if sampleAge > 3 {
+            LogWarning("⚠️ [圈地] 坐标时间戳过旧(\(String(format: "%.1f", sampleAge))s)，跳过")
+            return
+        }
+
+        // 精度过滤
+        if location.horizontalAccuracy <= 0 || location.horizontalAccuracy > GameConfig.SAMPLING_MAX_ACCURACY {
+            LogWarning("⚠️ [圈地] 精度不足 \(String(format: "%.0f", location.horizontalAccuracy))m，跳过（要求 ≤ \(Int(GameConfig.SAMPLING_MAX_ACCURACY))m）")
             return
         }
 
@@ -146,35 +181,217 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
                 return
             }
 
-            // 跳点过滤：单步 > 200m 视为异常
-            if dist > 200 {
-                LogWarning("⚠️ [圈地] 跳点 \(String(format: "%.0f", dist))m，丢弃")
+            // 跳点过滤：单步过远视为异常
+            if dist > GameConfig.SAMPLING_MAX_STEP_DISTANCE {
+                LogWarning("⚠️ [圈地] 跳点 \(String(format: "%.0f", dist))m，丢弃（阈值 \(Int(GameConfig.SAMPLING_MAX_STEP_DISTANCE))m）")
+                return
+            }
+
+            // 速度��滤：计算移动速度
+            let time = location.timestamp.timeIntervalSince(lastPoint.timestamp)
+            guard time > 0 else {
+                LogWarning("⚠️ [圈地] 时间戳倒退，忽略该点")
+                return
+            }
+            let speed = (dist / time) * 3.6 // 转换为 km/h
+
+            // ✅ 新增：计算并更新实时速度（m/min）
+            if time > 0 && time <= 10 {
+                let speedMPerMin = (dist / time) * 60  // m/min
+                currentSpeed = speedMPerMin
+                lastSpeedUpdateTime = Date()
+                LogDebug("📊 [速度] 实时速度: \(Int(speedMPerMin)) m/分 (\(String(format: "%.1f", speed)) km/h)")
+            }
+
+            // 长时间无更新，认为停止移动
+            if let lastUpdate = lastSpeedUpdateTime {
+                let timeSinceUpdate = Date().timeIntervalSince(lastUpdate)
+                if timeSinceUpdate > 10 {
+                    currentSpeed = 0
+                }
+            }
+
+            if speed > GameConfig.SAMPLING_MAX_SPEED_KMH {
+                LogWarning("⚠️ [圈地] 速度异常 \(String(format: "%.1f", speed))km/h，跳过此点（阈值 \(Int(GameConfig.SAMPLING_MAX_SPEED_KMH))km/h）")
                 return
             }
 
             trackingDistance += dist
         }
 
+        // ✅ 新增：自相交检测
+        if hasSelfIntersection(newPoint: location.coordinate) {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            LogWarning("⚠️ [圈地] 检测到自相交（画8字形），拒绝此点")
+            return  // 不添加这个点
+        }
+
         pathPoints.append(location)
         estimatedArea = calculatePolygonArea(pathPoints)
 
         let pointCount = pathPoints.count
-        trackingStatusText = "圈地中 · 距离 \(Int(trackingDistance))m · 面积 \(Int(estimatedArea))㎡"
+        let closureDistance = (pathPoints.first != nil && pathPoints.last != nil)
+            ? pathPoints.first!.distance(from: pathPoints.last!)
+            : 0
+
+        if pointCount < requiredSamplingPoints {
+            trackingStatusText = "圈地中 · 采样 \(pointCount)/\(requiredSamplingPoints) · 距离 \(Int(trackingDistance))m · 面积 \(Int(estimatedArea))㎡"
+        } else if closureDistance <= GameConfig.TERRITORY_CLOSE_DISTANCE {
+            trackingStatusText = "已闭环，点击“完成”确认圈地 · 面积 \(Int(estimatedArea))㎡"
+        } else {
+            trackingStatusText = "采样达标，请回到起点（剩余 \(Int(closureDistance))m）"
+        }
 
         LogInfo("✅ [圈地] 第\(pointCount)点已记录！移动距离: \(String(format: "%.1f", trackingDistance))m")
         LogDebug("📐 [面积] 当前闭合面积: \(String(format: "%.1f", estimatedArea))㎡")
-        // 采样点达到要求后自动完成圈地
-        if pathPoints.count >= requiredSamplingPoints {
-            LogDebug("🎉 [圈地] 采样点达标 \(pathPoints.count)/\(requiredSamplingPoints)，自动完成圈地")
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
-            finishTracking()
+        if pointCount >= requiredSamplingPoints {
+            LogDebug("🧭 [圈地] 采样点达标 \(pointCount)/\(requiredSamplingPoints)，等待用户手动点击完成")
         }
+    }
+
+    // ✅ 新增：更新圈地用时（每秒调用）
+    @MainActor
+    private func updateTrackingDuration() {
+        guard isTracking, let startTime = trackingStartTime else { return }
+        trackingDuration = Date().timeIntervalSince(startTime)
+    }
+
+    /// 验证轨迹是否合理
+    @MainActor
+    private func validateTrajectory() -> (isValid: Bool, errorMessage: String?) {
+        guard pathPoints.count >= requiredSamplingPoints else {
+            return (false, "采样点不足，至少需要\(requiredSamplingPoints)个点（当前: \(pathPoints.count)个）")
+        }
+
+        // 检查起点终点距离（应该接近，形成闭环）
+        let start = pathPoints.first!
+        let end = pathPoints.last!
+        let closureDistance = start.distance(from: end)
+
+        if closureDistance > GameConfig.TERRITORY_CLOSE_DISTANCE {
+            LogWarning("⚠️ [圈地验证] 轨迹未闭合，起点终点距离: \(closureDistance)m")
+            return (false, "轨迹未闭合，起点终点距离 \(Int(closureDistance))m，请回到起点 \(Int(GameConfig.TERRITORY_CLOSE_DISTANCE))m 内")
+        }
+
+        // 检查面积合理性
+        let area = calculatePolygonArea(pathPoints)
+        if area < GameConfig.TERRITORY_MIN_AREA {
+            LogWarning("⚠️ [圈地验证] 面积过小: \(area)㎡")
+            return (false, "面积过小 \(Int(area))㎡，最小需要\(Int(GameConfig.TERRITORY_MIN_AREA))㎡")
+        }
+
+        if area > GameConfig.TERRITORY_MAX_AREA {
+            LogWarning("⚠️ [圈地验证] 面积异常过大: \(area)㎡")
+            return (false, "面积异常过大 \(Int(area))㎡，可能存在GPS漂移")
+        }
+
+        // 防止“直线误圈”：必须形成有厚度且非极端狭长的闭合面
+        let span = calculatePathSpan(pathPoints)
+        let minSpan = min(span.width, span.height)
+        if minSpan < GameConfig.TERRITORY_MIN_SPAN {
+            LogWarning("⚠️ [圈地验证] 轨迹过窄，疑似直线/噪声：短边 \(String(format: "%.1f", minSpan))m")
+            return (false, "轨迹过于狭长，疑似未形成有效闭环，请按区域边界行走")
+        }
+
+        let compactness = area / max(trackingDistance * trackingDistance, 1)
+        if compactness < 0.01 {
+            LogWarning("⚠️ [圈地验证] 面积密度过低，疑似直线误圈：compactness=\(String(format: "%.4f", compactness))")
+            return (false, "轨迹过于接近直线，请围绕区域行走形成闭环")
+        }
+
+        // 检查轨迹自相交
+        if hasSelfIntersection() {
+            LogWarning("⚠️ [圈地验证] 轨迹存在自相交")
+            return (false, "轨迹存在自相交，请重新规划路径")
+        }
+
+        LogInfo("✅ [圈地验证] 验证通过 - 采样点: \(pathPoints.count), 面积: \(Int(area))㎡, 闭合距离: \(Int(closureDistance))m")
+        return (true, nil)
+    }
+
+    /// 检查轨迹是否自相交
+    private func hasSelfIntersection() -> Bool {
+        guard pathPoints.count >= 4 else { return false }
+
+        // 简化检查：检查任意两条边（不相邻）是否相交
+        let coords = pathPoints.map { $0.coordinate }
+
+        for i in 0..<(coords.count - 1) {
+            for j in (i + 2)..<(coords.count - 1) {
+                // 跳过连接到起点的边（最后一个点和第一个点连接是正常的闭合）
+                if j == coords.count - 2 && i == 0 {
+                    continue
+                }
+
+                if doLinesIntersect(
+                    coords[i], coords[i + 1],
+                    coords[j], coords[j + 1]
+                ) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    /// 判断两条线段是否相交
+    private func doLinesIntersect(_ p1: CLLocationCoordinate2D, _ p2: CLLocationCoordinate2D,
+                                  _ p3: CLLocationCoordinate2D, _ p4: CLLocationCoordinate2D) -> Bool {
+        // 使用向量叉积判断线段相交
+        func crossProduct(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D, _ c: CLLocationCoordinate2D) -> Double {
+            return (b.longitude - a.longitude) * (c.latitude - a.latitude) -
+                   (b.latitude - a.latitude) * (c.longitude - a.longitude)
+        }
+
+        let cp1 = crossProduct(p3, p4, p1)
+        let cp2 = crossProduct(p3, p4, p2)
+        let cp3 = crossProduct(p1, p2, p3)
+        let cp4 = crossProduct(p1, p2, p4)
+
+        // 检查是否跨立
+        if ((cp1 > 0 && cp2 < 0) || (cp1 < 0 && cp2 > 0)) &&
+           ((cp3 > 0 && cp4 < 0) || (cp3 < 0 && cp4 > 0)) {
+            return true
+        }
+
+        // 检查端点重合
+        if cp1 == 0 && isPointOnLine(p1, p3, p4) { return true }
+        if cp2 == 0 && isPointOnLine(p2, p3, p4) { return true }
+        if cp3 == 0 && isPointOnLine(p3, p1, p2) { return true }
+        if cp4 == 0 && isPointOnLine(p4, p1, p2) { return true }
+
+        return false
+    }
+
+    /// 判断点是否在线段上
+    private func isPointOnLine(_ p: CLLocationCoordinate2D, _ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Bool {
+        let cross = (p.longitude - a.longitude) * (b.latitude - a.latitude) -
+                    (p.latitude - a.latitude) * (b.longitude - a.longitude)
+        if abs(cross) > 1e-10 { return false }
+
+        let dot = (p.longitude - a.longitude) * (b.longitude - a.longitude) +
+                  (p.latitude - a.latitude) * (b.latitude - a.latitude)
+        if dot < 0 { return false }
+
+        let squaredLength = (b.longitude - a.longitude) * (b.longitude - a.longitude) +
+                            (b.latitude - a.latitude) * (b.latitude - a.latitude)
+        return dot <= squaredLength
     }
 
     /// 完成圈地：生成领地
     @MainActor
     private func finishTracking() {
-        guard pathPoints.count >= 3 else { return }
+        guard pathPoints.count >= requiredSamplingPoints else { return }
+
+        // 验证轨迹
+        let validation = validateTrajectory()
+        guard validation.isValid else {
+            LogError("❌ [圈地] 验证失败: \(validation.errorMessage ?? "未知错误")")
+            trackingStatusText = "⚠️ \(validation.errorMessage ?? "验证失败")"
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            // 不自动完成，让用户继续采样或手动取消
+            return
+        }
 
         let area = calculatePolygonArea(pathPoints)
 
@@ -201,6 +418,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         LogInfo("🚩 [圈地] ✅ 领地确认！面积: \(String(format: "%.1f", area))㎡，采样点: \(pathPoints.count)")
         // 地理逆编码获取街道名
         let centerLocation = CLLocation(latitude: centerLat, longitude: centerLon)
+        let territoryId = newTerritory.id // 捕获ID而不是整个对象
         geocoder.reverseGeocodeLocation(centerLocation) { [weak self] placemarks, error in
             Task { @MainActor [weak self] in
                 if let placemark = placemarks?.first {
@@ -209,7 +427,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
                     let geocodedName = street.isEmpty ? district : street
                     if !geocodedName.isEmpty {
                         // 更新领地名称
-                        if let index = self?.claimedTerritories.firstIndex(where: { $0.id == newTerritory.id }) {
+                        if let index = self?.claimedTerritories.firstIndex(where: { $0.id == territoryId }) {
                             self?.claimedTerritories[index].name = geocodedName
                             LogDebug("🏷️ [圈地] 领地命名为: \(geocodedName)")
                         }
@@ -223,12 +441,35 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         LogDebug("🗺️ [圈地] 当前本地领地数量: \(claimedTerritories.count)")
         LogDebug("🗺️ [圈地] 新领地 pathCoordinates 数量: \(newTerritory.pathCoordinates.count)")
 
+        // 先快照坐标，避免异步任务读取到被清空后的 pathPoints
+        let coordinates = pathPoints.map { $0.coordinate }
+        let startTime = Date()
+
+        // 圈地完成后立刻把数据加入领地列表（无需等待网络）
+        if let userId = AuthManager.shared.currentUser?.id.uuidString {
+            let formatter = ISO8601DateFormatter()
+            let territoryPreview = Territory(
+                id: newTerritory.id.uuidString,
+                userId: userId,
+                name: newTerritory.name,
+                path: coordinates.map { ["lat": $0.latitude, "lon": $0.longitude] },
+                area: area,
+                pointCount: coordinates.count,
+                isActive: true,
+                completedAt: formatter.string(from: Date()),
+                startedAt: formatter.string(from: startTime),
+                createdAt: formatter.string(from: Date()),
+                level: 1,
+                experience: 0,
+                prosperity: 0
+            )
+            TerritoryManager.shared.addLocalTerritoryIfNeeded(territoryPreview)
+            NotificationCenter.default.post(name: .territoryUpdated, object: nil)
+        }
+
         // 上传领地上传到 Supabase
         Task {
             do {
-                let coordinates = pathPoints.map { $0.coordinate }
-                let startTime = Date()
-
                 // ✅ 获取当前用户会话
                 let session = try await supabaseClient.auth.session
 
@@ -289,8 +530,8 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
 
-        guard pathPoints.count >= 3 else {
-            LogError("❌ [圈地] 采样点不足 3 个（当前: \(pathPoints.count) 个），无法完成")
+        guard pathPoints.count >= requiredSamplingPoints else {
+            LogError("❌ [圈地] 采样点不足 \(requiredSamplingPoints) 个（当前: \(pathPoints.count) 个），无法完成")
             UINotificationFeedbackGenerator().notificationOccurred(.error)
             return
         }
@@ -324,6 +565,31 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
             area -= xyPoints[j].x * xyPoints[i].y
         }
         return abs(area) / 2.0
+    }
+
+    /// 轨迹包围盒（米）用于判断是否为“直线误圈”
+    private func calculatePathSpan(_ points: [CLLocation]) -> (width: Double, height: Double) {
+        guard points.count >= 2 else { return (0, 0) }
+
+        let origin = points[0].coordinate
+        let metersPerDegreeLat = 111320.0
+        let metersPerDegreeLon = 111320.0 * cos(origin.latitude * .pi / 180)
+
+        var minX = Double.greatestFiniteMagnitude
+        var maxX = -Double.greatestFiniteMagnitude
+        var minY = Double.greatestFiniteMagnitude
+        var maxY = -Double.greatestFiniteMagnitude
+
+        for point in points {
+            let x = (point.coordinate.longitude - origin.longitude) * metersPerDegreeLon
+            let y = (point.coordinate.latitude - origin.latitude) * metersPerDegreeLat
+            minX = min(minX, x)
+            maxX = max(maxX, x)
+            minY = min(minY, y)
+            maxY = max(maxY, y)
+        }
+
+        return (abs(maxX - minX), abs(maxY - minY))
     }
 
     // MARK: - GPS 位置更新

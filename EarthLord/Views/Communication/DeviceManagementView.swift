@@ -14,6 +14,8 @@ struct DeviceManagementView: View {
 
     @State private var isLoading = true
     @State private var showingCallsignSettings = false
+    @State private var showInfoAlert = false
+    @State private var infoText = ""
 
     var body: some View {
         ZStack {
@@ -55,12 +57,21 @@ struct DeviceManagementView: View {
         .onAppear {
             Task {
                 await communicationManager.fetchUserDevices()
+                if communicationManager.currentDevice == nil {
+                    await communicationManager.ensureDefaultDevice()
+                    await communicationManager.fetchUserDevices()
+                }
                 await MainActor.run { isLoading = false }
             }
         }
         .sheet(isPresented: $showingCallsignSettings) {
             CallsignSettingsSheet()
                 .environmentObject(authManager)
+        }
+        .alert("提示", isPresented: $showInfoAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(infoText)
         }
     }
 
@@ -96,15 +107,48 @@ struct DeviceManagementView: View {
                 let isCurrent = communicationManager.currentDevice?.deviceType == type
 
                 Button(action: {
-                    if isUnlocked && !isCurrent, let d = device {
-                        Task { try? await communicationManager.setCurrentDevice(deviceId: d.id) }
-                    }
+                    Task { await handleDeviceTap(type: type, device: device, isUnlocked: isUnlocked, isCurrent: isCurrent) }
                 }) {
                     deviceRow(type: type, isSelected: isCurrent, isUnlocked: isUnlocked, isCurrent: isCurrent)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .disabled(!isUnlocked || isCurrent)
+                .disabled(isCurrent)
                 .padding(.horizontal)
+            }
+        }
+    }
+
+    private func handleDeviceTap(type: DeviceType, device: CommunicationDevice?, isUnlocked: Bool, isCurrent: Bool) async {
+        guard !isCurrent else { return }
+
+        guard isUnlocked else {
+            await MainActor.run {
+                infoText = "该设备尚未解锁：\(type.unlockRequirement)"
+                showInfoAlert = true
+            }
+            return
+        }
+
+        do {
+            if let existing = device {
+                try await communicationManager.setCurrentDevice(deviceId: existing.id)
+                return
+            }
+
+            // 数据库缺少默认设备记录时，先补建再切换（避免“可切换但点了没反应”）
+            try await communicationManager.unlockDevice(deviceType: type)
+            if let created = communicationManager.devices.first(where: { $0.deviceType == type }) {
+                try await communicationManager.setCurrentDevice(deviceId: created.id)
+            } else {
+                await MainActor.run {
+                    infoText = "设备记录初始化失败，请重试"
+                    showInfoAlert = true
+                }
+            }
+        } catch {
+            await MainActor.run {
+                infoText = "切换设备失败：\(error.localizedDescription)"
+                showInfoAlert = true
             }
         }
     }

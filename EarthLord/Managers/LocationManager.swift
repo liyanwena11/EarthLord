@@ -9,6 +9,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     private let manager = CLLocationManager()
 
+    // MARK: - 持久化 Key
+    private let pathCoordinatesKey = "saved_path_coordinates"
+    private let isTrackingKey = "saved_is_tracking"
+    private var appStateObserver: NSObjectProtocol?
+
     // MARK: - 验证常量 (保留原有)
     private let minimumPathPoints = 10
     private let minimumTotalDistance: Double = 50.0
@@ -69,10 +74,111 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             LogDebug("📢 [LocationManager] 通知权限: \(granted ? "已授予" : "被拒绝")")
         }
 
+        // 恢复之前保存的轨迹数据
+        restorePathData()
+
+        // 监听 App 状态变化
+        setupAppStateObserver()
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             self?.manager.startUpdatingLocation()
             self?.startLocationTimer()
         }
+    }
+
+    // MARK: - App 状态监听（防止后台数据丢失）
+    private func setupAppStateObserver() {
+        // App 进入后台时保存轨迹
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.savePathData()
+            LogDebug("💾 [LocationManager] App 进入后台，保存轨迹数据: \(self?.pathCoordinates.count ?? 0) 个点")
+        }
+
+        // App 恢复前台时恢复轨迹
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.restorePathData()
+            LogDebug("📲 [LocationManager] App 恢复前台，恢复轨迹数据: \(self?.pathCoordinates.count ?? 0) 个点")
+        }
+    }
+
+    // MARK: - 轨迹数据持久化
+    private func savePathData() {
+        guard !pathCoordinates.isEmpty else { return }
+
+        // 将坐标转换为可序列化的格式
+        let coordinateData = pathCoordinates.map { ["lat": $0.latitude, "lon": $0.longitude] }
+
+        do {
+            let data = try JSONSerialization.data(withJSONObject: coordinateData)
+            UserDefaults.standard.set(data, forKey: pathCoordinatesKey)
+            UserDefaults.standard.set(isTracking, forKey: isTrackingKey)
+            UserDefaults.standard.set(Date(), forKey: "path_saved_time")
+            LogDebug("💾 [LocationManager] 轨迹已保存，\(pathCoordinates.count) 个点")
+        } catch {
+            LogError("❌ [LocationManager] 保存轨迹失败: \(error)")
+        }
+    }
+
+    private func restorePathData() {
+        guard let data = UserDefaults.standard.data(forKey: pathCoordinatesKey) else {
+            return
+        }
+
+        do {
+            if let coordinateData = try JSONSerialization.jsonObject(with: data) as? [[String: Double]] {
+                let coordinates = coordinateData.compactMap { dict -> CLLocationCoordinate2D? in
+                    guard let lat = dict["lat"], let lon = dict["lon"] else { return nil }
+                    return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                }
+
+                if !coordinates.isEmpty {
+                    // 检查是否在有效时间范围内（24小时内）
+                    if let savedTime = UserDefaults.standard.object(forKey: "path_saved_time") as? Date {
+                        let hoursSinceSaved = Date().timeIntervalSince(savedTime) / 3600
+                        if hoursSinceSaved > 24 {
+                            // 超过24小时，清除旧数据
+                            clearPathData()
+                            LogDebug("🗑️ [LocationManager] 轨迹数据已过期，清除")
+                            return
+                        }
+                    }
+
+                    pathCoordinates = coordinates
+
+                    // 恢复 isTracking 状态（仅在有效时间内）
+                    let wasTracking = UserDefaults.standard.bool(forKey: isTrackingKey)
+                    if wasTracking && !isPathClosed {
+                        isTracking = true
+                        // 重新计算到起点的距离
+                        if let firstCoord = pathCoordinates.first {
+                            if let lastLocation = manager.location {
+                                let startLoc = CLLocation(latitude: firstCoord.latitude, longitude: firstCoord.longitude)
+                                distanceToStartPoint = lastLocation.distance(from: startLoc)
+                            }
+                        }
+                    }
+
+                    pathUpdateVersion += 1
+                    LogDebug("📲 [LocationManager] 轨迹已恢复，\(coordinates.count) 个点")
+                }
+            }
+        } catch {
+            LogError("❌ [LocationManager] 恢复轨迹失败: \(error)")
+        }
+    }
+
+    private func clearPathData() {
+        UserDefaults.standard.removeObject(forKey: pathCoordinatesKey)
+        UserDefaults.standard.removeObject(forKey: isTrackingKey)
+        UserDefaults.standard.removeObject(forKey: "path_saved_time")
     }
 
     private func startLocationTimer() {
@@ -197,6 +303,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // MARK: - 辅助方法 (保留并整合)
 
     func startTracking() {
+        // 清除旧的持久化数据
+        clearPathData()
+
         pathCoordinates.removeAll()
         isTracking = true
         isPathClosed = false
@@ -204,9 +313,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         pathUpdateVersion = 0
         TerritoryLogger.shared.log("开始圈地追踪", type: .info)
     }
-    
+
     func stopTracking() {
         isTracking = false
+        // 清除持久化数据
+        clearPathData()
         TerritoryLogger.shared.log("停止圈地追踪", type: .info)
     }
 

@@ -139,7 +139,7 @@ struct ChannelChatView: View {
                     .padding(.vertical, 8)
                 }
             }
-            .onChange(of: messages.count) { _ in
+            .onChange(of: messages.count) { oldValue, newValue in
                 if let lastMessage = messages.last {
                     withAnimation(.easeOut(duration: 0.3)) {
                         proxy.scrollTo(lastMessage.messageId, anchor: .bottom)

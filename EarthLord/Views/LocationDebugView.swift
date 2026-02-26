@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 #if DEBUG
@@ -166,7 +167,7 @@ struct LocationDebugView: View {
 
                 // 清空背包
                 DebugButton(title: "清空背包", icon: "trash.circle", color: .pink) {
-                    ExplorationManager.shared.clearBackpack()
+                    ExplorationManager.shared.clearBackpackForTesting()
                     LogDebug("🗑️ [调试] 已清空背包")
                 }
 
@@ -311,4 +312,6 @@ struct DebugButton: View {
         .padding(.horizontal)
     }
 }
+#endif
+
 #endif

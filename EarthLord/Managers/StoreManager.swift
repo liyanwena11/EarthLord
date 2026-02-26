@@ -28,12 +28,44 @@ enum SupplyPackID: String, CaseIterable {
         }
     }
 
+    var detailedDescription: String {
+        switch self {
+        case .survivor:
+            return "包含基础生存物资，帮助新手度过初期困难。含饮用水、食物和基础建筑材料。"
+        case .explorer:
+            return "均衡发展的补给包，适合中期玩家。包含丰富的资源和少量稀有物品。"
+        case .lord:
+            return "快速发展所需的全套物资，含电子元件等稀有材料，加速基地建设。"
+        case .overlord:
+            return "顶级玩家豪华礼包，包含卫星模块等史诗物品，体验终极游戏乐趣。"
+        }
+    }
+
+    var recommendedFor: String {
+        switch self {
+        case .survivor: return "适合新手玩家"
+        case .explorer: return "适合中期玩家"
+        case .lord: return "适合高级玩家"
+        case .overlord: return "适合顶级玩家"
+        }
+    }
+
     var iconName: String {
         switch self {
         case .survivor: return "leaf.fill"
-        case .explorer: return "compass.fill"
-        case .lord:     return "castle.fill"
+        case .explorer: return "safari.fill"
+        case .lord:     return "building.columns.fill"
         case .overlord: return "crown.fill"
+        }
+    }
+
+    /// 补给包标价（人民币，估值对比使用）
+    var listPriceYuan: Double {
+        switch self {
+        case .survivor: return 6
+        case .explorer: return 18
+        case .lord: return 30
+        case .overlord: return 68
         }
     }
 
@@ -94,6 +126,36 @@ enum SupplyPackID: String, CaseIterable {
             return Double.random(in: 0...1) <= item.dropRate ? item : nil
         }
     }
+
+    /// 必得物资保底价值
+    var guaranteedValueYuan: Double {
+        contents
+            .filter(\.guaranteed)
+            .reduce(0) { $0 + $1.totalValueYuan }
+    }
+
+    /// 随机物资期望价值
+    var randomExpectedValueYuan: Double {
+        contents
+            .filter { !$0.guaranteed }
+            .reduce(0) { $0 + $1.expectedValueYuan }
+    }
+
+    /// 总期望价值 = 保底 + 随机期望
+    var totalExpectedValueYuan: Double {
+        guaranteedValueYuan + randomExpectedValueYuan
+    }
+
+    /// 名义总价值（按随机项100%掉落计算）
+    var nominalTotalValueYuan: Double {
+        contents.reduce(0) { $0 + $1.totalValueYuan }
+    }
+
+    /// 期望价值相对售价的倍率（用于“性价比”展示）
+    var valueRatio: Double {
+        guard listPriceYuan > 0 else { return 0 }
+        return totalExpectedValueYuan / listPriceYuan
+    }
 }
 
 // MARK: - Pack Item Model
@@ -135,6 +197,48 @@ struct PackItem: Identifiable {
         ]
         return names[itemId] ?? itemId
     }
+
+    /// 单件估值（人民币），用于商城“内容价值”展示
+    var unitValueYuan: Double {
+        let unitValues: [String: Double] = [
+            "water": 0.6,
+            "canned_food": 1.4,
+            "wood": 0.5,
+            "stone": 0.4,
+            "metal": 1.2,
+            "glass": 1.0,
+            "cloth": 1.1,
+            "bandage": 4.0,
+            "first_aid_kit": 12.0,
+            "electronic_part": 10.0,
+            "mechanical_part": 14.0,
+            "solar_panel": 120.0,
+            "satellite_module": 260.0,
+            "ancient_tech": 520.0
+        ]
+
+        if let value = unitValues[itemId] {
+            return value
+        }
+
+        // 兜底：未知物品按稀有度给估值
+        switch rarity {
+        case "rare": return 8
+        case "epic": return 25
+        case "legendary": return 88
+        default: return 1
+        }
+    }
+
+    /// 该条目满额价值（不考虑掉率）
+    var totalValueYuan: Double {
+        unitValueYuan * Double(quantity)
+    }
+
+    /// 该条目期望价值（随机项按掉率折算）
+    var expectedValueYuan: Double {
+        guaranteed ? totalValueYuan : (totalValueYuan * dropRate)
+    }
 }
 
 // MARK: - StoreManager
@@ -155,7 +259,7 @@ class StoreManager: ObservableObject {
     private let iapManager = IAPManager.shared
 
     private init() {
-        Task { await loadProducts() }
+        // 延迟加载产品，避免在初始化时阻塞
     }
 
     // MARK: - Load Products
@@ -165,7 +269,7 @@ class StoreManager: ObservableObject {
         await iapManager.loadProducts()
 
         // 检查加载结果
-        if iapManager.products.isEmpty {
+        if iapManager.availableProducts.isEmpty {
             LogWarning("⚠️ [商城] 警告：未加载到任何产品！")
             LogWarning("⚠️ [商城] 可能原因：")
             LogDebug("  1. App Store Connect 未配置产品")
@@ -176,14 +280,14 @@ class StoreManager: ObservableObject {
                 LogDebug("  - \(packID.rawValue)")
             }
         } else {
-            LogInfo("✅ [商城] IAPManager 加载了 \(iapManager.products.count) 个产品")
-            for storeProduct in iapManager.products {
-                LogDebug("  - \(storeProduct.id): \(storeProduct.product.displayName)")
+            LogInfo("✅ [商城] IAPManager 加载了 \(iapManager.availableProducts.count) 个产品")
+            for storeProduct in iapManager.availableProducts {
+                LogDebug("  - \(storeProduct.id): \(storeProduct.displayName)")
             }
         }
 
         // Convert StoreProduct to Product for compatibility
-        products = iapManager.products.map { $0.product }
+        products = iapManager.availableProducts.map { $0 }
 
         // ✅ 修复：如果仍然为空，添加日志
         if products.isEmpty {
@@ -208,25 +312,23 @@ class StoreManager: ObservableObject {
         purchaseError = nil
         defer { isPurchasing = false }
 
-        // Find StoreProduct from IAPManager
-        if let storeProduct = iapManager.products.first(where: { $0.id == product.id }) {
-            let result = await iapManager.purchase(storeProduct)
+        // Find Product from IAPManager
+        if let storeProduct = iapManager.availableProducts.first(where: { $0.id == product.id }) {
+            let success = await iapManager.purchase(storeProduct)
 
-            switch result {
-            case .success:
-                // Handle success - IAPManager already delivers to mailbox
-                if let supplyPack = storeProduct.supplyPack {
-                    let items = supplyPack.guaranteedItems + supplyPack.items.filter { !$0.guaranteed }
-                    lastPurchasedItems = items.map { PackItem(itemId: $0.itemId, quantity: $0.quantity, rarity: $0.rarity, guaranteed: $0.guaranteed) }
-                    showOpeningAnimation = true
+            if success {
+                // 购买成功 - 物品会自动发送到Mailbox
+                // 显示成功提示
+                showOpeningAnimation = true
+
+                // 获取产品信息用于日志
+                if let productInfo = iapManager.getProductInfo(for: storeProduct.id) {
+                    LogInfo("✅ [商城] 购买成功: \(productInfo.displayName)")
+                    // 成功消息已通过 MailboxManager 发送到邮箱
                 }
-            case .pending:
-                purchaseError = "购买待审核，请稍后检查邮箱"
-            case .cancelled:
-                break
-            case .failed(let error):
-                purchaseError = "购买失败：\(error.localizedDescription)"
-                LogError("❌ [商城] 购买失败: \(error)")
+            } else {
+                purchaseError = "购买失败"
+                LogError("❌ [商城] 购买失败")
             }
         } else {
             purchaseError = "商品不存在"
@@ -258,14 +360,14 @@ class StoreManager: ObservableObject {
 
     var displayProducts: [SupplyProductData] {
         // 如果 StoreKit 加载了真实产品，使用真实产品
-        if !iapManager.products.isEmpty {
-            return iapManager.products.map { storeProduct in
-                let packID = SupplyPackID(rawValue: storeProduct.id.rawValue) ?? .survivor
+        if !iapManager.availableProducts.isEmpty {
+            return iapManager.availableProducts.map { storeProduct in
+                let packID = SupplyPackID(rawValue: storeProduct.id) ?? .survivor
                 return SupplyProductData(
-                    id: storeProduct.id.rawValue,
+                    id: storeProduct.id,
                     name: packID.displayName,
                     description: packID.subtitle,
-                    price: storeProduct.product.displayPrice,
+                    price: storeProduct.displayPrice,
                     iconName: getIconName(for: packID),
                     rarity: getRarity(for: packID),
                     previewItems: packID.contents.map { "\($0.displayName) x\($0.quantity)" }

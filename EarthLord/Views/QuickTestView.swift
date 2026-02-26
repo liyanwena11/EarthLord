@@ -1,3 +1,4 @@
+#if DEBUG
 //
 
 #if DEBUG
@@ -173,4 +174,6 @@ struct ExplorationTestSheetView: View {
 }
 
 #endif
+#endif
+
 #endif

@@ -72,4 +72,11 @@ struct GameConfig {
     static let POI_RESPAWN_SECONDS: Double = 86400
     static let SAMPLING_MIN_DISTANCE: Double = 10.0   // 采样最小间距（米）
     static let SAMPLING_MIN_POINTS: Int = 5            // 最少采样点数
+    static let SAMPLING_MAX_ACCURACY: Double = 25.0    // 采样最大精度误差（米）
+    static let SAMPLING_MAX_STEP_DISTANCE: Double = 80.0 // 单步最大距离（米）
+    static let SAMPLING_MAX_SPEED_KMH: Double = 20.0   // 采样最大速度（km/h）
+    static let TERRITORY_CLOSE_DISTANCE: Double = 25.0 // 闭环判定（起点终点最大距离）
+    static let TERRITORY_MIN_AREA: Double = 100.0      // 领地最小面积（㎡）
+    static let TERRITORY_MAX_AREA: Double = 10_000_000 // 领地最大面积（㎡）
+    static let TERRITORY_MIN_SPAN: Double = 8.0        // 包围盒最小短边（米），防止直线误圈
 }

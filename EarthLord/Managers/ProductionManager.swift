@@ -10,15 +10,18 @@ import Foundation
 import Supabase
 import Combine
 
+@MainActor
 class ProductionManager: ObservableObject {
     static let shared = ProductionManager()
 
     @Published var activeProductions: [ProductionJob] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var productionSpeedMultiplier: Double = 1.0  // Tier权益生产速度倍数
 
     private let supabase = supabaseClient
     private var productionCheckTimer: Timer?
+    private var currentTierBenefit: TierBenefit?  // 当前应用的Tier权益
 
     // 生产建筑配置（生产模板）
     private let productionTemplates: [ProductionTemplate] = [
@@ -93,7 +96,7 @@ class ProductionManager: ObservableObject {
         buildingLevel: Int
     ) async throws {
         // 获取生产模板
-        guard let building = await BuildingManager.shared.playerBuildings.first(where: { $0.id.uuidString == buildingId }) else {
+        guard let building = BuildingManager.shared.playerBuildings.first(where: { $0.id.uuidString == buildingId }) else {
             throw ProductionError.buildingNotFound
         }
 
@@ -122,7 +125,8 @@ class ProductionManager: ObservableObject {
         let finalAmount = Int(Double(template.baseAmount) * levelMultiplier)
 
         let now = Date()
-        let completionTime = now.addingTimeInterval(Double(template.productionTimeMinutes * 60))
+        let adjustedProductionTime = Double(template.productionTimeMinutes * 60) / productionSpeedMultiplier
+        let completionTime = now.addingTimeInterval(adjustedProductionTime)
 
         let newJob = NewProductionJob(
             building_id: buildingId,
@@ -185,9 +189,6 @@ class ProductionManager: ObservableObject {
     // MARK: - Fetch Jobs
 
     func fetchActiveProductions() async {
-        let userIdString = await MainActor.run { AuthManager.shared.currentUser?.id.uuidString }
-        guard let userIdString else { return }
-
         await MainActor.run { self.isLoading = true; self.errorMessage = nil }
 
         do {
@@ -238,6 +239,20 @@ class ProductionManager: ObservableObject {
 
     func getActiveJobsForBuilding(_ buildingId: String) -> [ProductionJob] {
         activeProductions.filter { $0.buildingId == buildingId && !$0.isCollected }
+    }
+    
+    // MARK: - Tier Benefits
+    
+    func applyProductionBenefit(_ benefit: TierBenefit) {
+        currentTierBenefit = benefit
+        productionSpeedMultiplier = benefit.productionSpeedMultiplier
+        LogDebug("🏭 [生产] 应用Tier权益: 生产速度倍数 = \(productionSpeedMultiplier)")
+    }
+    
+    func resetProductionBenefit() {
+        currentTierBenefit = nil
+        productionSpeedMultiplier = 1.0
+        LogDebug("🏭 [生产] 重置Tier权益: 生产速度倍数 = 1.0")
     }
 
     deinit {

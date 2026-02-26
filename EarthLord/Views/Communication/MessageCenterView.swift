@@ -16,6 +16,8 @@ struct MessageCenterView: View {
     @State private var selectedChannel: CommunicationChannel?
     @State private var showingChat = false
     @State private var showingOfficialChannel = false
+    @State private var showErrorAlert = false
+    @State private var errorText = ""
 
     private var summaries: [CommunicationManager.ChannelSummary] {
         communicationManager.getChannelSummaries()
@@ -48,6 +50,11 @@ struct MessageCenterView: View {
                 ChannelChatView(channel: channel)
                     .environmentObject(authManager)
             }
+        }
+        .alert("提示", isPresented: $showErrorAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(errorText)
         }
     }
 
@@ -110,10 +117,12 @@ struct MessageCenterView: View {
             LazyVStack(spacing: 8) {
                 ForEach(summaries) { summary in
                     Button(action: {
-                        selectedChannel = summary.channel
                         if summary.channel.channelType == .official {
-                            showingOfficialChannel = true
+                            Task {
+                                await openOfficialChannel(summary.channel)
+                            }
                         } else {
+                            selectedChannel = summary.channel
                             showingChat = true
                         }
                     }) {
@@ -127,12 +136,37 @@ struct MessageCenterView: View {
         }
     }
 
+    private func openOfficialChannel(_ channel: CommunicationChannel) async {
+        guard let userId = authManager.currentUser?.id else {
+            await MainActor.run {
+                errorText = "请先登录后访问官方频道"
+                showErrorAlert = true
+            }
+            return
+        }
+
+        let subscribed = await communicationManager.ensureChannelSubscribedIfNeeded(userId: userId, channel: channel)
+        if !subscribed {
+            await MainActor.run {
+                errorText = "官方频道订阅失败，请检查网络后重试"
+                showErrorAlert = true
+            }
+            return
+        }
+
+        await MainActor.run {
+            selectedChannel = channel
+            showingOfficialChannel = true
+        }
+    }
+
     // MARK: - 数据加载
 
     private func loadData() {
         isLoading = true
         Task {
             if let userId = authManager.currentUser?.id {
+                await communicationManager.ensureOfficialChannelSubscribed(userId: userId)
                 await communicationManager.loadSubscribedChannels(userId: userId)
                 await communicationManager.loadAllChannelLatestMessages()
             }

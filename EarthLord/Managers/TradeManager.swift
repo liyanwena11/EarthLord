@@ -20,6 +20,18 @@ class TradeManager: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
+    // MARK: - Tier Benefits
+    @Published var tradeFeeDiscountMultiplier: Double = 1.0
+
+    var tradeFeeDiscountDescription: String {
+        let discount = 1.0 - tradeFeeDiscountMultiplier
+        let percentage = Int(discount * 100)
+        if percentage > 0 {
+            return "\(percentage)% 交易费折扣"
+        }
+        return "无折扣"
+    }
+
     private let supabase = supabaseClient
     private var expirationCheckTimer: Timer?
 
@@ -178,7 +190,7 @@ class TradeManager: ObservableObject {
         }
         LogWarning("⚠️ [交易] 添加模拟交易历史记录: \(historyId)")
         // 模拟成功响应
-        let response = AcceptTradeOfferResponse(
+        _ = AcceptTradeOfferResponse(
             success: true,
             historyId: historyId,
             error: nil
@@ -279,7 +291,107 @@ class TradeManager: ObservableObject {
 
             await MainActor.run { self.tradeHistory = history }
         } catch {
+            // 兼容历史库结构：trade_history 可能是 trader1_id / trader2_id / items1 / items2
+            if shouldFallbackToLegacyTradeHistory(error) {
+                await fetchTradeHistoryFromLegacySchema(userId: userId)
+                return
+            }
             LogError("❌ [交易] 获取交易历史失败: \(error.localizedDescription)")
+        }
+    }
+
+    private func shouldFallbackToLegacyTradeHistory(_ error: Error) -> Bool {
+        let text = error.localizedDescription.lowercased()
+        return text.contains("trade_history.seller_id")
+            || text.contains("trade_history.buyer_id")
+            || text.contains("column seller_id")
+            || text.contains("column buyer_id")
+    }
+
+    private struct LegacyTradeHistoryRow: Decodable {
+        let id: UUID
+        let trader1Id: UUID
+        let trader2Id: UUID
+        let items1: [TradeItem]
+        let items2: [TradeItem]
+        let completedAt: Date
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case trader1Id = "trader1_id"
+            case trader2Id = "trader2_id"
+            case items1
+            case items2
+            case completedAt = "completed_at"
+        }
+    }
+
+    private struct TradeUserProfile: Decodable {
+        let id: UUID
+        let username: String?
+    }
+
+    private func fetchTradeHistoryFromLegacySchema(userId: UUID) async {
+        do {
+            let rows: [LegacyTradeHistoryRow] = try await supabase
+                .from("trade_history")
+                .select("id,trader1_id,trader2_id,items1,items2,completed_at")
+                .or("trader1_id.eq.\(userId.uuidString),trader2_id.eq.\(userId.uuidString)")
+                .order("completed_at", ascending: false)
+                .execute()
+                .value
+
+            let userIds = Set(rows.flatMap { [$0.trader1Id, $0.trader2Id] })
+            let usernames = await loadTradeUsernames(userIds: Array(userIds))
+
+            let mapped: [TradeHistory] = rows.map { row in
+                TradeHistory(
+                    id: row.id,
+                    offerId: row.id, // 旧结构无 offer_id，用历史ID兜底
+                    sellerId: row.trader1Id,
+                    sellerUsername: usernames[row.trader1Id] ?? "幸存者_\(row.trader1Id.uuidString.prefix(6))",
+                    buyerId: row.trader2Id,
+                    buyerUsername: usernames[row.trader2Id] ?? "幸存者_\(row.trader2Id.uuidString.prefix(6))",
+                    itemsExchanged: TradeExchangeInfo(
+                        sellerGave: row.items1,
+                        buyerGave: row.items2
+                    ),
+                    completedAt: row.completedAt,
+                    sellerRating: nil,
+                    buyerRating: nil,
+                    sellerComment: nil,
+                    buyerComment: nil
+                )
+            }
+
+            await MainActor.run { self.tradeHistory = mapped }
+            LogWarning("⚠️ [交易] 使用兼容模式加载交易历史（legacy schema），共 \(mapped.count) 条")
+        } catch {
+            LogError("❌ [交易] 兼容模式加载交易历史失败: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadTradeUsernames(userIds: [UUID]) async -> [UUID: String] {
+        guard !userIds.isEmpty else { return [:] }
+
+        do {
+            let profiles: [TradeUserProfile] = try await supabase
+                .from("profiles")
+                .select("id,username")
+                .in("id", values: userIds.map(\.uuidString))
+                .execute()
+                .value
+
+            return Dictionary(uniqueKeysWithValues: profiles.compactMap { profile in
+                guard let username = profile.username?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !username.isEmpty else {
+                    return nil
+                }
+                return (profile.id, username)
+            })
+        } catch {
+            LogWarning("⚠️ [交易] 读取用户名失败，将使用默认名称")
+            return [:]
         }
     }
 
@@ -326,7 +438,7 @@ class TradeManager: ObservableObject {
         if isSeller && history.sellerRating != nil { throw TradeError.alreadyRated }
         if !isSeller && history.buyerRating != nil { throw TradeError.alreadyRated }
 
-        let update = TradeRatingUpdate(
+        _ = TradeRatingUpdate(
             seller_rating: isSeller ? rating : nil,
             buyer_rating: !isSeller ? rating : nil,
             seller_comment: isSeller ? comment : nil,
@@ -352,6 +464,61 @@ class TradeManager: ObservableObject {
 
     private func processExpiredOffers() async throws {
         try await supabase.rpc("process_expired_trade_offers").execute()
+    }
+    
+    // MARK: - Tier Benefits
+    
+    /// 计算交易费用，应用 Tier 折扣
+    /// - Parameters:
+    ///   - baseFee: 基础交易费
+    ///   - userTier: 用户的 Tier 等级
+    /// - Returns: 应用折扣后的最终费用
+    func calculateTradeFee(baseFee: Double, userTier: UserTier) -> Double {
+        // 获取该 Tier 的交易费折扣
+        guard let tierBenefit = TierBenefit.getBenefit(for: userTier) else {
+            return baseFee
+        }
+        let discountRate = tierBenefit.shopDiscountPercentage / 100.0 // 0-1 范围
+        
+        // 应用折扣：finalFee = baseFee × (1 - discountRate)
+        let finalFee = baseFee * (1.0 - discountRate)
+        
+        LogDebug("💰 [交易费用] 基础费: \(baseFee) → 最终费: \(finalFee) (折扣: \(Int(discountRate * 100))%)")
+        return finalFee
+    }
+    
+    /// 获取交易费折扣的描述文本
+    /// - Parameters:
+    ///   - userTier: 用户的 Tier 等级
+    /// - Returns: 折扣文本描述
+    func getTradeFeeDiscountDescription(userTier: UserTier) -> String {
+        guard let tierBenefit = TierBenefit.getBenefit(for: userTier) else {
+            return "无交易费折扣"
+        }
+        let percentage = Int(tierBenefit.shopDiscountPercentage)
+
+        if percentage > 0 {
+            return "交易费折扣: \(percentage)%"
+        }
+        return "无交易费折扣"
+    }
+    
+    /// 应用 Tier 的交易费好处
+    /// - Parameter tierBenefit: 要应用的 Tier 好处
+    func applyTradeBenefit(_ tierBenefit: TierBenefit) {
+        DispatchQueue.main.async {
+            // shopDiscountPercentage 用于 UI 显示
+            self.tradeFeeDiscountMultiplier = 1.0 - (tierBenefit.shopDiscountPercentage / 100.0)
+            LogDebug("✅ [Tier好处] 应用交易费折扣: \(Int(tierBenefit.shopDiscountPercentage))%")
+        }
+    }
+    
+    /// 重置 Tier 的交易费好处
+    func resetTradeBenefit() {
+        DispatchQueue.main.async {
+            self.tradeFeeDiscountMultiplier = 1.0
+            LogDebug("❌ [Tier好处] 重置交易费折扣")
+        }
     }
 
     deinit { expirationCheckTimer?.invalidate() }

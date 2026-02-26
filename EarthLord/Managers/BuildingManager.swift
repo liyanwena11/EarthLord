@@ -10,6 +10,7 @@ import Supabase
 import Combine
 import CoreLocation
 
+@MainActor
 class BuildingManager: ObservableObject {
 
     static let shared = BuildingManager()
@@ -18,9 +19,11 @@ class BuildingManager: ObservableObject {
     @Published var playerBuildings: [PlayerBuilding] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var buildSpeedMultiplier: Double = 1.0  // Tier 权益加速倍数 (1.2x, 1.4x, 1.6x, 1.8x)
 
     private let supabase = supabaseClient
     private var constructionCheckTimer: Timer?
+    private var currentTierBenefit: TierBenefit?  // 当前应用的 Tier 权益
 
     private init() {
         loadTemplates()
@@ -31,7 +34,7 @@ class BuildingManager: ObservableObject {
     // MARK: - Template Loading
 
     func loadTemplates() {
-        guard let url = Bundle.main.url(forResource: "building_templates", withExtension: "json") else {
+        guard let url = locateResourceURL(name: "building_templates", ext: "json") else {
             LogError("❌ [建筑] 找不到 building_templates.json")
             errorMessage = "找不到建筑模板配置文件"
             return
@@ -45,6 +48,19 @@ class BuildingManager: ObservableObject {
             LogError("❌ [建筑] 加载模板失败: \(error.localizedDescription)")
             DispatchQueue.main.async { self.errorMessage = "加载建筑模板失败: \(error.localizedDescription)" }
         }
+    }
+
+    private func locateResourceURL(name: String, ext: String) -> URL? {
+        let candidates: [URL?] = [
+            Bundle.main.url(forResource: name, withExtension: ext),
+            Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "Resources"),
+            Bundle.main.resourceURL?.appendingPathComponent("\(name).\(ext)"),
+            Bundle.main.resourceURL?.appendingPathComponent("Resources/\(name).\(ext)")
+        ]
+
+        return candidates
+            .compactMap { $0 }
+            .first { FileManager.default.fileExists(atPath: $0.path) }
     }
 
     // MARK: - Can Build Check
@@ -120,7 +136,8 @@ class BuildingManager: ObservableObject {
 
         LogDebug("🏗️ [建筑] 开始建造: \(template.name)")
         let now = Date()
-        let completedAt = now.addingTimeInterval(TimeInterval(template.buildTimeSeconds))
+        let adjustedBuildTime = Double(template.buildTimeSeconds) / buildSpeedMultiplier
+        let completedAt = now.addingTimeInterval(TimeInterval(adjustedBuildTime))
 
         let newBuilding = NewPlayerBuilding(
             user_id: userId,
@@ -313,6 +330,20 @@ class BuildingManager: ObservableObject {
 
     func getBuildingCount(templateId: String, territoryId: String) -> Int {
         playerBuildings.filter { $0.territoryId == territoryId && $0.templateId == templateId }.count
+    }
+    
+    // MARK: - Tier Benefits
+    
+    func applyBuildingBenefit(_ benefit: TierBenefit) {
+        currentTierBenefit = benefit
+        buildSpeedMultiplier = benefit.buildSpeedMultiplier
+        LogDebug("🏗️ [建筑] 应用Tier权益: 建筑速度倍数 = \(buildSpeedMultiplier)")
+    }
+    
+    func resetBuildingBenefit() {
+        currentTierBenefit = nil
+        buildSpeedMultiplier = 1.0
+        LogDebug("🏗️ [建筑] 重置Tier权益: 建筑速度倍数 = 1.0")
     }
 
     deinit { constructionCheckTimer?.invalidate() }

@@ -1,3 +1,4 @@
+#if DEBUG
 //
 
 #if DEBUG
@@ -216,4 +217,6 @@ struct EmptyResponse: Codable {
 #Preview {
     SupabaseTestView()
 }
+#endif
+
 #endif

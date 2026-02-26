@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- App Transport Security Settings -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <!-- 允许所有 HTTPS 连接（推荐） -->
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+
+        <!-- 允许加载本地资源 -->
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+
+        <!-- 配置允许的域名（如果需要） -->
+        <key>NSExceptionDomains</key>
+        <dict>
+            <!-- Supabase 域名 -->
+            <key>supabase.co</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSExceptionMinimumTLSVersion</key>
+                <string>TLSv1.2</string>
+                <key>NSExceptionRequiresForwardSecrecy</key>
+                <true/>
+            </dict>
+
+            <!-- 你的 Supabase 项目域名 -->
+            <key>lkekxzssfrspkyxtqysx.supabase.co</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSExceptionMinimumTLSVersion</key>
+                <string>TLSv1.2</string>
+                <key>NSExceptionRequiresForwardSecrecy</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
+</dict>
+</plist>

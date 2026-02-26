@@ -30,7 +30,7 @@ struct TerritoryDetailView: View {
     @State private var showRenameDialog = false
     @State private var newTerritoryName = ""
 
-    private let territoryManager = TerritoryManager.shared
+    @ObservedObject private var territoryManager = TerritoryManager.shared
     @ObservedObject private var buildingManager = BuildingManager.shared
 
     // MARK: - Computed Properties
@@ -207,15 +207,10 @@ struct TerritoryDetailView: View {
                         Label("\(Int(territory.area)) ㎡", systemImage: "map.fill")
                             .font(.subheadline)
                             .foregroundColor(ApocalypseTheme.textSecondary)
-
-                        if let pointCount = territory.pointCount {
-                            Label("\(pointCount) 采样点", systemImage: "mappin.circle")
-                                .font(.subheadline)
-                                .foregroundColor(ApocalypseTheme.textSecondary)
-                        }
                     }
-
-
+                    
+                    // 防御加成卡片 (Tier权益)
+                    defenseBoostCard
 
                     // 建筑区域
                     buildingSection
@@ -234,6 +229,80 @@ struct TerritoryDetailView: View {
                 .shadow(color: .black.opacity(0.3), radius: 10, y: -5)
         )
         .contentShape(Rectangle())
+    }
+    
+    /// 防御加成卡片
+    private var defenseBoostCard: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Label("防御", systemImage: "shield.fill")
+                    .font(.subheadline.bold())
+                    .foregroundColor(ApocalypseTheme.textPrimary)
+                
+                Spacer()
+                
+                // 防御加成显示
+                HStack(spacing: 4) {
+                    Text(territoryManager.defenseBonusDescription)
+                        .font(.subheadline.bold())
+                        .foregroundColor(
+                            territoryManager.defenseBonus > 0
+                                ? ApocalypseTheme.success
+                                : ApocalypseTheme.textSecondary
+                        )
+                    
+                    if territoryManager.defenseBonus > 0 {
+                        Image(systemName: "star.fill")
+                            .font(.caption2)
+                            .foregroundColor(ApocalypseTheme.success)
+                    }
+                }
+            }
+            
+            // 防御减免比例显示
+            let reduction = territoryManager.getCurrentDefenseReduction()
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("伤害减免")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                    
+                    Spacer()
+                    
+                    Text(String(format: "%.0f%%", reduction * 100))
+                        .font(.caption.bold())
+                        .foregroundColor(ApocalypseTheme.info)
+                }
+                
+                ProgressView(value: reduction)
+                    .tint(
+                        territoryManager.defenseBonus > 0
+                            ? ApocalypseTheme.success
+                            : ApocalypseTheme.info
+                    )
+            }
+            
+            // 防御加成说明（仅在有加成时显示）
+            if territoryManager.defenseBonus > 0 {
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.success)
+                    
+                    Text("Empire Tier 权益：额外 \(territoryManager.defenseBonus)% 防御加成")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 8)
+                .background(ApocalypseTheme.success.opacity(0.1))
+                .cornerRadius(6)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(ApocalypseTheme.cardBackground)
+        .cornerRadius(12)
     }
 
     /// 建筑区域

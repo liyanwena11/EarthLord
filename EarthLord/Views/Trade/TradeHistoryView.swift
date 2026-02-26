@@ -411,11 +411,7 @@ struct TradeHistoryView: View {
     // MARK: - 刷新交易历史
     private func refreshHistory() async {
         await MainActor.run { isLoading = true }
-        do {
-            await tradeManager.fetchTradeHistory()
-        } catch {
-            LogError("❌ 刷新交易历史失败: \(error.localizedDescription)")
-        }
+        await tradeManager.fetchTradeHistory()
         await MainActor.run { isLoading = false }
     }
     
@@ -431,13 +427,13 @@ struct TradeHistoryView: View {
             // 显示成功提示
             let alert = UIAlertController(title: "成功", message: "评价提交成功！", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+            presentAlert(alert)
         } catch {
             LogError("❌ 提交评价失败: \(error.localizedDescription)")
             // 显示失败提示
             let alert = UIAlertController(title: "失败", message: "评价提交失败，请重试。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+            presentAlert(alert)
         }
     }
 }

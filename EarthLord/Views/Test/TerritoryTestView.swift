@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 #if DEBUG
@@ -94,4 +95,6 @@ struct TerritoryTestView: View {
         }
     }
 }
+#endif
+
 #endif

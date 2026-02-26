@@ -64,7 +64,7 @@ class OnboardingManager: ObservableObject {
                 .execute()
                 .value
 
-            LogDebug("☁️ [OnboardingManager] 服务器返回: has_seen_onboarding = \(response.hasSeenOnboarding ?? nil)")
+            LogDebug("☁️ [OnboardingManager] 服务器返回: has_seen_onboarding = \(response.hasSeenOnboarding.map { String($0) } ?? "nil")")
 
             // 如果用户已看过引导，则不显示
             if let hasSeen = response.hasSeenOnboarding, hasSeen {

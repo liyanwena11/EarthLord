@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 #if DEBUG
@@ -92,4 +93,6 @@ struct TestView: View {
 #Preview {
     TestView()
 }
+#endif
+
 #endif

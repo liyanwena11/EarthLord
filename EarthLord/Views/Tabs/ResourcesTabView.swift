@@ -6,13 +6,11 @@ struct ResourcesTabView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 1. 顶部五段选择器 - 移除 ScrollView 修复触摸问题
+                // 1. 顶部三段选择器
                 Picker("板块", selection: $selectedSegment) {
-                Text("POI").tag(0)
-                Text("背包").tag(1)
-                Text("邮箱").tag(2)
-                Text("领地").tag(3)
-                Text("交易").tag(4)
+                Text("背包").tag(0)
+                Text("邮箱").tag(1)
+                Text("交易").tag(2)
             }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -23,13 +21,9 @@ struct ResourcesTabView: View {
                 Group {
                     switch selectedSegment {
                     case 0:
-                        POIListView()
-                    case 1:
                         BackpackView()
-                    case 2:
+                    case 1:
                         MailboxView()
-                    case 3:
-                        TerritoryStatsView()
                     default:
                         TradeMainView()
                     }

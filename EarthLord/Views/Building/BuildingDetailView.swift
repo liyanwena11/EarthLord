@@ -184,7 +184,7 @@ struct BuildingDetailView: View {
     }
 
     private var buildButton: some View {
-        let (canBuild, error) = canBuildResult
+        let (canBuild, _) = canBuildResult
         let atMax = buildingManager.getBuildingCount(templateId: template.templateId, territoryId: territoryId) >= template.maxPerTerritory
 
         return Button(action: startBuild) {

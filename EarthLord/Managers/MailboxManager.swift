@@ -114,7 +114,7 @@ class MailboxManager: ObservableObject {
 
         // Check inventory capacity first
         let inventoryManager = InventoryManager.shared
-        let totalToClaim = pendingItems.reduce(0) { $0 + $1.quantity }
+        let _ = pendingItems.reduce(0) { $0 + $1.quantity }
         let currentCount = inventoryManager.totalItemCount
         let available = inventoryManager.maxCapacity - currentCount
 

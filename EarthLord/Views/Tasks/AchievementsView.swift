@@ -2,206 +2,226 @@
 //  AchievementsView.swift
 //  EarthLord
 //
-//  Created by Claude on 2026-02-23.
-//  成就列表视图
+//  Created by Claude on 2026-02-26.
+//  成就系统完整视图
 //
 
 import SwiftUI
 
 struct AchievementsView: View {
-    @State private var achievements: [Achievement] = []
+    @StateObject private var manager = AchievementManager.shared
     @State private var selectedCategory: AchievementCategory? = nil
-    @State private var isLoading = false
+    @State private var selectedAchievement: Achievement?
+    @State private var showAchievementDetail = false
+    @State private var showLeaderboard = false
 
     var filteredAchievements: [Achievement] {
         if let category = selectedCategory {
-            return achievements.filter { $0.category == category }
+            return manager.achievements.filter { $0.category == category }
         }
-        return achievements
+        return manager.achievements
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // 分类筛选
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        CategoryButton(
-                            icon: "square.grid.2x2",
-                            title: "全部",
-                            isSelected: selectedCategory == nil
-                        ) {
-                            selectedCategory = nil
-                        }
+        ZStack {
+            // 背景
+            Color(red: 0x12/255, green: 0x18/255, blue: 0x26/255)
+                .ignoresSafeArea()
 
-                        ForEach(AchievementCategory.allCases, id: \.self) { category in
-                            CategoryButton(
-                                icon: category.icon,
-                                title: category.displayName,
-                                isSelected: selectedCategory == category
-                            ) {
-                                selectedCategory = category
-                            }
-                        }
+            VStack(spacing: 0) {
+                // 顶部导航栏
+                navigationBar
+
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 统计概览
+                        statsOverview
+                            .padding(.horizontal, 16)
+
+                        // 分类筛选
+                        categoryFilter
+
+                        // 成就列表
+                        achievementsList
                     }
-                    .padding(.horizontal)
-                }
-                .padding(.bottom, 8)
-
-                // 成就统计
-                HStack(spacing: 12) {
-                    AchievementStat(
-                        icon: "trophy.fill",
-                        title: "已解锁",
-                        value: "\(unlockedCount)",
-                        total: "\(achievements.count)",
-                        color: ApocalypseTheme.warning
-                    )
-
-                    AchievementStat(
-                        icon: "percent",
-                        title: "完成度",
-                        value: "\(completionPercentage)%",
-                        total: "",
-                        color: ApocalypseTheme.success
-                    )
-                }
-                .padding(.horizontal)
-
-                // 成就列表
-                if isLoading {
-                    ProgressView("加载中...")
-                        .frame(maxWidth: .infinity, minHeight: 200)
-                } else if filteredAchievements.isEmpty {
-                    EmptyAchievementsView()
-                } else {
-                    LazyVStack(spacing: 12) {
-                        ForEach(filteredAchievements) { achievement in
-                            AchievementCard(achievement: achievement)
-                        }
-                    }
-                    .padding(.horizontal)
+                    .padding(.bottom, 80)
                 }
             }
-            .padding(.vertical)
+
+            // 成就详情弹窗
+            if showAchievementDetail, let achievement = selectedAchievement {
+                AchievementDetailPopup(
+                    achievement: achievement,
+                    isPresented: $showAchievementDetail
+                )
+            }
+        }
+        .sheet(isPresented: $showLeaderboard) {
+            AchievementLeaderboardDetailView(userStats: nil)
         }
         .task {
-            await loadAchievements()
+            await manager.refreshData()
+        }
+        .refreshable {
+            await manager.refreshData()
         }
     }
 
-    private var unlockedCount: Int {
-        achievements.filter { $0.isUnlocked }.count
-    }
+    // MARK: - Navigation Bar
 
-    private var completionPercentage: Int {
-        guard !achievements.isEmpty else { return 0 }
-        return Int(Double(unlockedCount) / Double(achievements.count) * 100)
-    }
-
-    private func loadAchievements() async {
-        isLoading = true
-        // TODO: Implement actual data loading
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        await MainActor.run {
-            self.achievements = sampleAchievements
-            self.isLoading = false
-        }
-    }
-}
-
-// MARK: - AchievementCard
-
-struct AchievementCard: View {
-    let achievement: Achievement
-
-    var body: some View {
-        HStack(spacing: 16) {
-            // 图标
-            ZStack {
-                Circle()
-                    .fill(achievement.isUnlocked ? achievement.category.color.opacity(0.2) : ApocalypseTheme.textMuted.opacity(0.1))
-                    .frame(width: 56, height: 56)
-
-                if achievement.isUnlocked {
-                    Image(systemName: achievement.icon)
-                        .font(.title2)
-                        .foregroundColor(achievement.category.color)
-                } else {
-                    Image(systemName: "lock.fill")
-                        .font(.title3)
-                        .foregroundColor(ApocalypseTheme.textMuted)
-                }
-            }
-
-            // 内容
-            VStack(alignment: .leading, spacing: 6) {
-                Text(achievement.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(achievement.isUnlocked ? ApocalypseTheme.textPrimary : ApocalypseTheme.textSecondary)
-
-                Text(achievement.description)
-                    .font(.caption)
-                    .foregroundColor(ApocalypseTheme.textMuted)
-                    .lineLimit(2)
-
-                if achievement.isUnlocked {
-                    Text("已解锁 - \(achievement.requirement.displayText)")
-                        .font(.caption2)
-                        .foregroundColor(achievement.category.color)
-                } else {
-                    // 进度条
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(achievement.requirement.displayText)
-                                .font(.caption2)
-                                .foregroundColor(ApocalypseTheme.textMuted)
-                            Spacer()
-                            Text("\(achievement.progressPercentage)%")
-                                .font(.caption2)
-                                .foregroundColor(ApocalypseTheme.textSecondary)
-                        }
-
-                        ProgressView(value: achievement.progress)
-                            .tint(achievement.category.color)
-                            .scaleEffect(x: 1, y: 0.8, anchor: .center)
-                    }
-                }
-            }
+    private var navigationBar: some View {
+        HStack {
+            Text("成就")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.white)
 
             Spacer()
 
-            // 状态
-            VStack(spacing: 4) {
-                if achievement.isUnlocked {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(ApocalypseTheme.success)
+            Button {
+                showLeaderboard = true
+            } label: {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255))
+                    .frame(width: 36, height: 36)
+                    .background(Color(red: 0x1E/255, green: 0x24/255, blue: 0x30/255))
+                    .clipShape(Circle())
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color(red: 0x12/255, green: 0x18/255, blue: 0x26/255))
+    }
+
+    // MARK: - Stats Overview
+
+    private var statsOverview: some View {
+        HStack(spacing: 12) {
+            // 解锁数量
+            AchievementStatCard(
+                icon: "trophy.fill",
+                title: "已解锁",
+                value: "\(manager.totalUnlocked)",
+                subtitle: "/\(manager.achievements.count)",
+                color: Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255)
+            )
+
+            // 完成度
+            AchievementStatCard(
+                icon: "percent",
+                title: "完成度",
+                value: "\(manager.completionPercentage)%",
+                subtitle: "",
+                color: Color(red: 0x00/255, green: 0xFF/255, blue: 0x88/255)
+            )
+
+            // 总积分
+            AchievementStatCard(
+                icon: "star.fill",
+                title: "总积分",
+                value: "\(manager.totalPoints)",
+                subtitle: "",
+                color: Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
+            )
+        }
+    }
+
+    // MARK: - Category Filter
+
+    private var categoryFilter: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                CategoryFilterChip(
+                    icon: "square.grid.2x2",
+                    title: "全部",
+                    count: manager.achievements.count,
+                    isSelected: selectedCategory == nil
+                ) {
+                    selectedCategory = nil
                 }
 
-                if let reward = achievement.reward.title {
-                    Text(reward)
-                        .font(.caption2)
-                        .foregroundColor(ApocalypseTheme.warning)
+                ForEach(AchievementCategory.allCases, id: \.self) { category in
+                    CategoryFilterChip(
+                        icon: category.icon,
+                        title: category.displayName,
+                        count: manager.achievements.filter { $0.category == category }.count,
+                        isSelected: selectedCategory == category
+                    ) {
+                        selectedCategory = category
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    // MARK: - Achievements List
+
+    private var achievementsList: some View {
+        LazyVStack(spacing: 12) {
+            if manager.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 200)
+            } else if filteredAchievements.isEmpty {
+                EmptyAchievementsView()
+            } else {
+                ForEach(filteredAchievements) { achievement in
+                    AchievementCardEnhanced(achievement: achievement)
+                        .onTapGesture {
+                            selectedAchievement = achievement
+                            showAchievementDetail = true
+                        }
                 }
             }
         }
-        .padding()
-        .background(ApocalypseTheme.cardBackground)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(achievement.isUnlocked ? achievement.category.color.opacity(0.3) : ApocalypseTheme.textMuted.opacity(0.2), lineWidth: 1)
-        )
+        .padding(.horizontal, 16)
     }
 }
 
-// MARK: - CategoryButton
+// MARK: - Achievement Stat Card
 
-struct CategoryButton: View {
+struct AchievementStatCard: View {
     let icon: String
     let title: String
+    let value: String
+    let subtitle: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundColor(color)
+
+            Text(title)
+                .font(.system(size: 11))
+                .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(Color(red: 0x1E/255, green: 0x24/255, blue: 0x30/255))
+        .cornerRadius(12)
+    }
+}
+
+// MARK: - Category Filter Chip
+
+struct CategoryFilterChip: View {
+    let icon: String
+    let title: String
+    let count: Int
     let isSelected: Bool
     let onTap: () -> Void
 
@@ -211,130 +231,319 @@ struct CategoryButton: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.caption)
+                    .font(.system(size: 12))
+
                 Text(title)
-                    .font(.caption)
+                    .font(.system(size: 13))
+
+                Text("(\(count))")
+                    .font(.system(size: 11))
+                    .foregroundColor(isSelected ? .white : Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
             }
-            .foregroundColor(isSelected ? .white : ApocalypseTheme.textSecondary)
-            .padding(.horizontal, 12)
+            .foregroundColor(isSelected ? .white : Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+            .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(isSelected ? ApocalypseTheme.primary : ApocalypseTheme.cardBackground)
-            .cornerRadius(8)
+            .background(
+                isSelected
+                    ? Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
+                    : Color(red: 0x1E/255, green: 0x24/255, blue: 0x30/255)
+            )
+            .cornerRadius(20)
         }
     }
 }
 
-// MARK: - AchievementStat
+// MARK: - Achievement Card Enhanced
 
-struct AchievementStat: View {
-    let icon: String
-    let title: String
-    let value: String
-    let total: String
-    let color: Color
+struct AchievementCardEnhanced: View {
+    let achievement: Achievement
+
+    private let cardBackground = Color(red: 0x1E/255, green: 0x24/255, blue: 0x30/255)
+    private let iconBlue = Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
 
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(color)
+        HStack(spacing: 16) {
+            // 成就图标
+            achievementIcon
 
-            Text(title)
-                .font(.caption2)
-                .foregroundColor(ApocalypseTheme.textSecondary)
+            // 成就信息
+            achievementInfo
 
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(value)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(ApocalypseTheme.textPrimary)
-                if !total.isEmpty {
-                    Text("/\(total)")
-                        .font(.caption2)
-                        .foregroundColor(ApocalypseTheme.textSecondary)
-                }
+            Spacer()
+
+            // 状态指示
+            statusIndicator
+        }
+        .padding(16)
+        .background(cardBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    achievement.isUnlocked
+                        ? achievement.category.color.opacity(0.5)
+                        : Color.clear,
+                    lineWidth: 2
+                )
+        )
+    }
+
+    private var achievementIcon: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    achievement.isUnlocked
+                        ? achievement.category.color.opacity(0.2)
+                        : Color(red: 0x2A/255, green: 0x30/255, blue: 0x3D/255)
+                )
+                .frame(width: 60, height: 60)
+
+            if achievement.isUnlocked {
+                Image(systemName: achievement.icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(achievement.category.color)
+            } else {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(ApocalypseTheme.background)
-        .cornerRadius(12)
+    }
+
+    private var achievementInfo: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // 标题
+            Text(achievement.title)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(achievement.isUnlocked ? .white : Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+
+            // 描述
+            Text(achievement.description)
+                .font(.system(size: 13))
+                .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
+                .lineLimit(2)
+
+            // 进度条（未解锁时显示）
+            if !achievement.isUnlocked {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(achievement.requirement.displayText)
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
+
+                        Spacer()
+
+                        Text("\(achievement.progressPercentage)%")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(achievement.category.color)
+                    }
+
+                    ProgressView(value: achievement.progress)
+                        .tint(achievement.category.color)
+                        .frame(height: 4)
+                }
+            }
+
+            // 奖励标签
+            if achievement.isUnlocked {
+                HStack(spacing: 4) {
+                    Image(systemName: "gift.fill")
+                        .font(.system(size: 10))
+
+                    Text("已获得奖励")
+                        .font(.system(size: 11))
+                }
+                .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
+            }
+        }
+    }
+
+    private var statusIndicator: some View {
+        VStack(spacing: 4) {
+            if achievement.isUnlocked {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(Color(red: 0x00/255, green: 0xFF/255, blue: 0x88/255))
+            } else {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
+            }
+        }
     }
 }
 
-// MARK: - EmptyAchievementsView
+// MARK: - Achievement Detail Popup
+
+struct AchievementDetailPopup: View {
+    let achievement: Achievement
+    @Binding var isPresented: Bool
+
+    private let cardBackground = Color(red: 0x1E/255, green: 0x24/255, blue: 0x30/255)
+    private let iconBlue = Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.7)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    isPresented = false
+                }
+
+            VStack(spacing: 0) {
+                // 关闭按钮
+                HStack {
+                    Spacer()
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white)
+                            .frame(width: 32, height: 32)
+                            .background(Color(red: 0x2A/255, green: 0x30/255, blue: 0x3D/255))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(16)
+
+                VStack(spacing: 20) {
+                    // 成就图标
+                    ZStack {
+                        Circle()
+                            .fill(
+                                achievement.isUnlocked
+                                    ? achievement.category.color.opacity(0.2)
+                                    : Color(red: 0x2A/255, green: 0x30/255, blue: 0x3D/255)
+                            )
+                            .frame(width: 100, height: 100)
+
+                        if achievement.isUnlocked {
+                            Image(systemName: achievement.icon)
+                                .font(.system(size: 40))
+                                .foregroundColor(achievement.category.color)
+                        } else {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
+                        }
+                    }
+
+                    // 标题
+                    Text(achievement.title)
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+
+                    // 描述
+                    Text(achievement.description)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+
+                    // 进度
+                    if !achievement.isUnlocked {
+                        VStack(spacing: 8) {
+                            Text("进度: \(achievement.progressPercentage)%")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(achievement.category.color)
+
+                            ProgressView(value: achievement.progress)
+                                .tint(achievement.category.color)
+                                .frame(width: 200, height: 6)
+
+                            Text(achievement.requirement.displayText)
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
+                        }
+                    }
+
+                    // 奖励
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("奖励")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+
+                        VStack(spacing: 8) {
+                            if let emblemId = achievement.reward.emblemId {
+                                HStack {
+                                    Image(systemName: "shield.fill")
+                                        .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
+                                    Text("专属徽章")
+                                        .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+                                    Spacer()
+                                }
+                            }
+
+                            if let title = achievement.reward.title {
+                                HStack {
+                                    Image(systemName: "crown.fill")
+                                        .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
+                                    Text("称号: \(title)")
+                                        .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+                                    Spacer()
+                                }
+                            }
+
+                            if achievement.reward.experience > 0 {
+                                HStack {
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(iconBlue)
+                                    Text("\(achievement.reward.experience) 经验")
+                                        .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+                                    Spacer()
+                                }
+                            }
+
+                            ForEach(Array(achievement.reward.bonusResources.keys.sorted()), id: \.self) { resource in
+                                if let amount = achievement.reward.bonusResources[resource] {
+                                    HStack {
+                                        Image(systemName: "cube.fill")
+                                            .foregroundColor(Color(red: 0x00/255, green: 0xFF/255, blue: 0x88/255))
+                                        Text("\(resource): \(amount)")
+                                            .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+                                        Spacer()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .background(Color(red: 0x12/255, green: 0x18/255, blue: 0x26/255))
+                    .cornerRadius(12)
+                }
+                .padding(20)
+            }
+            .background(cardBackground)
+            .cornerRadius(20)
+            .padding(.horizontal, 40)
+        }
+    }
+}
+
+// MARK: - Empty Achievements View
 
 struct EmptyAchievementsView: View {
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: "medal")
-                .font(.system(size: 50))
-                .foregroundColor(ApocalypseTheme.textMuted)
+            Image(systemName: "trophy")
+                .font(.system(size: 60))
+                .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
+
             Text("暂无成就")
-                .font(.title3)
-                .foregroundColor(ApocalypseTheme.textSecondary)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
+
             Text("完成特定目标可解锁成就")
-                .font(.caption)
-                .foregroundColor(ApocalypseTheme.textMuted)
+                .font(.system(size: 14))
+                .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
         }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        .frame(maxWidth: .infinity, minHeight: 300)
     }
 }
 
-// MARK: - Sample Data
+// MARK: - Preview
 
-private let sampleAchievements: [Achievement] = [
-    Achievement(
-        id: "1",
-        category: .building,
-        title: "第一块砖",
-        description: "建造你的第一个建筑",
-        icon: "house.fill",
-        requirement: .buildCount(buildingType: "any", count: 1),
-        reward: AchievementReward(emblemId: "first_build", bonusResources: [:], title: "建筑师学徒", experience: 50),
-        isUnlocked: true,
-        unlockedAt: Date().addingTimeInterval(-86400),
-        progress: 1.0
-    ),
-    Achievement(
-        id: "2",
-        category: .building,
-        title: "建筑大师",
-        description: "建造10个建筑",
-        icon: "building.columns.fill",
-        requirement: .buildCount(buildingType: "any", count: 10),
-        reward: AchievementReward(emblemId: "master_builder", bonusResources: ["wood": 100], title: "建筑大师", experience: 500),
-        isUnlocked: false,
-        unlockedAt: nil,
-        progress: 0.3
-    ),
-    Achievement(
-        id: "3",
-        category: .resource,
-        title: "资源大亨",
-        description: "收集10000单位资源",
-        icon: "cube.fill",
-        requirement: .resourceCollected(resourceId: "any", amount: 10000),
-        reward: AchievementReward(emblemId: "resource_tycoon", bonusResources: [:], title: "资源大亨", experience: 300),
-        isUnlocked: false,
-        unlockedAt: nil,
-        progress: 0.25
-    ),
-    Achievement(
-        id: "4",
-        category: .territory,
-        title: "领主",
-        description: "拥有1个领地",
-        icon: "flag.fill",
-        requirement: .territoryCount(count: 1),
-        reward: AchievementReward(emblemId: "lord", bonusResources: [:], title: "领主", experience: 100),
-        isUnlocked: true,
-        unlockedAt: Date().addingTimeInterval(-43200),
-        progress: 1.0
-    )
-]
-
-// 预览
 #Preview {
     AchievementsView()
 }

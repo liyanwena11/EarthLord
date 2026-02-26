@@ -148,13 +148,8 @@ struct TradeMainView: View {
     
     // MARK: - 加载初始数据
     private func loadInitialData() async {
-        do {
-            await tradeManager.fetchAllData()
-            await MainActor.run { isLoading = false }
-        } catch {
-            LogError("❌ 加载交易数据失败: \(error.localizedDescription)")
-            await MainActor.run { isLoading = false }
-        }
+        await tradeManager.fetchAllData()
+        await MainActor.run { isLoading = false }
     }
 }
 

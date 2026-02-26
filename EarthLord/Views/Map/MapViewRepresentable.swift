@@ -157,6 +157,7 @@ struct MapViewRepresentable: UIViewRepresentable {
         for territory in TerritoryManager.shared.territories {
             // Territory 坐标在数据库中已经是适配后的坐标，直接使用
             var coordinates = territory.toCoordinates()
+            guard coordinates.count >= 3 else { continue }
             let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
 
             // Determine if territory belongs to current user

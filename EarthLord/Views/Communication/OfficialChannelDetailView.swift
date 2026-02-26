@@ -11,10 +11,12 @@ struct OfficialChannelDetailView: View {
     let channel: CommunicationChannel
 
     @StateObject private var communicationManager = CommunicationManager.shared
+    @ObservedObject private var authManager = AuthManager.shared
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedCategory: MessageCategory?
     @State private var isLoading = true
+    @State private var errorText: String?
 
     private var messages: [ChannelMessage] {
         let all = communicationManager.getMessages(for: channel.id)
@@ -34,6 +36,14 @@ struct OfficialChannelDetailView: View {
         }
         .navigationBarHidden(true)
         .onAppear { loadMessages() }
+        .alert("提示", isPresented: Binding(
+            get: { errorText != nil },
+            set: { newValue in if !newValue { errorText = nil } }
+        )) {
+            Button("确定", role: .cancel) { errorText = nil }
+        } message: {
+            Text(errorText ?? "")
+        }
     }
 
     // MARK: - 导航栏
@@ -129,8 +139,17 @@ struct OfficialChannelDetailView: View {
 
     private func loadMessages() {
         Task {
+            if let userId = authManager.currentUser?.id {
+                _ = await communicationManager.ensureChannelSubscribedIfNeeded(userId: userId, channel: channel)
+            }
             await communicationManager.loadChannelMessages(channelId: channel.id)
-            await MainActor.run { isLoading = false }
+            await MainActor.run {
+                isLoading = false
+                if communicationManager.getMessages(for: channel.id).isEmpty &&
+                    !communicationManager.isSubscribed(channelId: channel.id) {
+                    errorText = "官方频道尚未订阅成功，请返回频道页重试。"
+                }
+            }
         }
     }
 }

@@ -8,8 +8,13 @@ struct MapTabView: View {
 
     @State private var isExploring = false
     @State private var showExplorationResult = false
-    @State private var shouldCenterOnUser = false  // ✅ 定位按钮触发器
+    @State private var shouldCenterOnUser = false
     @State private var currentTime = Date()
+
+    // MARK: - 状态卡片
+    @State private var showExplorationCard = false
+    @State private var showTerritoryCard = false
+    @State private var showDistanceAlert = false
 
     var body: some View {
         // ✅ 核心修复：使用 overlay 方式叠加 UI，不会阻挡地图触摸
@@ -61,7 +66,23 @@ struct MapTabView: View {
 
                 // 底部按钮区
                 HStack(spacing: 12) {
-                    Button(action: { locationManager.isTracking.toggle() }) {
+                    Button(action: {
+                        if !locationManager.isTracking {
+                            // 开始圈地 - 显示状态卡片
+                            withAnimation(.spring()) {
+                                showTerritoryCard = true
+                            }
+                            // 延迟执行实际操作
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                locationManager.isTracking.toggle()
+                            }
+                        } else {
+                            locationManager.isTracking.toggle()
+                            withAnimation {
+                                showTerritoryCard = false
+                            }
+                        }
+                    }) {
                         HStack {
                             Image(systemName: locationManager.isTracking ? "stop.fill" : "flag.fill")
                             Text(locationManager.isTracking ? "停止圈地" : "开始圈地")
@@ -98,10 +119,23 @@ struct MapTabView: View {
                     }
 
                     Button(action: {
-                        isExploring = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            isExploring = false
-                            showExplorationResult = true
+                        // 检查是否有足够的行走距离（需要至少100米）
+                        if rewardManager.totalWalkingDistance >= 100 {
+                            // 显示探索状态卡片
+                            withAnimation(.spring()) {
+                                showExplorationCard = true
+                            }
+                            isExploring = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                isExploring = false
+                                showExplorationResult = true
+                                withAnimation {
+                                    showExplorationCard = false
+                                }
+                            }
+                        } else {
+                            // 显示提示
+                            showDistanceAlert = true
                         }
                     }) {
                         HStack {
@@ -165,11 +199,118 @@ struct MapTabView: View {
             .allowsHitTesting(locationManager.showPOIPopup) // ✅ 核心修复：弹窗隐藏时不拦截点击
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: locationManager.showPOIPopup)
+        // MARK: - 游戏规则卡片提示
+        .overlay(alignment: .top) {
+            VStack {
+                if showExplorationCard {
+                    StatusCardView(
+                        type: .exploration,
+                        isVisible: showExplorationCard,
+                        progress: isExploring ? 0.5 : 0,
+                        message: getExplorationRulesMessage(),
+                        onDismiss: {
+                            withAnimation {
+                                showExplorationCard = false
+                            }
+                        }
+                    )
+                    .padding(.top, 80)
+                    .padding(.horizontal, 16)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                if showTerritoryCard {
+                    StatusCardView(
+                        type: .territory,
+                        isVisible: showTerritoryCard,
+                        progress: locationManager.isTracking ? 0.3 : 0,
+                        message: getTerritoryRulesMessage(),
+                        onDismiss: {
+                            withAnimation {
+                                showTerritoryCard = false
+                                if locationManager.isTracking {
+                                    locationManager.isTracking = false
+                                }
+                            }
+                        }
+                    )
+                    .padding(.top, 80)
+                    .padding(.horizontal, 16)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                Spacer()
+            }
+        }
         .onAppear {
             // 更新时间
             Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 currentTime = Date()
             }
+        }
+        .alert("行走距离不足", isPresented: $showDistanceAlert) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text("需要至少行走100米才能开始探索，当前距离：\(Int(rewardManager.totalWalkingDistance))米")
+        }
+    }
+
+    // MARK: - 辅助方法
+
+    // 游戏规则 - 探索模式
+    private func getExplorationRulesMessage() -> String {
+        return """
+        📍 探索模式规则
+
+        【基本说明】
+        • 探索会消耗行走距离（需至少100米）
+        • 行走过程中会随机发现资源和物资
+        • 探索时间越长，发现稀有物品概率越高
+
+        【收益说明】
+        • 食物、水、医疗物资等生存必需品
+        • 工具、材料等建造资源
+        • 可能发现稀有装备和特殊物品
+
+        【注意事项】
+        • 注意管理体力值，避免过度消耗
+        • 探索过程中背包负重会增加
+        • 建议在安全区域进行探索
+        """
+    }
+
+    // 游戏规则 - 圈地模式
+    private func getTerritoryRulesMessage() -> String {
+        return """
+        🏁 圈地模式规则
+
+        【基本说明】
+        • 沿着想要圈定的领地边界行走
+        • 系统会自动记录路径上的采样点
+        • 采样点越多，圈定的领地面积越大
+
+        【完成条件】
+        • 至少需要记录3个采样点
+        • 走回起点附近（50米内）自动闭合领地
+        • 领地面积大小与采样点数量相关
+
+        【注意事项】
+        • 圈地需要持续移动，停顿不记录点
+        • 已有领地的区域无法再次圈地
+        • 领地建立后可在其中建造建筑
+        • 建筑会持续产出资源
+        """
+    }
+
+    private func getTerritoryProgressMessage() -> String {
+        let requiredPoints = EarthLordEngine.shared.requiredSamplingPoints
+        let currentPoints = locationManager.pathCoordinates.count
+        if currentPoints == 0 {
+            return "开始移动以采样第一个点..."
+        } else if currentPoints < requiredPoints {
+            return "已记录\(currentPoints)个采样点，还需\(requiredPoints - currentPoints)个点完成圈地"
+        } else {
+            return "采样点已达到要求，正在闭合领地..."
         }
     }
     

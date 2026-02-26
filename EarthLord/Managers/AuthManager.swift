@@ -14,16 +14,27 @@ class AuthManager: ObservableObject {
 
     private let supabase = supabaseClient
     static let shared = AuthManager()
+    private var isCheckingSession = false
 
     private init() {
-        // ✅ 修复：不在 init 中阻塞，改为延迟检查
-        Task { @MainActor in
-            await checkSession()
-        }
+        // Session 检查由 SplashView 主动触发，避免启动期重复请求
     }
 
     func checkSession() async {
-        defer { isSessionChecked = true }  // ✅ 无论成功失败都标记完成
+        if isCheckingSession {
+            LogDebug("🔍 [AuthManager] Session 检查进行中，等待已有任务完成")
+            while isCheckingSession {
+                try? await Task.sleep(nanoseconds: 50_000_000)
+            }
+            return
+        }
+
+        isCheckingSession = true
+        defer {
+            isSessionChecked = true
+            isCheckingSession = false
+        }
+
         LogDebug("🔍 [AuthManager] 开始检查 Session...")
         do {
             let session = try await supabase.auth.session
@@ -156,30 +167,67 @@ class AuthManager: ObservableObject {
     func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) async {
         self.isLoading = true
         self.errorMessage = nil
+        LogDebug("🔵 [AuthManager] ===== 开始 Apple 登录流程 =====")
+
         do {
             let authorization = try result.get()
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
-                  let identityTokenData = credential.identityToken,
-                  let idToken = String(data: identityTokenData, encoding: .utf8) else {
+            LogInfo("✅ [AuthManager] Apple 授权成功")
+
+            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+                LogError("❌ [AuthManager] 无法获取 Apple 凭证")
+                self.errorMessage = "无法获取 Apple 凭证"
+                self.isLoading = false
+                return
+            }
+            LogDebug("🔑 [AuthManager] Apple 凭证获取成功")
+
+            guard let identityTokenData = credential.identityToken else {
+                LogError("❌ [AuthManager] identityToken 为 nil")
+                self.errorMessage = "无法获取 Apple 身份令牌"
+                self.isLoading = false
+                return
+            }
+            LogDebug("🔑 [AuthManager] identityToken 数据大小: \(identityTokenData.count) 字节")
+
+            guard let idToken = String(data: identityTokenData, encoding: .utf8) else {
+                LogError("❌ [AuthManager] 无法将 identityToken 转换为字符串")
                 self.errorMessage = "无法获取 Apple 验证信息"
                 self.isLoading = false
                 return
             }
+            LogDebug("🔑 [AuthManager] ID Token 前缀: \(String(idToken.prefix(20)))...")
+
+            LogDebug("🔄 [AuthManager] 正在向 Supabase 验证 Apple 身份...")
             let response = try await supabase.auth.signInWithIdToken(
                 credentials: .init(provider: .apple, idToken: idToken)
             )
+
             self.currentUser = response.user
             self.isAuthenticated = true
-            LogInfo("✅ [AuthManager] Apple 登录成功: \(self.currentUser?.email ?? "隐藏邮箱")")
+            LogInfo("✅ [AuthManager] Apple 登录成功！")
+            LogDebug("  - 用户ID: \(response.user.id.uuidString)")
+            LogDebug("  - 邮箱: \(response.user.email ?? "隐藏邮箱")")
         } catch {
             let nsError = error as NSError
-            // 用户主动取消不显示错误
-            if nsError.domain == ASAuthorizationErrorDomain,
-               nsError.code == ASAuthorizationError.canceled.rawValue {
-                // ignore
+            LogError("❌ [AuthManager] Apple 登录失败: \(error.localizedDescription)")
+            LogError("❌ [AuthManager] 错误域名: \(nsError.domain)")
+            LogError("❌ [AuthManager] 错误代码: \(nsError.code)")
+            LogError("❌ [AuthManager] 错误描述: \(nsError.localizedDescription)")
+
+            // 检查是否是 TLS/网络错误
+            if nsError.domain == NSURLErrorDomain {
+                LogError("❌ [AuthManager] 网络错误 - 可能是 TLS 配置问题")
+                LogError("❌ [AuthManager] 请检查:")
+                LogError("   1. 设备是否连接互联网")
+                LogError("   2. Info.plist 中的 App Transport Security 设置")
+                LogError("   3. Supabase 项目是否启用 Apple 登录")
+                self.errorMessage = "网络连接失败，请检查网络设置或稍后重试"
+            } else if nsError.domain == ASAuthorizationErrorDomain,
+                      nsError.code == ASAuthorizationError.canceled.rawValue {
+                LogDebug("⏭ [AuthManager] 用户主动取消登录")
+                // ignore - 不显示错误
             } else {
-                self.errorMessage = "Apple 登录失败"
-                LogError("❌ [AuthManager] Apple 登录失败: \(error)")
+                self.errorMessage = "Apple 登录失败: \(error.localizedDescription)"
             }
         }
         self.isLoading = false

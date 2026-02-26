@@ -13,7 +13,16 @@ struct AuthView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            LinearGradient(
+                colors: [
+                    ApocalypseTheme.background,
+                    Color(red: 0.15, green: 0.10, blue: 0.08),
+                    ApocalypseTheme.background
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
             
             VStack(spacing: 25) {
                 // 1. 顶部 Logo
@@ -34,56 +43,66 @@ struct AuthView: View {
                 }
                 .padding(.top, 40)
 
-                // 2. 登录/注册 切换
-                HStack(spacing: 0) {
-                    TabButton(title: "登录", isActive: !isRegisterMode) {
-                        isRegisterMode = false
-                        authManager.resetState()
-                    }
-                    TabButton(title: "注册", isActive: isRegisterMode) {
-                        isRegisterMode = true
-                        authManager.resetState()
-                    }
-                }
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
-                .padding(.horizontal, 30)
-
-                // 3. 输入框
-                VStack(spacing: 15) {
-                    AuthInputField(icon: "envelope.fill", placeholder: "邮箱地址", text: $email)
-                    AuthInputField(icon: "lock.fill", placeholder: "访问密码", text: $password, isSecure: true)
-                }
-                .padding(.horizontal, 30)
-
-                // 错误显示
-                if let error = authManager.errorMessage {
-                    Text(error).foregroundColor(.red).font(.caption).multilineTextAlignment(.center)
-                }
-
-                // 4. 核心登录/注册按钮
-                Button(action: {
-                    Task {
-                        if isRegisterMode {
-                            await authManager.signUp(email: email, password: password)
-                        } else {
-                            await authManager.signIn(email: email, password: password)
+                VStack(spacing: 18) {
+                    // 2. 登录/注册 切换
+                    HStack(spacing: 0) {
+                        TabButton(title: "登录", isActive: !isRegisterMode) {
+                            isRegisterMode = false
+                            authManager.resetState()
+                        }
+                        TabButton(title: "注册", isActive: isRegisterMode) {
+                            isRegisterMode = true
+                            authManager.resetState()
                         }
                     }
-                }) {
-                    if authManager.isLoading {
-                        ProgressView().tint(.white)
-                    } else {
-                        Text(isRegisterMode ? "立即注册" : "登录系统")
-                            .bold()
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(brandOrange)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
+                    .background(Color.white.opacity(0.08))
+                    .cornerRadius(12)
+
+                    // 3. 输入框
+                    VStack(spacing: 15) {
+                        AuthInputField(icon: "envelope.fill", placeholder: "邮箱地址", text: $email)
+                        AuthInputField(icon: "lock.fill", placeholder: "访问密码", text: $password, isSecure: true)
+                    }
+
+                    // 错误显示
+                    if let error = authManager.errorMessage {
+                        Text(error).foregroundColor(.red).font(.caption).multilineTextAlignment(.center)
+                    }
+
+                    // 4. 核心登录/注册按钮
+                    Button(action: {
+                        Task {
+                            if isRegisterMode {
+                                await authManager.signUp(email: email, password: password)
+                            } else {
+                                await authManager.signIn(email: email, password: password)
+                            }
+                        }
+                    }) {
+                        if authManager.isLoading {
+                            ProgressView().tint(.white)
+                        } else {
+                            Text(isRegisterMode ? "立即注册" : "登录系统")
+                                .bold()
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(brandOrange)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
                     }
                 }
-                .padding(.horizontal, 30)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 18)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(ApocalypseTheme.cardBackground.opacity(0.88))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(brandOrange.opacity(0.22), lineWidth: 1)
+                )
+                .padding(.horizontal, 16)
 
                 Spacer()
 

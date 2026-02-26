@@ -457,12 +457,17 @@ class ExplorationManager: ObservableObject {
         }
     }
 
-    /// 清空背包（测试用）
-    @available(*, deprecated, message: "仅用于测试，生产环境请使用真实探索流程")
-    func clearBackpack() {
+    /// 清空背包（测试专用）
+    func clearBackpackForTesting() {
         backpackItems.removeAll()
         updateWeight()
         LogDebug("🗑️ 背包已清空")
+    }
+
+    /// 清空背包（兼容旧调用）
+    @available(*, deprecated, message: "仅用于测试，生产环境请使用真实探索流程")
+    func clearBackpack() {
+        clearBackpackForTesting()
     }
 
     // MARK: - Day 20 完善：根据 POI 类型生成随机掉落物品

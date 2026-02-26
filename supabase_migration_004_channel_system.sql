@@ -168,9 +168,14 @@ BEGIN
     VALUES (p_user_id, p_channel_id)
     ON CONFLICT (user_id, channel_id) DO NOTHING;
 
-    -- 更新成员数
+    -- 更新成员数（按真实订阅数回写，避免重复调用造成累加偏差）
     UPDATE public.communication_channels
-    SET member_count = member_count + 1, updated_at = now()
+    SET member_count = (
+            SELECT COUNT(*)
+            FROM public.channel_subscriptions
+            WHERE channel_id = p_channel_id
+        ),
+        updated_at = now()
     WHERE id = p_channel_id;
 END;
 $$;
@@ -189,9 +194,14 @@ BEGIN
     DELETE FROM public.channel_subscriptions
     WHERE user_id = p_user_id AND channel_id = p_channel_id;
 
-    -- 更新成员数（不低于0）
+    -- 更新成员数（按真实订阅数回写）
     UPDATE public.communication_channels
-    SET member_count = GREATEST(member_count - 1, 0), updated_at = now()
+    SET member_count = (
+            SELECT COUNT(*)
+            FROM public.channel_subscriptions
+            WHERE channel_id = p_channel_id
+        ),
+        updated_at = now()
     WHERE id = p_channel_id;
 END;
 $$;

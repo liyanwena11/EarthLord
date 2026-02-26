@@ -169,11 +169,41 @@ class CommunicationManager: ObservableObject {
                     .insert(defaultDevice)
                     .execute()
                 LogInfo("📡 [通讯] ✅ 创建默认对讲机设备成功")
-                await fetchUserDevices()
             } catch {
                 LogError("❌ [通讯] 创建默认设备失败: \(error.localizedDescription)")
             }
+            await fetchUserDevices()
+            return
         }
+
+        // 用户已有设备时，归一化当前设备标记（处理 0 个或多个 is_current=true 的异常数据）
+        let currentMarkedCount = existingDevices.filter(\.isCurrent).count
+        if currentMarkedCount != 1 {
+            guard let preferredDeviceId = preferredCurrentDeviceId(from: existingDevices) else {
+                await fetchUserDevices()
+                return
+            }
+
+            do {
+                try await supabase
+                    .from("communication_devices")
+                    .update(["is_current": false])
+                    .eq("user_id", value: userId.uuidString)
+                    .execute()
+
+                try await supabase
+                    .from("communication_devices")
+                    .update(["is_current": true])
+                    .eq("id", value: preferredDeviceId.uuidString)
+                    .execute()
+
+                LogInfo("📡 [通讯] ✅ 已修复当前设备标记，deviceId=\(preferredDeviceId.uuidString)")
+            } catch {
+                LogError("❌ [通讯] 修复当前设备失败: \(error.localizedDescription)")
+            }
+        }
+
+        await fetchUserDevices()
     }
 
     func initializeUserDevices() async throws {
@@ -354,6 +384,12 @@ class CommunicationManager: ObservableObject {
     }
 
     func subscribeToChannel(userId: UUID, channelId: UUID) async throws {
+        // 避免重复订阅请求（兼容后端旧函数 member_count +1 的历史问题）
+        if isSubscribed(channelId: channelId) || subscribedChannels.contains(where: { $0.channel.id == channelId }) {
+            LogDebug("ℹ️ [频道] 已订阅，跳过重复订阅请求: \(channelId.uuidString)")
+            return
+        }
+
         let params: [String: AnyJSON] = [
             "p_user_id": .string(userId.uuidString),
             "p_channel_id": .string(channelId.uuidString)
@@ -470,12 +506,71 @@ class CommunicationManager: ObservableObject {
             LogInfo("📡 [消息] ✅ 发送成功")
             return true
         } catch {
-            await MainActor.run {
-                self.errorMessage = "发送失败: \(error.localizedDescription)"
-                self.isSendingMessage = false
+            LogWarning("⚠️ [消息] RPC 发送失败，尝试直接写表: \(error.localizedDescription)")
+
+            do {
+                guard let senderId = await currentUserId() else {
+                    throw CommunicationError.notConfigured
+                }
+
+                struct DirectMessageInsertRich: Encodable {
+                    let channel_id: String
+                    let sender_id: String
+                    let sender_callsign: String
+                    let content: String
+                    let metadata: [String: String]
+                }
+
+                struct DirectMessageInsertMinimal: Encodable {
+                    let channel_id: String
+                    let sender_id: String
+                    let content: String
+                }
+
+                let callsign = await fetchCurrentCallsign(userId: senderId) ?? "匿名幸存者"
+                let metadata = ["device_type": deviceType ?? "unknown"]
+
+                do {
+                    let payload = DirectMessageInsertRich(
+                        channel_id: channelId.uuidString,
+                        sender_id: senderId.uuidString,
+                        sender_callsign: callsign,
+                        content: content,
+                        metadata: metadata
+                    )
+
+                    try await supabase
+                        .from("channel_messages")
+                        .insert(payload)
+                        .execute()
+
+                    await MainActor.run { self.isSendingMessage = false }
+                    LogInfo("📡 [消息] ✅ 直接写表发送成功（含 metadata）")
+                    return true
+                } catch {
+                    let payload = DirectMessageInsertMinimal(
+                        channel_id: channelId.uuidString,
+                        sender_id: senderId.uuidString,
+                        content: content
+                    )
+
+                    try await supabase
+                        .from("channel_messages")
+                        .insert(payload)
+                        .execute()
+
+                    await MainActor.run { self.isSendingMessage = false }
+                    LogInfo("📡 [消息] ✅ 直接写表发送成功（最小字段）")
+                    return true
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "发送失败: \(error.localizedDescription)"
+                    self.isSendingMessage = false
+                }
+                LogError("❌ [消息] 发送失败: \(error.localizedDescription)")
+                return false
             }
-            LogError("❌ [消息] 发送失败: \(error.localizedDescription)")
-            return false
         }
     }
 
@@ -637,23 +732,83 @@ class CommunicationManager: ObservableObject {
 
     /// 确保用户订阅了官方频道（强制订阅）
     func ensureOfficialChannelSubscribed(userId: UUID) async {
-        let officialId = CommunicationManager.officialChannelId
-        if subscribedChannels.contains(where: { $0.channel.id == officialId }) {
-            LogInfo("✅ [官方频道] 已订阅")
-            return
+        // 先拉最新订阅状态，避免因本地状态滞后触发重复订阅请求
+        await loadSubscribedChannels(userId: userId)
+
+        // 先确保频道列表已加载，才能按 channelType 精准识别官方频道
+        if channels.isEmpty {
+            await loadPublicChannels()
         }
-        do {
-            try await subscribeToChannel(userId: userId, channelId: officialId)
-            await loadSubscribedChannels(userId: userId)
-            LogInfo("✅ [官方频道] 已自动订阅")
-        } catch {
-            LogError("❌ [官方频道] 订阅失败: \(error)")
+
+        var officialIds = Set(
+            channels
+                .filter { $0.channelType == .official }
+                .map { $0.id }
+        )
+
+        for item in subscribedChannels where item.channel.channelType == .official {
+            officialIds.insert(item.channel.id)
         }
+
+        // 兼容旧数据：如果还没查到官方频道，回退固定 UUID 方案
+        if officialIds.isEmpty {
+            officialIds.insert(CommunicationManager.officialChannelId)
+        }
+
+        var subscribedCount = 0
+        for channelId in officialIds {
+            if isSubscribed(channelId: channelId) || subscribedChannels.contains(where: { $0.channel.id == channelId }) {
+                subscribedCount += 1
+                continue
+            }
+
+            do {
+                try await subscribeToChannel(userId: userId, channelId: channelId)
+                subscribedCount += 1
+                LogInfo("✅ [官方频道] 已自动订阅: \(channelId.uuidString)")
+            } catch {
+                LogError("❌ [官方频道] 订阅失败: \(channelId.uuidString), error=\(error)")
+            }
+        }
+
+        await loadSubscribedChannels(userId: userId)
+        LogInfo("📡 [官方频道] 订阅完成，成功 \(subscribedCount) 个")
     }
 
     /// 判断是否为官方频道
     func isOfficialChannel(_ channelId: UUID) -> Bool {
-        channelId == CommunicationManager.officialChannelId
+        if channelId == CommunicationManager.officialChannelId {
+            return true
+        }
+        if channels.contains(where: { $0.id == channelId && $0.channelType == .official }) {
+            return true
+        }
+        if subscribedChannels.contains(where: { $0.channel.id == channelId && $0.channel.channelType == .official }) {
+            return true
+        }
+        return false
+    }
+
+    /// 频道详情页使用：进入前自动补订阅（主要用于官方频道与异常状态恢复）
+    @discardableResult
+    func ensureChannelSubscribedIfNeeded(userId: UUID, channel: CommunicationChannel) async -> Bool {
+        if isSubscribed(channelId: channel.id) || subscribedChannels.contains(where: { $0.channel.id == channel.id }) {
+            return true
+        }
+
+        await loadSubscribedChannels(userId: userId)
+        if isSubscribed(channelId: channel.id) || subscribedChannels.contains(where: { $0.channel.id == channel.id }) {
+            return true
+        }
+
+        do {
+            try await subscribeToChannel(userId: userId, channelId: channel.id)
+            await loadSubscribedChannels(userId: userId)
+            return true
+        } catch {
+            LogError("❌ [频道] 自动补订阅失败: \(channel.name), error=\(error)")
+            return false
+        }
     }
 
     // MARK: - 消息聚合
@@ -706,6 +861,54 @@ class CommunicationManager: ObservableObject {
                 LogError("❌ [消息聚合] 加载频道 \(channelId) 失败: \(error)")
             }
         }
+    }
+
+    private func preferredCurrentDeviceId(from devices: [CommunicationDevice]) -> UUID? {
+        devices.first(where: { $0.isUnlocked && $0.deviceType == .walkieTalkie })?.id
+            ?? devices.first(where: { $0.isUnlocked && $0.deviceType.canSend })?.id
+            ?? devices.first(where: { $0.isUnlocked })?.id
+            ?? devices.first?.id
+    }
+
+    private func fetchCurrentCallsign(userId: UUID) async -> String? {
+        struct UserProfileCallsign: Decodable { let callsign: String? }
+        struct ProfileUsername: Decodable { let username: String? }
+
+        do {
+            let profiles: [UserProfileCallsign] = try await supabase
+                .from("user_profiles")
+                .select("callsign")
+                .eq("user_id", value: userId.uuidString)
+                .limit(1)
+                .execute()
+                .value
+
+            if let callsign = profiles.first?.callsign?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !callsign.isEmpty {
+                return callsign
+            }
+        } catch {
+            LogDebug("ℹ️ [消息] user_profiles 呼号读取失败，回退 profiles.username")
+        }
+
+        do {
+            let profiles: [ProfileUsername] = try await supabase
+                .from("profiles")
+                .select("username")
+                .eq("id", value: userId.uuidString)
+                .limit(1)
+                .execute()
+                .value
+
+            if let username = profiles.first?.username?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !username.isEmpty {
+                return username
+            }
+        } catch {
+            LogDebug("ℹ️ [消息] profiles.username 读取失败")
+        }
+
+        return nil
     }
 }
 

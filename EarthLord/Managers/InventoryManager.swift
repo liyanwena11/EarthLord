@@ -74,11 +74,15 @@ class InventoryManager: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var itemDefinitions: [String: DBItemDefinition] = [:]
+    @Published var capacityBonus: Int = 0  // Tier权益容量加成
 
     private let supabase = supabaseClient
+    private var currentTierBenefit: TierBenefit?  // 当前应用的Tier权益
+    
+    private let baseMaxCapacity = 100
 
     var totalItemCount: Int { items.reduce(0) { $0 + $1.quantity } }
-    let maxCapacity = 100
+    var maxCapacity: Int { baseMaxCapacity + capacityBonus }
     var capacityPercentage: Double { Double(totalItemCount) / Double(maxCapacity) }
 
     private init() {
@@ -150,8 +154,9 @@ class InventoryManager: ObservableObject {
                 }
             }
 
-            await MainActor.run { self.items = displayItems; self.isLoading = false }
-            LogInfo("✅ [背包] 背包加载完成，共 \(displayItems.count) 种")
+            let finalItems = displayItems
+            await MainActor.run { self.items = finalItems; self.isLoading = false }
+            LogInfo("✅ [背包] 背包加载完成，共 \(finalItems.count) 种")
             // 如果背包为空，添加一些初始物品用于测试
             if displayItems.isEmpty {
                 Task {
@@ -286,5 +291,19 @@ class InventoryManager: ObservableObject {
         if let c = category { result = result.filter { $0.category == c } }
         if !searchText.isEmpty { result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) } }
         return result
+    }
+    
+    // MARK: - Tier Benefits
+    
+    func applyInventoryBenefit(_ benefit: TierBenefit) {
+        currentTierBenefit = benefit
+        capacityBonus = benefit.inventoryCapacityBonus
+        LogDebug("🎒 [背包] 应用Tier权益: 容量加成 = \(capacityBonus) kg, 总容量 = \(maxCapacity) kg")
+    }
+    
+    func resetInventoryBenefit() {
+        currentTierBenefit = nil
+        capacityBonus = 0
+        LogDebug("🎒 [背包] 重置Tier权益: 容量加成 = 0, 总容量 = \(maxCapacity) kg")
     }
 }

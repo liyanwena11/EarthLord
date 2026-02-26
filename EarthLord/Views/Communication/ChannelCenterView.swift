@@ -15,6 +15,8 @@ struct ChannelCenterView: View {
     @State private var selectedTab = 0
     @State private var searchText = ""
     @State private var activeSheet: ChannelSheet?
+    @State private var showErrorAlert = false
+    @State private var errorText = ""
 
     enum ChannelSheet: Identifiable {
         case create
@@ -112,6 +114,11 @@ struct ChannelCenterView: View {
             LogDebug("📡 [频道中心] 收到 channelUnsubscribed 通知，刷新数据")
             loadData()
         }
+        .alert("提示", isPresented: $showErrorAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(errorText)
+        }
     }
 
     // MARK: - Tab Button
@@ -184,7 +191,9 @@ struct ChannelCenterView: View {
     private func channelRow(channel: CommunicationChannel, isSubscribed: Bool) -> some View {
         Button(action: {
             if channel.channelType == .official {
-                activeSheet = .official(channel)
+                Task {
+                    await openOfficialChannel(channel)
+                }
             } else {
                 activeSheet = .detail(channel)
             }
@@ -233,6 +242,29 @@ struct ChannelCenterView: View {
         }
     }
 
+    private func openOfficialChannel(_ channel: CommunicationChannel) async {
+        guard let userId = authManager.currentUser?.id else {
+            await MainActor.run {
+                errorText = "请先登录后访问官方频道"
+                showErrorAlert = true
+            }
+            return
+        }
+
+        let subscribed = await communicationManager.ensureChannelSubscribedIfNeeded(userId: userId, channel: channel)
+        if !subscribed {
+            await MainActor.run {
+                errorText = "官方频道订阅失败，请检查网络后重试"
+                showErrorAlert = true
+            }
+            return
+        }
+
+        await MainActor.run {
+            activeSheet = .official(channel)
+        }
+    }
+
     // MARK: - Empty State
 
     private func emptyStateView(icon: String, title: String, subtitle: String) -> some View {
@@ -263,6 +295,7 @@ struct ChannelCenterView: View {
             }
             LogDebug("📡 [频道中心] 用户ID: \(userId)")
             await communicationManager.loadPublicChannels()
+            await communicationManager.ensureOfficialChannelSubscribed(userId: userId)
             await communicationManager.loadSubscribedChannels(userId: userId)
 
             await MainActor.run {

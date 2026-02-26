@@ -6,7 +6,10 @@ struct SupplyPackDetailView: View {
     let storeProduct: StoreProduct
     @ObservedObject private var storeManager = StoreManager.shared
     @Environment(\.dismiss) private var dismiss
-    
+
+    @State private var showConfirmDialog = false
+    @State private var isPurchasing = false
+
     private let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
     
     var body: some View {
@@ -137,17 +140,23 @@ struct SupplyPackDetailView: View {
     }
     
     // MARK: - Buy Button
-    
+
     private var buyButton: some View {
         Button(action: {
-            Task { await storeManager.purchase(storeProduct.product) }
+            showConfirmDialog = true
         }) {
-            if storeManager.isPurchasing {
+            if isPurchasing {
                 ProgressView()
                     .tint(.black)
                     .frame(height: 56)
                     .frame(maxWidth: .infinity)
-                    .background(brandOrange)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [brandOrange, brandOrange.opacity(0.8)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                     .cornerRadius(12)
             } else {
                 HStack {
@@ -160,11 +169,33 @@ struct SupplyPackDetailView: View {
                 }
                 .frame(height: 56)
                 .frame(maxWidth: .infinity)
-                .background(brandOrange)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [brandOrange, brandOrange.opacity(0.8)]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .cornerRadius(12)
             }
         }
-        .disabled(storeManager.isPurchasing)
+        .disabled(isPurchasing)
+        .confirmationDialog(
+            "确认购买",
+            isPresented: $showConfirmDialog,
+            titleVisibility: .visible
+        ) {
+            Button("取消", role: .cancel) { }
+            Button("确认购买") {
+                isPurchasing = true
+                Task {
+                    await storeManager.purchase(storeProduct.product)
+                    isPurchasing = false
+                }
+            }
+        } message: {
+            Text("确认花费 \(storeProduct.price) 购买 \(supplyPack.name)？\n\n购买后物品将发送到待领取，请及时领取。")
+        }
     }
     
     // MARK: - Helpers
@@ -181,45 +212,78 @@ struct SupplyPackDetailView: View {
     }
     
     private func itemRow(_ item: PackItem, isGuaranteed: Bool) -> some View {
-        HStack(spacing: 12) {
-            // Icon
+        HStack(spacing: 14) {
+            // Icon with gradient background
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(rarityColor(item.rarity).opacity(0.1))
-                    .frame(width: 40, height: 40)
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [rarityColor(item.rarity), rarityColor(item.rarity).opacity(0.6)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 46, height: 46)
+
                 Text(itemIcon(item.itemId))
-                    .font(.headline)
+                    .font(.title3)
             }
-            
+
             // Info
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(item.displayName)
-                    .font(.subheadline)
+                    .font(.subheadline.bold())
                     .foregroundColor(.white)
-                if isGuaranteed {
-                    Text("必得")
-                        .font(.caption2)
-                        .foregroundColor(.green)
-                } else {
-                    Text("随机掉落")
-                        .font(.caption2)
-                        .foregroundColor(.orange)
+
+                HStack(spacing: 8) {
+                    if isGuaranteed {
+                        Label("必得", systemImage: "checkmark.seal.fill")
+                            .font(.caption2.bold())
+                            .foregroundColor(.green)
+                    } else if !item.guaranteed {
+                        Label("概率 \(Int(item.dropRate * 100))%", systemImage: "dice.fill")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
                 }
             }
-            
+
             Spacer()
-            
-            // Rarity indicator
-            VStack(alignment: .trailing, spacing: 2) {
+
+            // Rarity and quantity
+            VStack(alignment: .trailing, spacing: 4) {
                 Text("x\(item.quantity)")
-                    .font(.subheadline.bold())
+                    .font(.title3.bold())
+                    .foregroundColor(.white)
+
+                Text(rarityText(item.rarity))
+                    .font(.caption2.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(rarityColor(item.rarity).opacity(0.2))
                     .foregroundColor(rarityColor(item.rarity))
-                rarityBadge(item.rarity)
+                    .cornerRadius(6)
             }
         }
-        .padding(12)
-        .background(Color.white.opacity(0.06))
-        .cornerRadius(10)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.black.opacity(0.4))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(rarityColor(item.rarity).opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+
+    private func rarityText(_ rarity: String) -> String {
+        switch rarity {
+        case "common": return "普通"
+        case "rare": return "稀有"
+        case "epic": return "史诗"
+        case "legendary": return "传说"
+        default: return "普通"
+        }
     }
     
     private func itemIcon(_ itemId: String) -> String {

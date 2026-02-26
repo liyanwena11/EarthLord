@@ -18,7 +18,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 struct LanguageSettingsView: View {
     @ObservedObject var langManager = LanguageManager.shared
     @Environment(\.dismiss) var dismiss
-    
+    @State private var showRestartAlert = false
+
     // 品牌橙
     let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
 
@@ -26,13 +27,16 @@ struct LanguageSettingsView: View {
         ZStack {
             // 1. 纯黑背景
             Color.black.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 List {
                     Section {
                         ForEach(AppLanguage.allCases) { language in
                             Button(action: {
-                                langManager.currentLanguage = language.rawValue
+                                // 如果选择的是当前语言，不做任何操作
+                                if langManager.currentLanguage != language.rawValue {
+                                    changeLanguage(language.rawValue)
+                                }
                             }) {
                                 HStack {
                                     Text(language.displayName)
@@ -67,13 +71,22 @@ struct LanguageSettingsView: View {
                 }
             }
         }
+        .alert("需要重启应用", isPresented: $showRestartAlert) {
+            Button("好的", role: .cancel) { }
+        } message: {
+            Text("语言更改需要重启应用才能生效。请关闭并重新打开应用。")
+        }
     }
-}
 
-// MARK: - 核心修复：解决 "Value of type 'String' has no member 'localized'"
-extension String {
-    var localized: String {
-        return NSLocalizedString(self, comment: "")
+    private func changeLanguage(_ languageCode: String) {
+        // 保存到 UserDefaults
+        UserDefaults.standard.set(languageCode, forKey: "selected_language")
+        UserDefaults.standard.set([languageCode], forKey: "AppleLanguages")
+
+        LogDebug("🌐 [LanguageSettings] 语言已更改至: \(languageCode)，需要重启应用")
+
+        // 显示重启提示
+        showRestartAlert = true
     }
 }
 

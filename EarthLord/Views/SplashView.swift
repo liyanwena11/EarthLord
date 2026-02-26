@@ -6,17 +6,13 @@
 //
 
 import SwiftUI
+import AVKit
+import UIKit
 
-/// 启动页视图
+/// 启动页视图（带视频背景）
 struct SplashView: View {
-    /// 认证管理器（✅ 修复：shared 单例用 @ObservedObject）
-    @ObservedObject private var authManager = AuthManager.shared
-
     /// 是否显示加载动画
     @State private var isAnimating = false
-
-    /// 加载进度文字
-    @State private var loadingText = "正在初始化..."
 
     /// Logo 缩放动画
     @State private var logoScale: CGFloat = 0.8
@@ -27,14 +23,53 @@ struct SplashView: View {
     /// 是否完成加载
     @Binding var isFinished: Bool
 
+    /// 视频播放器
+    @State private var player: AVPlayer?
+
+    /// 视频循环通知
+    @State private var playerLoopObserver: NSObjectProtocol?
+
+    /// 监听播放失败通知
+    @State private var playerFailureObserver: NSObjectProtocol?
+
+    /// 监听播放器 item 状态
+    @State private var playerItemStatusObserver: NSKeyValueObservation?
+
+    /// 避免 onAppear 重复触发时重复初始化
+    @State private var hasStarted = false
+
+    /// 避免重复结束开屏
+    @State private var hasFinished = false
+
     var body: some View {
         ZStack {
-            // 背景渐变
+            // 1. 视频背景层
+            if let player = player {
+                SplashVideoPlayer(player: player)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                    .ignoresSafeArea()
+            } else {
+                // 视频加载失败时的备用背景
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.10, green: 0.10, blue: 0.18),
+                        Color(red: 0.09, green: 0.13, blue: 0.24),
+                        Color(red: 0.06, green: 0.06, blue: 0.10)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            }
+
+            // 2. 渐变叠加层（让文字更清晰）
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 0.10, green: 0.10, blue: 0.18),
-                    Color(red: 0.09, green: 0.13, blue: 0.24),
-                    Color(red: 0.06, green: 0.06, blue: 0.10)
+                    Color.black.opacity(0.4),
+                    Color.black.opacity(0.1),
+                    Color.black.opacity(0.6)
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -123,7 +158,7 @@ struct SplashView: View {
                     }
 
                     // 加载文字
-                    Text(loadingText)
+                    Text("正在启动系统...")
                         .font(.subheadline)
                         .foregroundColor(ApocalypseTheme.textSecondary)
                 }
@@ -131,9 +166,108 @@ struct SplashView: View {
             }
         }
         .onAppear {
+            guard !hasStarted else { return }
+            hasStarted = true
+            LogDebug("🎬 [SplashView] onAppear 被调用")
+            setupVideo()
             startAnimations()
             simulateLoading()
         }
+        .onDisappear {
+            // 清理播放器
+            player?.pause()
+            player = nil
+            if let observer = playerLoopObserver {
+                NotificationCenter.default.removeObserver(observer)
+                playerLoopObserver = nil
+            }
+            if let observer = playerFailureObserver {
+                NotificationCenter.default.removeObserver(observer)
+                playerFailureObserver = nil
+            }
+            playerItemStatusObserver = nil
+        }
+    }
+
+    // MARK: - 设置视频
+
+    private func setupVideo() {
+        if let url = locateSplashVideoURL() {
+            LogInfo("🎬 [SplashView] 找到启动视频: \(url.path)")
+            setupPlayer(with: url)
+            return
+        }
+        LogWarning("⚠️ [SplashView] 未找到 splash_video.mp4，使用渐变背景")
+    }
+
+    private func locateSplashVideoURL() -> URL? {
+        let candidates: [URL?] = [
+            Bundle.main.url(forResource: "splash_video", withExtension: "mp4"),
+            Bundle.main.url(forResource: "splash_video", withExtension: "mp4", subdirectory: "Resources"),
+            Bundle.main.resourceURL?.appendingPathComponent("splash_video.mp4"),
+            Bundle.main.resourceURL?.appendingPathComponent("Resources/splash_video.mp4"),
+            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("splash_video.mp4")
+        ]
+
+        for url in candidates.compactMap({ $0 }) {
+            if FileManager.default.fileExists(atPath: url.path) {
+                return url
+            }
+        }
+        return nil
+    }
+
+    private func setupPlayer(with url: URL) {
+        let playerItem = AVPlayerItem(url: url)
+
+        self.playerItemStatusObserver = playerItem.observe(\.status, options: [.new]) { item, _ in
+            guard item.status == .failed else { return }
+            let reason = item.error?.localizedDescription ?? "未知错误"
+            DispatchQueue.main.async {
+                LogError("❌ [SplashView] 启动视频播放失败: \(reason)")
+                self.player?.pause()
+                self.player = nil
+            }
+        }
+
+        if let observer = self.playerFailureObserver {
+            NotificationCenter.default.removeObserver(observer)
+            self.playerFailureObserver = nil
+        }
+        self.playerFailureObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemFailedToPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { notification in
+            let reason = (notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error)?
+                .localizedDescription ?? "未知错误"
+            LogError("❌ [SplashView] 启动视频播放中断: \(reason)")
+            self.player?.pause()
+            self.player = nil
+        }
+
+        if let observer = self.playerLoopObserver {
+            NotificationCenter.default.removeObserver(observer)
+            self.playerLoopObserver = nil
+        }
+
+        let avPlayer = AVPlayer(playerItem: playerItem)
+        avPlayer.isMuted = true
+        avPlayer.actionAtItemEnd = .pause
+
+        self.playerLoopObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { _ in
+            LogInfo("✅ [SplashView] 启动视频播放完成")
+            self.finishSplash()
+        }
+
+        self.player = avPlayer
+        avPlayer.play()
+        LogInfo("✅ [SplashView] 启动视频开始播放")
     }
 
     // MARK: - 动画方法
@@ -154,32 +288,44 @@ struct SplashView: View {
     // MARK: - 加载流程
 
     private func simulateLoading() {
-        // 启动时检查会话状态
-        Task {
-            // 第一步：检查用户会话
-            loadingText = "正在检查登录状态..."
-            await authManager.checkSession()
-
-            // 第二步：加载资源
-            try? await Task.sleep(nanoseconds: 800_000_000) // 0.8秒
-            await MainActor.run {
-                loadingText = "正在加载资源..."
-            }
-
-            // 第三步：准备完成
-            try? await Task.sleep(nanoseconds: 800_000_000) // 0.8秒
-            await MainActor.run {
-                loadingText = "准备就绪"
-            }
-
-            // 完成加载，进入下一个页面
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5秒
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    isFinished = true
-                }
-            }
+        LogDebug("🎬 [SplashView] 设置开屏兜底计时器")
+        // 兜底：8 秒内无论如何都结束开屏，避免用户被卡住
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
+            self.finishSplash()
         }
+    }
+
+    private func finishSplash() {
+        guard !hasFinished else { return }
+        hasFinished = true
+        withAnimation(.easeInOut(duration: 0.25)) {
+            isFinished = true
+        }
+        LogInfo("✅ [SplashView] 开屏结束，进入主界面")
+    }
+}
+
+private struct SplashVideoPlayer: UIViewRepresentable {
+    let player: AVPlayer
+
+    func makeUIView(context: Context) -> PlayerView {
+        let view = PlayerView()
+        view.playerLayer.videoGravity = .resizeAspectFill
+        view.playerLayer.player = player
+        return view
+    }
+
+    func updateUIView(_ uiView: PlayerView, context: Context) {
+        uiView.playerLayer.player = player
+    }
+}
+
+private final class PlayerView: UIView {
+    override static var layerClass: AnyClass { AVPlayerLayer.self }
+
+    var playerLayer: AVPlayerLayer {
+        // swiftlint:disable:next force_cast
+        layer as! AVPlayerLayer
     }
 }
 

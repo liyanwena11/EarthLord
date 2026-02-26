@@ -83,7 +83,7 @@ struct Territory: Codable, Identifiable {
 
     /// 经验进度（0.0 ~ 1.0）
     var experienceProgress: Double {
-        guard let exp = experience, let lvl = level else { return 0 }
+        guard let exp = experience, let _ = level else { return 0 }
         let needed = experienceToNextLevel
         return needed > 0 ? min(Double(exp) / Double(needed), 1.0) : 0
     }

@@ -55,7 +55,7 @@ struct TradeCreateView: View {
                     title: isSelectingOffering ? "选择要出售的物品" : "选择想要的物品"
                 )
             }
-            .onChange(of: showItemSelector) { isShowing in
+            .onChange(of: showItemSelector) { _, isShowing in
                 if !isShowing && !tempSelectedItems.isEmpty {
                     if isSelectingOffering {
                         offeringItems = tempSelectedItems
@@ -267,7 +267,7 @@ struct TradeCreateView: View {
         
         await MainActor.run { isLoading = true }
         do {
-            try await TradeManager.shared.createOffer(
+            _ = try await TradeManager.shared.createOffer(
                 offeringItems: offeringItems,
                 requestingItems: requestingItems,
                 message: message.isEmpty ? nil : message,
@@ -285,13 +285,13 @@ struct TradeCreateView: View {
                 // 切换到我的挂单页面
                 selectedTab = .myOffers
             }))
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+            presentAlert(alert)
         } catch {
             LogError("❌ 发布挂单失败: \(error.localizedDescription)")
             // 显示失败提示
             let alert = UIAlertController(title: "失败", message: error.localizedDescription, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+            presentAlert(alert)
             await MainActor.run { isLoading = false }
         }
         await MainActor.run { isLoading = false }

@@ -304,6 +304,16 @@ struct ProductCard: View {
                             itemIcon(item)
                         }
                     }
+
+                    HStack {
+                        Text("保底 \(formatYuan(pack.guaranteedValueYuan))")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("期望 \(formatYuan(pack.totalExpectedValueYuan)) (~\(String(format: "%.1f", pack.valueRatio))x)")
+                            .font(.caption2.bold())
+                            .foregroundColor(.yellow)
+                    }
                 }
                 
                 // Price and buy button
@@ -363,6 +373,10 @@ struct ProductCard: View {
             "metal": "🔩"
         ]
         return icons[itemId] ?? "📦"
+    }
+
+    private func formatYuan(_ amount: Double) -> String {
+        "¥\(Int(amount.rounded()))"
     }
 }
 
@@ -435,6 +449,18 @@ struct DisplayProductCard: View {
                     }
                 }
 
+                if let pack {
+                    HStack {
+                        Text("保底 \(formatYuan(pack.guaranteedValueYuan))")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("期望 \(formatYuan(pack.totalExpectedValueYuan)) (~\(String(format: "%.1f", pack.valueRatio))x)")
+                            .font(.caption2.bold())
+                            .foregroundColor(.yellow)
+                    }
+                }
+
                 // Price and buy button
                 HStack(spacing: 12) {
                     Spacer()
@@ -491,5 +517,8 @@ struct DisplayProductCard: View {
         ]
         return icons[itemName] ?? "📦"
     }
-}
 
+    private func formatYuan(_ amount: Double) -> String {
+        "¥\(Int(amount.rounded()))"
+    }
+}

@@ -11,13 +11,16 @@ struct ProfileTabView: View {
 
     @State private var showDeleteAlert = false
     @State private var deleteConfirmText = ""
-    @State private var showShop = false
+    @State private var showSubscriptionCenter = false
+    @State private var showSupplyStore = false
     @ObservedObject private var mailbox = MailboxManager.shared
+    @ObservedObject private var tierManager = TierManager.shared
 
     // ✅ 添加详情弹窗状态
     @State private var showStatDetail: StatDetailType? = nil
     @State private var showMiniStatDetail: MiniStatDetailType? = nil
     @State private var showJoinDateDetail = false
+    @State private var showAchievementDetail = false
 
     // 头像
     @State private var avatarItem: PhotosPickerItem?
@@ -39,7 +42,16 @@ struct ProfileTabView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                LinearGradient(
+                    colors: [
+                        ApocalypseTheme.background,
+                        Color(red: 0.14, green: 0.10, blue: 0.08),
+                        ApocalypseTheme.background
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
                 VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 0) {
@@ -127,7 +139,7 @@ struct ProfileTabView: View {
                             }
                         }
                         .padding(.vertical, 18)
-                        .background(Color.white.opacity(0.05))
+                        .background(ApocalypseTheme.cardBackground.opacity(0.92))
                         .cornerRadius(14)
                         .padding(.horizontal, 20)
                         .padding(.bottom, 6)
@@ -166,13 +178,77 @@ struct ProfileTabView: View {
                                 .animation(.easeInOut(duration: 0.3), value: backpack.totalWeight)
                         }
                         .padding(14)
-                        .background(Color.white.opacity(0.05))
+                        .background(ApocalypseTheme.cardBackground.opacity(0.92))
                         .cornerRadius(12)
                         .padding(.horizontal, 20)
                         .padding(.bottom, 20)
 
-                        // MARK: - 商城入口
-                        Button(action: { showShop = true }) {
+                        // MARK: - 末日通行证入口
+                        Button(action: { showSubscriptionCenter = true }) {
+                            HStack(spacing: 14) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [ApocalypseTheme.primary.opacity(0.35), Color(red: 0.32, green: 0.24, blue: 0.16)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 48, height: 48)
+
+                                    Image(systemName: "gamecontroller.fill")
+                                        .foregroundColor(ApocalypseTheme.primary)
+                                        .font(.system(size: 20))
+                                }
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("末日通行证")
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(.white)
+
+                                    Text(tierManager.currentTier == .free ? "解锁背包扩容、探索增益与专属权益" : "权益生效中，点击管理通行证")
+                                        .font(.caption)
+                                        .foregroundColor(tierManager.currentTier == .free ? ApocalypseTheme.primary : ApocalypseTheme.success)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(14)
+                            .background(
+                                LinearGradient(
+                                    colors: [ApocalypseTheme.cardBackground.opacity(0.96), Color(red: 0.20, green: 0.13, blue: 0.08).opacity(0.92)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .cornerRadius(14)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [ApocalypseTheme.primary.opacity(0.45), Color.white.opacity(0.10)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 12)
+                        .sheet(isPresented: $showSubscriptionCenter) {
+                            SubscriptionView()
+                                .environmentObject(TierManager.shared)
+                                .environmentObject(StoreManager.shared)
+                        }
+
+                        // MARK: - 物资商城入口 (调整)
+                        Button(action: { showSupplyStore = true }) {
                             HStack(spacing: 14) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
@@ -210,7 +286,16 @@ struct ProfileTabView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 16)
-                        .sheet(isPresented: $showShop) { ShopView() }
+                        .sheet(isPresented: $showSupplyStore) {
+                            SupplyStoreView()
+                                .environmentObject(StoreManager.shared)
+                                .environmentObject(MailboxManager.shared)
+                        }
+
+                        // MARK: - 成就统计模块
+                        AchievementStatsView(showFullLeaderboard: $showAchievementDetail)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 16)
 
                         // MARK: - 菜单
                         VStack(spacing: 1) {
@@ -270,7 +355,7 @@ struct ProfileTabView: View {
                     }
                     .padding(.bottom, 8)
                 }
-                .background(Color.black)
+                .background(ApocalypseTheme.background)
 
                 } // VStack
             }
@@ -296,6 +381,9 @@ struct ProfileTabView: View {
         }
         .sheet(isPresented: $showJoinDateDetail) {
             JoinDateDetailView(daysSinceJoined: daysSinceJoined, joinedDate: authManager.currentUser?.createdAt ?? Date())
+        }
+        .sheet(isPresented: $showAchievementDetail) {
+            CategoryAchievementStatsView()
         }
     }
 
@@ -347,9 +435,9 @@ struct MiniStatCard: View {
                 Text(label).font(.system(size: 9)).foregroundColor(.gray)
             }
             .frame(maxWidth: .infinity).padding(.vertical, 12)
-            .background(color.opacity(0.08))
+            .background(ApocalypseTheme.cardBackground.opacity(0.95))
             .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(color.opacity(0.15), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(color.opacity(0.30), lineWidth: 1))
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -384,7 +472,7 @@ struct MenuRow: View {
             Spacer()
             if !value.isEmpty { Text(value).foregroundColor(.gray).font(.caption) }
             Image(systemName: "chevron.right").font(.caption).foregroundColor(.gray)
-        }.padding().background(Color.black)
+        }.padding().background(ApocalypseTheme.cardBackground.opacity(0.9))
     }
 }
 
@@ -532,32 +620,295 @@ struct JoinDateDetailView: View {
 
 struct TerritoryDetailContent: View {
     @ObservedObject var territoryManager: TerritoryManager
+    @ObservedObject var buildingManager = BuildingManager.shared
+    @State private var selectedTerritory: Territory?
+    @State private var showBuildingSheet = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("已占领 \(territoryManager.myTerritories.count) 个领地")
-                .font(.headline)
+            // 总览卡片
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("已占领领地")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                    Text("\(territoryManager.myTerritories.count) 个")
+                        .font(.title2.bold())
+                        .foregroundColor(.white)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(ApocalypseTheme.cardBackground)
+                .cornerRadius(12)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("可建造建筑")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                    Text("\(buildingManager.playerBuildings.count) 个")
+                        .font(.title2.bold())
+                        .foregroundColor(ApocalypseTheme.success)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(ApocalypseTheme.cardBackground)
+                .cornerRadius(12)
+            }
+            .padding(.bottom, 8)
 
             if territoryManager.myTerritories.isEmpty {
-                Text("尚未占领任何领地")
-                    .foregroundColor(.secondary)
+                // 空状态
+                VStack(spacing: 16) {
+                    Image(systemName: "map")
+                        .font(.system(size: 48))
+                        .foregroundColor(ApocalypseTheme.textMuted)
+
+                    Text("尚未占领任何领地")
+                        .font(.headline)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+
+                    Text("前往地图页面开始圈地，占领你的第一块领地！")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textMuted)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
             } else {
+                // 领地列表
                 ForEach(territoryManager.myTerritories) { territory in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(territory.displayName).font(.subheadline.bold())
-                        Text("面积: \(Int(territory.area)) ㎡")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text("采样点: \(territory.displayPointCount) 个")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(10)
+                    ProfileTerritoryCard(
+                        territory: territory,
+                        buildingCount: buildingManager.playerBuildings.filter { $0.territoryId == territory.id }.count,
+                        onTap: {
+                            selectedTerritory = territory
+                            showBuildingSheet = true
+                        }
+                    )
                 }
             }
         }
+        .sheet(isPresented: $showBuildingSheet) {
+            if let territory = selectedTerritory {
+                TerritoryBuildingSheet(territory: territory)
+            }
+        }
+    }
+}
+
+// MARK: - 领地卡片
+
+struct ProfileTerritoryCard: View {
+    let territory: Territory
+    let buildingCount: Int
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 12) {
+                // 领地信息头部
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(territory.displayName)
+                            .font(.headline)
+                            .foregroundColor(.white)
+
+                        HStack(spacing: 8) {
+                            Label("\(Int(territory.area)) ㎡", systemImage: "square.grid.3x3")
+                                .font(.caption)
+                                .foregroundColor(ApocalypseTheme.textSecondary)
+
+                            Label("\(territory.displayPointCount) 点", systemImage: "mappin.circle")
+                                .font(.caption)
+                                .foregroundColor(ApocalypseTheme.textSecondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    // 等级徽章
+                    if let level = territory.level {
+                        Text("Lv.\(level)")
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(ApocalypseTheme.warning)
+                            .cornerRadius(6)
+                    }
+                }
+
+                Divider()
+                    .background(ApocalypseTheme.textMuted.opacity(0.3))
+
+                // 建造状态
+                HStack {
+                    Image(systemName: "hammer.fill")
+                        .foregroundColor(buildingCount > 0 ? ApocalypseTheme.success : ApocalypseTheme.textMuted)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(buildingCount > 0 ? "已建造 \(buildingCount) 个建筑" : "暂无建筑")
+                            .font(.caption)
+                            .foregroundColor(buildingCount > 0 ? ApocalypseTheme.success : ApocalypseTheme.textSecondary)
+
+                        if buildingCount == 0 {
+                            Text("点击此处开始建造")
+                                .font(.caption2)
+                                .foregroundColor(ApocalypseTheme.warning)
+                        }
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textMuted)
+                }
+            }
+            .padding()
+            .background(ApocalypseTheme.cardBackground)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(ApocalypseTheme.primary.opacity(0.3), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - 领地建造弹窗
+
+struct TerritoryBuildingSheet: View {
+    let territory: Territory
+    @ObservedObject var buildingManager = BuildingManager.shared
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // 领地信息
+                    VStack(spacing: 8) {
+                        Text(territory.displayName)
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+
+                        HStack(spacing: 16) {
+                            Label("\(Int(territory.area)) ㎡", systemImage: "square.grid.3x3")
+                            Label("\(territory.displayPointCount) 点", systemImage: "mappin.circle")
+                            if let level = territory.level {
+                                Label("Lv.\(level)", systemImage: "star.fill")
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                    }
+                    .padding()
+                    .background(ApocalypseTheme.cardBackground)
+                    .cornerRadius(12)
+
+                    // 建筑列表
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("可建造建筑")
+                            .font(.headline)
+                            .foregroundColor(.white)
+
+                        if buildingManager.buildingTemplates.isEmpty {
+                            Text("暂无可建造建筑")
+                                .font(.caption)
+                                .foregroundColor(ApocalypseTheme.textSecondary)
+                        } else {
+                            ForEach(buildingManager.buildingTemplates, id: \.templateId) { template in
+                                BuildingTemplateCard(
+                                    template: template,
+                                    territoryId: territory.id
+                                )
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(ApocalypseTheme.background)
+            .navigationTitle("领地管理")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("关闭") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - 建筑模板卡片
+
+struct BuildingTemplateCard: View {
+    let template: BuildingTemplate
+    let territoryId: String
+    @ObservedObject var buildingManager = BuildingManager.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: template.icon)
+                    .font(.title2)
+                    .foregroundColor(ApocalypseTheme.warning)
+                    .frame(width: 44, height: 44)
+                    .background(ApocalypseTheme.warning.opacity(0.2))
+                    .cornerRadius(10)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(template.name)
+                        .font(.subheadline.bold())
+                        .foregroundColor(.white)
+
+                    Text(template.description)
+                        .font(.caption)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                }
+
+                Spacer()
+            }
+
+            // 资源需求
+            if !template.requiredResources.isEmpty {
+                HStack(spacing: 4) {
+                    Image(systemName: "cube.box.fill")
+                        .font(.caption2)
+                    Text("需要: \(template.requiredResources.values.reduce(0, +)) 资源")
+                        .font(.caption2)
+                        .foregroundColor(ApocalypseTheme.textSecondary)
+                }
+            }
+
+            // 建造按钮
+            Button(action: {
+                Task {
+                    // TODO: 实现建造逻辑
+                }
+            }) {
+                HStack {
+                    Image(systemName: "hammer.fill")
+                    Text("建造")
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(buildingManager.playerBuildings.filter({ $0.territoryId == territoryId && $0.templateId == template.templateId }).count >= template.maxPerTerritory ? ApocalypseTheme.textMuted : ApocalypseTheme.primary)
+                .cornerRadius(10)
+            }
+            .disabled(buildingManager.playerBuildings.filter({ $0.territoryId == territoryId && $0.templateId == template.templateId }).count >= template.maxPerTerritory)
+        }
+        .padding()
+        .background(ApocalypseTheme.cardBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ApocalypseTheme.textMuted.opacity(0.3), lineWidth: 1)
+        )
     }
 }
 

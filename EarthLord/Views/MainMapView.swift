@@ -20,6 +20,13 @@ struct MainMapView: View {
     @State private var explorationResultItems: [BackpackItem] = []
     @State private var explorationResult: ExplorationResult?
 
+    // 游戏规则卡片状态
+    @State private var showExplorationRulesCard = false
+    @State private var showTerritoryRulesCard = false
+
+    // 圈地预览状态
+    @State private var showTerritoryPreview = false
+
     var body: some View {
         ZStack {
             // MARK: - 地图主体
@@ -72,21 +79,39 @@ struct MainMapView: View {
                     }
                 }
             }
-            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
+            .mapStyle(.standard(elevation: .flat))
             .mapControls { MapCompass() }
             .id(mapRefreshTrigger) // ✅ 使用 trigger 强制刷新
             .edgesIgnoringSafeArea(.all)
             .preferredColorScheme(.dark)
 
-            // MARK: - 顶部：雷达 + 圈地状态栏
+            // MARK: - 氛围遮罩（不影响触摸）
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.55),
+                    Color.clear,
+                    Color.black.opacity(0.65)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+
+            // MARK: - 顶部：圈地状态栏
             VStack(spacing: 0) {
-                RadarView(count: engine.nearbyPlayerCount, isExploring: isExploring)
                 if engine.isTracking || !engine.trackingStatusText.isEmpty {
-                    TrackingStatusBar(engine: engine)
+                    TrackingStatusBar(engine: engine) {
+                        showTerritoryPreview = true
+                    }
                 }
                 Spacer()
             }
 
+        }
+        // 圈地预览弹窗
+        .sheet(isPresented: $showTerritoryPreview) {
+            TerritoryPreviewSheet(engine: engine, isPresented: $showTerritoryPreview)
         }
         // 探索中悬浮卡片（overlay 方式，不阻挡地图触摸）
         .overlay(alignment: .bottom) {
@@ -106,8 +131,18 @@ struct MainMapView: View {
             if !isExploring {
                 MapBottomButtons(
                     isTracking: engine.isTracking,
-                    onExplore: startExploration,
+                    onExplore: {
+                        showExplorationRulesCard = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            showExplorationRulesCard = false
+                        }
+                        startExploration()
+                    },
                     onTerritory: {
+                        showTerritoryRulesCard = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            showTerritoryRulesCard = false
+                        }
                         if engine.isTracking { engine.stopTracking() }
                         else { engine.startTracking() }
                     }
@@ -115,6 +150,46 @@ struct MainMapView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
                 .transition(.opacity)
+            }
+        }
+        // 游戏规则卡片（overlay 方式）
+        .overlay(alignment: .top) {
+            VStack {
+                if showExplorationRulesCard {
+                    StatusCardView(
+                        type: .exploration,
+                        isVisible: showExplorationRulesCard,
+                        progress: 0,
+                        message: getExplorationRulesMessage(),
+                        onDismiss: {
+                            withAnimation {
+                                showExplorationRulesCard = false
+                            }
+                        }
+                    )
+                    .padding(.top, 80)
+                    .padding(.horizontal, 16)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                if showTerritoryRulesCard {
+                    StatusCardView(
+                        type: .territory,
+                        isVisible: showTerritoryRulesCard,
+                        progress: engine.isTracking ? 0.3 : 0,
+                        message: getTerritoryRulesMessage(),
+                        onDismiss: {
+                            withAnimation {
+                                showTerritoryRulesCard = false
+                            }
+                        }
+                    )
+                    .padding(.top, 80)
+                    .padding(.horizontal, 16)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                Spacer()
             }
         }
         .task { await loadTerritories() }
@@ -236,6 +311,51 @@ struct MainMapView: View {
             }
         }
     }
+
+    // MARK: - 游戏规则消息
+
+    private func getExplorationRulesMessage() -> String {
+        return """
+        📍 探索模式规则
+
+        【基本说明】
+        • 探索会消耗行走距离（需至少100米）
+        • 行走过程中会随机发现资源和物资
+        • 探索时间越长，发现稀有物品概率越高
+
+        【收益说明】
+        • 食物、水、医疗物资等生存必需品
+        • 工具、材料等建造资源
+        • 可能发现稀有装备和特殊物品
+
+        【注意事项】
+        • 注意管理体力值，避免过度消耗
+        • 探索过程中背包负重会增加
+        • 建议在安全区域进行探索
+        """
+    }
+
+    private func getTerritoryRulesMessage() -> String {
+        return """
+        🏁 圈地模式规则
+
+        【基本说明】
+        • 沿着想要圈定的领地边界行走
+        • 系统会自动记录路径上的采样点
+        • 采样点越多，圈定的领地面积越大
+
+        【完成条件】
+        • 至少需要记录5个采样点（高负重时需8个）
+        • 走回起点附近（25米内）才算闭环
+        • 领地面积大小与采样点数量相关
+
+        【注意事项】
+        • 圈地需要持续移动，停顿不记录点
+        • 已有领地的区域无法再次圈地
+        • 领地建立后可在其中建造建筑
+        • 建筑会持续产出资源
+        """
+    }
 }
 
 // MARK: - 底部双按钮组件
@@ -254,7 +374,7 @@ struct MapBottomButtons: View {
                     Text("开始探索").font(.caption.bold())
                 }
                 .frame(maxWidth: .infinity).frame(height: 64)
-                .background(Color(red: 0.12, green: 0.58, blue: 0.32))
+                .background(Color(red: 0.78, green: 0.36, blue: 0.12))
                 .foregroundColor(.white)
                 .cornerRadius(14)
             }
@@ -277,15 +397,19 @@ struct MapBottomButtons: View {
                     Text(isTracking ? "停止圈地" : "开始圈地").font(.caption.bold())
                 }
                 .frame(maxWidth: .infinity).frame(height: 64)
-                .background(isTracking ? Color.orange : Color.blue)
+                .background(isTracking ? Color.orange : Color(red: 0.20, green: 0.33, blue: 0.45))
                 .foregroundColor(.white)
                 .cornerRadius(14)
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
+        .background(Color(red: 0.10, green: 0.10, blue: 0.12).opacity(0.92))
         .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
         .shadow(color: .black.opacity(0.4), radius: 8, y: 4)
     }
 }
@@ -570,6 +694,7 @@ struct TerritoryAnnotationView: View {
 
 struct TrackingStatusBar: View {
     @ObservedObject var engine: EarthLordEngine
+    var onPreview: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -592,8 +717,18 @@ struct TrackingStatusBar: View {
                                 .background(Color.red.opacity(0.3)).foregroundColor(.red).cornerRadius(3)
                         }
                     }
+
+                    // ✅ 新增：速度和用时显示
                     HStack(spacing: 8) {
                         Text("距离 \(Int(engine.trackingDistance))m")
+                        Text("速度 \(Int(engine.currentSpeed))m/分")
+                            .foregroundColor(.yellow)
+                        Text("用时 \(formatDuration(engine.trackingDuration))")
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    .font(.system(size: 9, design: .monospaced))
+
+                    HStack(spacing: 8) {
                         Text("面积 \(Int(engine.estimatedArea))㎡")
                     }
                     .font(.system(size: 9, design: .monospaced)).foregroundColor(.green)
@@ -604,11 +739,26 @@ struct TrackingStatusBar: View {
 
             Spacer()
 
-            if engine.isTracking && engine.pathPoints.count >= 3 {
+            if engine.isTracking && engine.pathPoints.count >= engine.requiredSamplingPoints {
+                let closureDistance = engine.pathPoints.first.map { start in
+                    start.distance(from: engine.pathPoints.last ?? start)
+                } ?? .greatestFiniteMagnitude
+                let canFinish = closureDistance <= GameConfig.TERRITORY_CLOSE_DISTANCE
+                // 预览按钮
+                if let onPreview = onPreview {
+                    Button("预览") { onPreview() }
+                        .font(.system(size: 12, weight: .bold))
+                        .padding(.horizontal, 12).padding(.vertical, 6)
+                        .background(Color.blue).foregroundColor(.white).cornerRadius(8)
+                }
+                // 完成按钮
                 Button("完成") { engine.forceFinishTracking() }
                     .font(.system(size: 12, weight: .bold))
                     .padding(.horizontal, 12).padding(.vertical, 6)
-                    .background(Color.green).foregroundColor(.black).cornerRadius(8)
+                    .background(canFinish ? Color.green : Color.gray)
+                    .foregroundColor(canFinish ? .black : .white)
+                    .cornerRadius(8)
+                    .disabled(!canFinish)
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
@@ -616,26 +766,12 @@ struct TrackingStatusBar: View {
         .cornerRadius(12)
         .padding(.horizontal)
     }
-}
 
-struct RadarView: View {
-    let count: Int
-    let isExploring: Bool
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(isExploring ? "📡 正在探索周边..." : "SURVIVAL RADAR")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(isExploring ? .yellow : .gray)
-                Text("附近幸存者: \(count) 人").font(.callout).bold().foregroundColor(.white)
-            }
-            Spacer()
-            Circle().fill(isExploring ? Color.yellow : Color.green).frame(width: 10, height: 10)
-        }
-        .padding()
-        .background(Color.black.opacity(0.8))
-        .cornerRadius(15)
-        .padding(.horizontal).padding(.top, 4)
+    // ✅ 新增：格式化用时显示
+    private func formatDuration(_ t: TimeInterval) -> String {
+        let minutes = Int(t) / 60
+        let seconds = Int(t) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }
 
@@ -685,3 +821,161 @@ struct CustomUserLocationArrow: View {
     @State private var pulseOpacity: Double = 1.0
 }
 
+// MARK: - 圈地预览弹窗
+
+struct TerritoryPreviewSheet: View {
+    @ObservedObject var engine: EarthLordEngine
+    @Binding var isPresented: Bool
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color(red: 0.08, green: 0.08, blue: 0.12).ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    // 预览地图
+                    if engine.pathPoints.count >= 3 {
+                        Map {
+                            // 轨迹多边形预览
+                            MapPolygon(coordinates: engine.pathPoints.map { $0.coordinate })
+                                .stroke(Color.green, lineWidth: 3)
+                                .foregroundStyle(Color.green.opacity(0.3))
+
+                            // 起点标记
+                            if let start = engine.pathPoints.first {
+                                Annotation("起点", coordinate: start.coordinate) {
+                                    ZStack {
+                                        Circle().fill(Color.green).frame(width: 16, height: 16)
+                                        Image(systemName: "flag.fill").font(.system(size: 8)).foregroundColor(.white)
+                                    }
+                                }
+                            }
+
+                            // 终点标记
+                            if let end = engine.pathPoints.last, engine.pathPoints.count > 1 {
+                                Annotation("终点", coordinate: end.coordinate) {
+                                    ZStack {
+                                        Circle().fill(Color.red).frame(width: 16, height: 16)
+                                        Image(systemName: "mappin").font(.system(size: 8)).foregroundColor(.white)
+                                    }
+                                }
+                            }
+                        }
+                        .mapStyle(.standard(elevation: .flat))
+                        .frame(height: 300)
+                        .cornerRadius(16)
+                        .padding(.horizontal)
+                    } else {
+                        VStack {
+                            Image(systemName: "map").font(.system(size: 50)).foregroundColor(.gray)
+                            Text("采样点不足，无法预览").foregroundColor(.gray)
+                        }
+                        .frame(height: 200)
+                    }
+
+                    // 统计信息
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("采样点").foregroundColor(.gray)
+                            Spacer()
+                            Text("\(engine.pathPoints.count) 个").foregroundColor(.white)
+                        }
+
+                        HStack {
+                            Text("行走距离").foregroundColor(.gray)
+                            Spacer()
+                            Text("\(Int(engine.trackingDistance)) m").foregroundColor(.white)
+                        }
+
+                        HStack {
+                            Text("预估面积").foregroundColor(.gray)
+                            Spacer()
+                            Text("\(Int(engine.estimatedArea)) ㎡").foregroundColor(.white)
+                        }
+
+                        // 闭合状态
+                        if engine.pathPoints.count >= 2 {
+                            let start = engine.pathPoints.first!
+                            let end = engine.pathPoints.last!
+                            let closureDist = start.distance(from: end)
+
+                            HStack {
+                                Text("起点终点距离").foregroundColor(.gray)
+                                Spacer()
+                                Text("\(Int(closureDist)) m")
+                                    .foregroundColor(closureDist < GameConfig.TERRITORY_CLOSE_DISTANCE ? .green : .orange)
+                            }
+
+                            if closureDist < GameConfig.TERRITORY_CLOSE_DISTANCE {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                                    Text("轨迹已闭合").foregroundColor(.green)
+                                }
+                            } else {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                                    Text("请走回起点完成闭合").foregroundColor(.orange)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+
+                    Spacer()
+
+                    // 底部按钮
+                    VStack(spacing: 12) {
+                        Button {
+                            isPresented = false
+                        } label: {
+                            Text("继续采样")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+
+                        if engine.pathPoints.count >= engine.requiredSamplingPoints {
+                            let closureDistance = engine.pathPoints.first.map { start in
+                                start.distance(from: engine.pathPoints.last ?? start)
+                            } ?? .greatestFiniteMagnitude
+                            let canFinish = closureDistance <= GameConfig.TERRITORY_CLOSE_DISTANCE
+
+                            Button {
+                                guard canFinish else { return }
+                                engine.forceFinishTracking()
+                                isPresented = false
+                            } label: {
+                                Text("确认完成")
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(canFinish ? Color.green : Color.gray)
+                                    .foregroundColor(canFinish ? .black : .white)
+                                    .cornerRadius(12)
+                            }
+                            .disabled(!canFinish)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 30)
+                }
+                .padding(.top, 20)
+            }
+            .navigationTitle("领地预览")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") {
+                        isPresented = false
+                    }
+                }
+            }
+        }
+    }
+}

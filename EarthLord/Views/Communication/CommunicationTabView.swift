@@ -36,15 +36,10 @@ struct CommunicationTabView: View {
             if let userId = authManager.currentUser?.id {
                 Task {
                     await communicationManager.fetchUserDevices()
-
-                    // ✅ 修复：如果没有当前设备，自动创建并设置为对讲机
-                    await MainActor.run {
-                        if communicationManager.currentDevice == nil {
-                            LogDebug("📡 [通讯] 没有当前设备，自动创建对讲机...")
-                            Task {
-                                await communicationManager.ensureDefaultDevice()
-                            }
-                        }
+                    if communicationManager.currentDevice == nil {
+                        LogDebug("📡 [通讯] 没有当前设备，自动创建对讲机...")
+                        await communicationManager.ensureDefaultDevice()
+                        await communicationManager.fetchUserDevices()
                     }
 
                     await communicationManager.ensureOfficialChannelSubscribed(userId: userId)
@@ -138,4 +133,3 @@ struct CommunicationTabView: View {
         }
     }
 }
-
