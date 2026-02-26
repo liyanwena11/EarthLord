@@ -544,7 +544,7 @@ struct TerritoryDetailContent: View {
             } else {
                 ForEach(territoryManager.myTerritories) { territory in
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(territory.name).font(.subheadline.bold())
+                        Text(territory.displayName).font(.subheadline.bold())
                         Text("面积: \(Int(territory.area)) ㎡")
                             .font(.caption)
                             .foregroundColor(.secondary)

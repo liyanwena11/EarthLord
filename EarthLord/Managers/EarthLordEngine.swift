@@ -182,7 +182,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         let centerLat = pathPoints.map { $0.coordinate.latitude }.reduce(0, +) / Double(pathPoints.count)
         let centerLon = pathPoints.map { $0.coordinate.longitude }.reduce(0, +) / Double(pathPoints.count)
 
-        var newTerritory = TerritoryModel(
+        let newTerritory = TerritoryModel(
             id: UUID(),
             lat: centerLat,
             lon: centerLon,
@@ -202,7 +202,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         // 地理逆编码获取街道名
         let centerLocation = CLLocation(latitude: centerLat, longitude: centerLon)
         geocoder.reverseGeocodeLocation(centerLocation) { [weak self] placemarks, error in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 if let placemark = placemarks?.first {
                     let street = placemark.thoroughfare ?? placemark.name ?? placemark.subLocality ?? ""
                     let district = placemark.subLocality ?? placemark.locality ?? ""

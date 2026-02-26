@@ -74,7 +74,7 @@ class CommunicationManager: ObservableObject {
     }
 
     func setCurrentDevice(deviceId: UUID) async throws {
-        guard let userId = await currentUserId() else { throw CommunicationError.notConfigured }
+        _ = await currentUserId()
 
         // 先将所有设备设置为非当前
         for device in devices {
@@ -484,11 +484,11 @@ class CommunicationManager: ObservableObject {
     func startRealtimeSubscription() async {
         await stopRealtimeSubscription()
 
-        realtimeChannel = await supabase.realtimeV2.channel("channel_messages_realtime")
+        realtimeChannel = supabase.realtimeV2.channel("channel_messages_realtime")
 
         guard let channel = realtimeChannel else { return }
 
-        let insertions = await channel.postgresChange(
+        let insertions = channel.postgresChange(
             InsertAction.self,
             table: "channel_messages"
         )
@@ -499,7 +499,7 @@ class CommunicationManager: ObservableObject {
             }
         }
 
-        await channel.subscribe()
+        try? await channel.subscribeWithError()
         LogDebug("📡 [Realtime] 消息订阅已启动")
     }
 

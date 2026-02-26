@@ -252,7 +252,7 @@ class BuildingManager: ObservableObject {
             .eq("id", value: buildingId.uuidString)
             .execute()
 
-        await MainActor.run { self.playerBuildings.remove(at: index) }
+        _ = await MainActor.run { self.playerBuildings.remove(at: index); return index }
         NotificationCenter.default.post(name: .buildingUpdated, object: nil)
         LogInfo("🏗️ [建筑] ✅ 拆除完成: \(building.buildingName)")
     }

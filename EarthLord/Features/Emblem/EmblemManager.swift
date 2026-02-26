@@ -46,8 +46,9 @@ class EmblemManager: ObservableObject {
         }
 
         // TODO: 保存到数据库
-        await MainActor.run {
+        _ = await MainActor.run {
             self.unlockedEmblems.insert(emblemId)
+            return emblemId
         }
 
         LogInfo("🏆 [徽章] 解锁徽章: \(emblem.name)")

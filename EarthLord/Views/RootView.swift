@@ -15,6 +15,12 @@ struct RootView: View {
     /// 认证管理器（✅ 修复：shared 单例用 @ObservedObject）
     @ObservedObject private var authManager = AuthManager.shared
 
+    /// 新手引导管理器
+    @StateObject private var onboardingManager = OnboardingManager.shared
+
+    /// 是否显示新手引导
+    @State private var showOnboarding = false
+
     var body: some View {
         ZStack {
             if !splashFinished {
@@ -29,10 +35,35 @@ struct RootView: View {
                 // 主界面（已登录）
                 MainTabView()
                     .transition(.opacity)
+                    .onAppear {
+                        // 检查是否需要显示新手引导
+                        Task {
+                            await onboardingManager.checkOnboardingStatus()
+                            if onboardingManager.shouldShowOnboarding {
+                                await MainActor.run {
+                                    withAnimation {
+                                        showOnboarding = true
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+
+            // 新手引导覆盖层
+            if showOnboarding {
+                OnboardingView(isShown: $showOnboarding) {
+                    Task {
+                        await onboardingManager.markOnboardingCompleted()
+                    }
+                }
+                .transition(.opacity)
+                .zIndex(999)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: splashFinished)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
+        .animation(.easeInOut(duration: 0.3), value: showOnboarding)
     }
 }
 
