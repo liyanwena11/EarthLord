@@ -228,7 +228,7 @@ struct MarketCategoryButton: View {
             HStack(spacing: 6) {
                 Image(systemName: category.icon)
                     .font(.caption)
-                Text(category.rawValue)
+                Text(LocalizedStringKey(category.rawValue))
                     .font(.caption)
             }
             .foregroundColor(isSelected ? .white : ApocalypseTheme.textSecondary)

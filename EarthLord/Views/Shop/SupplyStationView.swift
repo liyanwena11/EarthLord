@@ -117,7 +117,7 @@ struct SupplyStationView: View {
                             .font(.title3)
                             .foregroundColor(selectedTab == tab ? .orange : .gray)
 
-                        Text(tab.rawValue)
+                        Text(LocalizedStringKey(tab.rawValue))
                             .font(.caption)
                             .foregroundColor(selectedTab == tab ? .white : .gray)
                     }

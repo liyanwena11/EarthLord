@@ -29,7 +29,7 @@ struct TasksTabView: View {
                 // Tab选择器
                 Picker("任务类型", selection: $selectedTab) {
                     ForEach(TaskTab.allCases, id: \.self) { tab in
-                        Label(tab.rawValue, systemImage: tab.icon)
+                        Label(LocalizedStringKey(tab.rawValue), systemImage: tab.icon)
                             .tag(tab)
                     }
                 }
@@ -44,7 +44,7 @@ struct TasksTabView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("任务中心")
+            .navigationTitle("任务中心".localized)
         }
     }
 }

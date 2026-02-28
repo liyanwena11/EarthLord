@@ -46,7 +46,7 @@ struct TradeMainView: View {
                     contentArea
                 }
             }
-            .navigationTitle("交易中心")
+            .navigationTitle("交易中心".localized)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 Task {
@@ -93,7 +93,7 @@ struct TradeMainView: View {
                     VStack(spacing: 4) {
                         Image(systemName: tab.iconName)
                             .font(.system(size: 16))
-                        Text(tab.displayName)
+                        Text(LocalizedStringKey(tab.rawValue))
                             .font(.system(size: 11))
                     }
                     .frame(maxWidth: .infinity)
