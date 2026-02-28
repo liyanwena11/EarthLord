@@ -7,7 +7,7 @@ import SwiftUI
 enum SupplyPackID: String, CaseIterable {
     case survivor  = "com.earthlord.supply.survivor"   // ¥6
     case explorer  = "com.earthlord.supply.explorer"   // ¥18
-    case lord      = "com.earthlord.supply.lord"        // ¥30
+    case lord      = "com.earthlord.supply.lord"        // ¥38
     case overlord  = "com.earthlord.supply.overlord"   // ¥68
 
     var displayName: String {
@@ -64,7 +64,7 @@ enum SupplyPackID: String, CaseIterable {
         switch self {
         case .survivor: return 6
         case .explorer: return 18
-        case .lord: return 30
+        case .lord: return 38
         case .overlord: return 68
         }
     }
@@ -393,7 +393,7 @@ class StoreManager: ObservableObject {
         switch packID {
         case .survivor: return "¥6"
         case .explorer: return "¥18"
-        case .lord: return "¥30"
+        case .lord: return "¥38"
         case .overlord: return "¥68"
         }
     }

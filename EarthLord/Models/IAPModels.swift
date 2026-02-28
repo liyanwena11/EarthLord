@@ -76,7 +76,7 @@ enum IAPProductID: String, CaseIterable {
         switch self {
         case .survivorPack: return "¥6"
         case .explorerPack: return "¥18"
-        case .lordPack: return "¥30"
+        case .lordPack: return "¥38"
         case .overlordPack: return "¥68"
         case .support1m: return "¥8"
         case .support3m: return "¥18"
