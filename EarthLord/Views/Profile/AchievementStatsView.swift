@@ -28,7 +28,7 @@ struct AchievementStatsView: View {
                     .font(.system(size: 20))
                     .foregroundColor(iconBlue)
 
-                Text("成就统计".localized)
+                Text(String(localized: "成就统计"))
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
 
@@ -63,7 +63,7 @@ struct AchievementStatsView: View {
             // 总积分（使用 AchievementManager 的数据）
             AchievementStatRow(
                 icon: "star.fill",
-                title: "成就积分".localized,
+                title: String(localized: "成就积分"),
                 value: "\(achievementManager.totalPoints)",
                 color: iconBlue
             )
@@ -77,7 +77,7 @@ struct AchievementStatsView: View {
             // 解锁数量
             AchievementStatRow(
                 icon: "lock.open.fill",
-                title: "已解锁".localized,
+                title: String(localized: "已解锁"),
                 value: "\(achievementManager.totalUnlocked)",
                 color: iconBlue
             )
@@ -91,7 +91,7 @@ struct AchievementStatsView: View {
             // 完成度
             AchievementStatRow(
                 icon: "percent",
-                title: "完成度".localized,
+                title: String(localized: "完成度"),
                 value: "\(achievementManager.completionPercentage)%",
                 color: iconBlue
             )
@@ -105,7 +105,7 @@ struct AchievementStatsView: View {
             // 当前排名
             AchievementStatRow(
                 icon: "list.number",
-                title: "当前排名".localized,
+                title: String(localized: "当前排名"),
                 value: stats.rankingPosition != nil ? "#\(stats.rankingPosition!)" : "-",
                 color: iconBlue
             )
@@ -117,7 +117,7 @@ struct AchievementStatsView: View {
                 showFullLeaderboard = true
             } label: {
                 HStack {
-                    Text("查看完整排行榜".localized)
+                    Text(String(localized: "查看完整排行榜"))
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
 
@@ -140,7 +140,7 @@ struct AchievementStatsView: View {
                 .font(.system(size: 40))
                 .foregroundColor(.gray)
 
-            Text("暂无成就数据".localized)
+            Text(String(localized: "暂无成就数据"))
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
         }
@@ -244,7 +244,7 @@ struct AchievementLeaderboardDetailView: View {
                 VStack(spacing: 0) {
                     // 顶部标题栏
                     HStack {
-                        Text("成就排行榜".localized)
+                        Text(String(localized: "成就排行榜"))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
@@ -362,7 +362,7 @@ struct AchievementLeaderboardDetailView: View {
                     .font(.system(size: 20))
                     .foregroundColor(iconBlue)
 
-                Text("我的排名".localized)
+                Text(String(localized: "我的排名"))
                     .font(.system(size: 14))
                     .foregroundColor(.white)
 
@@ -538,7 +538,7 @@ struct AchievementLeaderboardEntryRow: View {
 
     private var rankSubtitle: String {
         // 根据当前显示的数据类型显示
-        return "\(entry.totalPoints) " + "积分".localized + " • \(entry.totalAchievements) " + "成就".localized
+        return "\(entry.totalPoints) " + String(localized: "积分") + " • \(entry.totalAchievements) " + String(localized: "成就")
     }
 }
 

@@ -27,7 +27,7 @@ struct BuildingLocationPickerView: View {
                 )
                 .ignoresSafeArea()
             }
-            .navigationTitle("选择建造位置".localized)
+            .navigationTitle(String(localized: "选择建造位置"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

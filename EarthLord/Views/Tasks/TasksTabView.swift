@@ -44,7 +44,7 @@ struct TasksTabView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("任务中心".localized)
+            .navigationTitle(String(localized: "任务中心"))
         }
     }
 }

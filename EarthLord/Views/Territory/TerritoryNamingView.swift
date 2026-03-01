@@ -100,7 +100,7 @@ struct TerritoryNamingView: View {
             }
             .padding()
             .background(ApocalypseTheme.background)
-            .navigationTitle("领地命名".localized)
+            .navigationTitle(String(localized: "领地命名"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

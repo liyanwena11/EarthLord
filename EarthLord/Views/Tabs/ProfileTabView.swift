@@ -80,7 +80,7 @@ struct ProfileTabView: View {
 
                             // 标签 + 名字
                             VStack(spacing: 4) {
-                                Text("幸存者档案".localized)
+                                Text(String(localized: "幸存者档案"))
                                     .font(.caption).foregroundColor(brandOrange)
                                     .padding(.horizontal, 10).padding(.vertical, 3)
                                     .background(brandOrange.opacity(0.12))
@@ -147,15 +147,15 @@ struct ProfileTabView: View {
                         // MARK: - 背包详情
                         HStack(spacing: 12) {
                             MiniStatCard(icon: "archivebox.fill", color: .orange,
-                                         label: "物品种类".localized, value: "\(backpack.backpackItems.count) " + "种".localized) {
+                                         label: String(localized: "物品种类"), value: "\(backpack.backpackItems.count) " + String(localized: "种")) {
                                 showMiniStatDetail = .itemTypes
                             }
                             MiniStatCard(icon: "shippingbox.fill", color: .blue,
-                                         label: "物品数量".localized, value: "\(backpack.backpackItems.reduce(0) { $0 + $1.quantity }) " + "件".localized) {
+                                         label: String(localized: "物品数量"), value: "\(backpack.backpackItems.reduce(0) { $0 + $1.quantity }) " + String(localized: "件")) {
                                 showMiniStatDetail = .itemCount
                             }
                             MiniStatCard(icon: "mappin.circle.fill", color: .green,
-                                         label: "附近资源".localized, value: "\(engine.nearbyPOIs.count) " + "处".localized) {
+                                         label: String(localized: "附近资源"), value: "\(engine.nearbyPOIs.count) " + String(localized: "处")) {
                                 showMiniStatDetail = .nearbyPOIs
                             }
                         }
@@ -166,7 +166,7 @@ struct ProfileTabView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Image(systemName: "scalemass.fill").foregroundColor(.orange).font(.caption)
-                                Text("背包容量".localized).font(.caption).foregroundColor(.gray)
+                                Text(String(localized: "背包容量")).font(.caption).foregroundColor(.gray)
                                 Spacer()
                                 Text("\(String(format: "%.1f", backpack.totalWeight)) / \(Int(backpack.maxCapacity)) kg")
                                     .font(.caption.bold()).foregroundColor(capacityColor)
@@ -203,7 +203,7 @@ struct ProfileTabView: View {
                                 }
 
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text("末日通行证".localized)
+                                    Text(String(localized: "末日通行证"))
                                         .font(.subheadline.bold())
                                         .foregroundColor(.white)
 
@@ -259,7 +259,7 @@ struct ProfileTabView: View {
                                         .font(.system(size: 18))
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("物资商城".localized)
+                                    Text(String(localized: "物资商城"))
                                         .font(.subheadline.bold())
                                         .foregroundColor(.white)
                                     Text(mailbox.hasPendingItems ? "📬 \(mailbox.pendingCount) 件物资待领取" : "购买物资补给包")
@@ -339,7 +339,7 @@ struct ProfileTabView: View {
                 VStack(spacing: 12) {
                     Divider().background(Color.white.opacity(0.1))
                     Button(action: { Task { await authManager.signOut() } }) {
-                        Text("退出登录".localized)
+                        Text(String(localized: "退出登录"))
                             .font(.headline)
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.red).foregroundColor(.white).cornerRadius(12)
@@ -349,7 +349,7 @@ struct ProfileTabView: View {
                     Button(action: { showDeleteAlert = true }) {
                         HStack {
                             Image(systemName: "trash")
-                            Text("删除账号".localized)
+                            Text(String(localized: "删除账号"))
                         }
                         .font(.footnote).foregroundColor(.gray)
                     }
@@ -370,7 +370,7 @@ struct ProfileTabView: View {
             }
             Button("取消", role: .cancel) { deleteConfirmText = "" }
         } message: {
-            Text("警告：此操作不可逆！您的所有数据将被永久删除。".localized)
+            Text(String(localized: "警告：此操作不可逆！您的所有数据将被永久删除。"))
         }
         // ✅ 添加详情弹窗
         .sheet(item: $showStatDetail) { detailType in
@@ -486,9 +486,9 @@ enum StatDetailType: String, Identifiable {
 
     var localizedDisplayName: String {
         switch self {
-        case .territories: return "领地详情".localized
-        case .backpack: return "背包详情".localized
-        case .survivors: return "附近幸存者".localized
+        case .territories: return String(localized: "领地详情")
+        case .backpack: return String(localized: "背包详情")
+        case .survivors: return String(localized: "附近幸存者")
         }
     }
 }
@@ -501,9 +501,9 @@ enum MiniStatDetailType: String, Identifiable {
 
     var localizedDisplayName: String {
         switch self {
-        case .itemTypes: return "物品种类".localized
-        case .itemCount: return "物品数量".localized
-        case .nearbyPOIs: return "附近资源".localized
+        case .itemTypes: return String(localized: "物品种类")
+        case .itemCount: return String(localized: "物品数量")
+        case .nearbyPOIs: return String(localized: "附近资源")
         }
     }
 }
@@ -588,22 +588,22 @@ struct JoinDateDetailView: View {
                     .font(.system(size: 60))
                     .foregroundColor(.green)
 
-                Text("加入 EarthLord".localized)
+                Text(String(localized: "加入 EarthLord"))
                     .font(.title2.bold())
 
                 VStack(spacing: 8) {
                     HStack {
-                        Text("加入时间:".localized)
+                        Text(String(localized: "加入时间:"))
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(formatDate(joinedDate))
                             .bold()
                     }
                     HStack {
-                        Text("已生存:".localized)
+                        Text(String(localized: "已生存:"))
                             .foregroundColor(.secondary)
                         Spacer()
-                        Text("\(daysSinceJoined) " + "天".localized)
+                        Text("\(daysSinceJoined) " + String(localized: "天"))
                             .bold()
                     }
                 }
@@ -645,10 +645,10 @@ struct TerritoryDetailContent: View {
             // 总览卡片
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("已占领领地".localized)
+                    Text(String(localized: "已占领领地"))
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textSecondary)
-                    Text("\(territoryManager.myTerritories.count) " + "个".localized)
+                    Text("\(territoryManager.myTerritories.count) " + String(localized: "个"))
                         .font(.title2.bold())
                         .foregroundColor(.white)
                 }
@@ -658,10 +658,10 @@ struct TerritoryDetailContent: View {
                 .cornerRadius(12)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("可建造建筑".localized)
+                    Text(String(localized: "可建造建筑"))
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textSecondary)
-                    Text("\(buildingManager.playerBuildings.count) " + "个".localized)
+                    Text("\(buildingManager.playerBuildings.count) " + String(localized: "个"))
                         .font(.title2.bold())
                         .foregroundColor(ApocalypseTheme.success)
                 }
@@ -679,11 +679,11 @@ struct TerritoryDetailContent: View {
                         .font(.system(size: 48))
                         .foregroundColor(ApocalypseTheme.textMuted)
 
-                    Text("尚未占领任何领地".localized)
+                    Text(String(localized: "尚未占领任何领地"))
                         .font(.headline)
                         .foregroundColor(ApocalypseTheme.textSecondary)
 
-                    Text("前往地图页面开始圈地，占领你的第一块领地！".localized)
+                    Text(String(localized: "前往地图页面开始圈地，占领你的第一块领地！"))
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textMuted)
                         .multilineTextAlignment(.center)
@@ -721,9 +721,9 @@ struct ProfileTerritoryCard: View {
 
     private var buildingStatusText: String {
         if buildingCount > 0 {
-            return "已建造".localized + " \(buildingCount) " + "个".localized + "建筑".localized
+            return String(localized: "已建造") + " \(buildingCount) " + String(localized: "个") + String(localized: "建筑")
         } else {
-            return "暂无建筑".localized
+            return String(localized: "暂无建筑")
         }
     }
 
@@ -776,7 +776,7 @@ struct ProfileTerritoryCard: View {
                             .foregroundColor(buildingCount > 0 ? ApocalypseTheme.success : ApocalypseTheme.textSecondary)
 
                         if buildingCount == 0 {
-                            Text("点击此处开始建造".localized)
+                            Text(String(localized: "点击此处开始建造"))
                                 .font(.caption2)
                                 .foregroundColor(ApocalypseTheme.warning)
                         }
@@ -834,12 +834,12 @@ struct TerritoryBuildingSheet: View {
 
                     // 建筑列表
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("可建造建筑".localized)
+                        Text(String(localized: "可建造建筑"))
                             .font(.headline)
                             .foregroundColor(.white)
 
                         if buildingManager.buildingTemplates.isEmpty {
-                            Text("暂无可建造建筑".localized)
+                            Text(String(localized: "暂无可建造建筑"))
                                 .font(.caption)
                                 .foregroundColor(ApocalypseTheme.textSecondary)
                         } else {
@@ -901,7 +901,7 @@ struct BuildingTemplateCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: "cube.box.fill")
                         .font(.caption2)
-                    Text("需要:".localized + " \(template.requiredResources.values.reduce(0, +)) " + "资源".localized)
+                    Text(String(localized: "需要:") + " \(template.requiredResources.values.reduce(0, +)) " + String(localized: "资源"))
                         .font(.caption2)
                         .foregroundColor(ApocalypseTheme.textSecondary)
                 }
@@ -915,7 +915,7 @@ struct BuildingTemplateCard: View {
             }) {
                 HStack {
                     Image(systemName: "hammer.fill")
-                    Text("建造".localized)
+                    Text(String(localized: "建造"))
                 }
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
@@ -941,12 +941,12 @@ struct BackpackDetailContent: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("背包容量使用情况".localized)
+            Text(String(localized: "背包容量使用情况"))
                 .font(.headline)
 
             HStack {
                 VStack(alignment: .leading) {
-                    Text("当前负重".localized)
+                    Text(String(localized: "当前负重"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(String(format: "%.1f kg", backpack.totalWeight))
@@ -954,7 +954,7 @@ struct BackpackDetailContent: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing) {
-                    Text("最大容量".localized)
+                    Text(String(localized: "最大容量"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text("\(Int(backpack.maxCapacity)) kg")
@@ -965,7 +965,7 @@ struct BackpackDetailContent: View {
             .background(Color.gray.opacity(0.1))
             .cornerRadius(10)
 
-            Text("提示: 探索时可获得物资，请注意背包负重。".localized)
+            Text(String(localized: "提示: 探索时可获得物资，请注意背包负重。"))
                 .font(.caption)
                 .foregroundColor(.orange)
         }
@@ -977,7 +977,7 @@ struct SurvivorsDetailContent: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("附近幸存者说明".localized)
+            Text(String(localized: "附近幸存者说明"))
                 .font(.headline)
 
             HStack(spacing: 15) {
@@ -985,9 +985,9 @@ struct SurvivorsDetailContent: View {
                     .font(.system(size: 40))
                     .foregroundColor(.blue)
                 VStack(alignment: .leading) {
-                    Text("附近幸存者: \(count) " + "人".localized)
+                    Text("附近幸存者: \(count) " + String(localized: "人"))
                         .font(.title2.bold())
-                    Text("雷达扫描范围内的其他幸存者".localized)
+                    Text(String(localized: "雷达扫描范围内的其他幸存者"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

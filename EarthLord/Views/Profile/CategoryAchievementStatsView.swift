@@ -31,7 +31,7 @@ struct CategoryAchievementStatsView: View {
                     VStack(spacing: 0) {
                         // 标题栏
                         HStack {
-                            Text("详细统计".localized)
+                            Text(String(localized: "详细统计"))
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
 
@@ -138,7 +138,7 @@ struct CategoryModuleCard: View {
                     .font(.system(size: 18))
                     .foregroundColor(iconColor)
 
-                Text("\(category.displayName)" + "统计".localized)
+                Text("\(category.displayName)" + String(localized: "统计"))
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
             }
@@ -150,7 +150,7 @@ struct CategoryModuleCard: View {
             VStack(spacing: 0) {
                 // 积分
                 CategoryStatRow(
-                    label: "成就积分".localized,
+                    label: String(localized: "成就积分"),
                     value: "\(stats.points)"
                 )
                 .padding(.horizontal, 16)
@@ -162,7 +162,7 @@ struct CategoryModuleCard: View {
 
                 // 解锁数量
                 CategoryStatRow(
-                    label: "已解锁".localized,
+                    label: String(localized: "已解锁"),
                     value: "\(stats.achievements)"
                 )
                 .padding(.horizontal, 16)
@@ -174,7 +174,7 @@ struct CategoryModuleCard: View {
 
                 // 当前排名
                 CategoryStatRow(
-                    label: "当前排名".localized,
+                    label: String(localized: "当前排名"),
                     value: stats.ranking != nil ? "#\(stats.ranking!)" : "-"
                 )
                 .padding(.horizontal, 16)

@@ -25,10 +25,10 @@ struct DeviceManagementView: View {
                 VStack(spacing: 12) {
                     // 标题
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("设备管理".localized)
+                        Text(String(localized: "设备管理"))
                             .font(.headline)
                             .foregroundColor(ApocalypseTheme.textPrimary)
-                        Text("选择通讯设备，不同设备有不���覆盖范围".localized)
+                        Text(String(localized: "选择通讯设备，不同设备有不���覆盖范围"))
                             .font(.caption)
                             .foregroundColor(ApocalypseTheme.textMuted)
                     }
@@ -68,8 +68,8 @@ struct DeviceManagementView: View {
             CallsignSettingsSheet()
                 .environmentObject(authManager)
         }
-        .alert("提示".localized, isPresented: $showInfoAlert) {
-            Button("确定".localized, role: .cancel) {}
+        .alert(String(localized: "提示"), isPresented: $showInfoAlert) {
+            Button(String(localized: "确定"), role: .cancel) {}
         } message: {
             Text(infoText)
         }
@@ -82,7 +82,7 @@ struct DeviceManagementView: View {
             // 当前设备
             if let current = communicationManager.currentDevice {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("当前设备".localized)
+                    Text(String(localized: "当前设备"))
                         .font(.subheadline.bold())
                         .foregroundColor(ApocalypseTheme.textPrimary)
                         .padding(.horizontal)
@@ -92,7 +92,7 @@ struct DeviceManagementView: View {
                     .padding(.horizontal)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("所有设备".localized)
+                    Text(String(localized: "所有设备"))
                         .font(.subheadline.bold())
                         .foregroundColor(ApocalypseTheme.textPrimary)
                 }
@@ -123,7 +123,7 @@ struct DeviceManagementView: View {
 
         guard isUnlocked else {
             await MainActor.run {
-                infoText = "该设备尚未解锁：".localized + type.unlockRequirement
+                infoText = String(localized: "该设备尚未解锁：") + type.unlockRequirement
                 showInfoAlert = true
             }
             return
@@ -141,13 +141,13 @@ struct DeviceManagementView: View {
                 try await communicationManager.setCurrentDevice(deviceId: created.id)
             } else {
                 await MainActor.run {
-                    infoText = "设备记录初始化失败，请重试".localized
+                    infoText = String(localized: "设备记录初始化失败，请重试")
                     showInfoAlert = true
                 }
             }
         } catch {
             await MainActor.run {
-                infoText = "切换设备失败：".localized + error.localizedDescription
+                infoText = String(localized: "切换设备失败：") + error.localizedDescription
                 showInfoAlert = true
             }
         }
@@ -179,14 +179,14 @@ struct DeviceManagementView: View {
                 Image(systemName: "lock.fill")
                     .foregroundColor(ApocalypseTheme.textMuted)
             } else if isCurrent {
-                Text("使用中".localized)
+                Text(String(localized: "使用中"))
                     .font(.caption2.bold())
                     .foregroundColor(ApocalypseTheme.primary)
                     .padding(.horizontal, 8).padding(.vertical, 4)
                     .background(ApocalypseTheme.primary.opacity(0.15))
                     .cornerRadius(6)
             } else {
-                Text("切换".localized)
+                Text(String(localized: "切换"))
                     .font(.caption2.bold())
                     .foregroundColor(.orange)
                     .padding(.horizontal, 8).padding(.vertical, 4)
@@ -213,10 +213,10 @@ struct DeviceManagementView: View {
                     .foregroundColor(ApocalypseTheme.primary)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("呼号设置".localized)
+                    Text(String(localized: "呼号设置"))
                         .font(.headline)
                         .foregroundColor(ApocalypseTheme.textPrimary)
-                    Text("设置您的电台身份标识".localized)
+                    Text(String(localized: "设置您的电台身份标识"))
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textMuted)
                 }

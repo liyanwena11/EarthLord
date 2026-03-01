@@ -118,7 +118,7 @@ struct AchievementsView: View {
 
     private var navigationBar: some View {
         HStack {
-            Text("成就".localized)
+            Text(String(localized: "成就"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
 
@@ -155,7 +155,7 @@ struct AchievementsView: View {
                     // 解锁数量
                     AchievementStatCard(
                         icon: "trophy.fill",
-                        title: "已解锁".localized,
+                        title: String(localized: "已解锁"),
                         value: "\(manager.totalUnlocked)",
                         subtitle: "/\(manager.achievements.count)",
                         color: Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255)
@@ -164,7 +164,7 @@ struct AchievementsView: View {
                     // 完成度
                     AchievementStatCard(
                         icon: "percent",
-                        title: "完成度".localized,
+                        title: String(localized: "完成度"),
                         value: "\(manager.completionPercentage)%",
                         subtitle: "",
                         color: Color(red: 0x00/255, green: 0xFF/255, blue: 0x88/255)
@@ -173,7 +173,7 @@ struct AchievementsView: View {
                     // 总积分
                     AchievementStatCard(
                         icon: "star.fill",
-                        title: "总积分".localized,
+                        title: String(localized: "总积分"),
                         value: "\(manager.totalPoints)",
                         subtitle: "",
                         color: Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
@@ -192,7 +192,7 @@ struct AchievementsView: View {
             HStack(spacing: 8) {
                 CategoryFilterChip(
                     icon: "square.grid.2x2",
-                    title: "全部".localized,
+                    title: String(localized: "全部"),
                     count: manager.achievements.count,
                     isSelected: selectedCategory == nil
                 ) {
@@ -477,7 +477,7 @@ struct AchievementCardEnhanced: View {
                     Image(systemName: "gift.fill")
                         .font(.system(size: 10))
 
-                    Text("已获得奖励".localized)
+                    Text(String(localized: "已获得奖励"))
                         .font(.system(size: 11))
                 }
                 .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
@@ -571,7 +571,7 @@ struct AchievementDetailPopup: View {
                     // 进度
                     if !achievement.isUnlocked {
                         VStack(spacing: 8) {
-                            Text("进度".localized + ": \(achievement.progressPercentage)%")
+                            Text(String(localized: "进度") + ": \(achievement.progressPercentage)%")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(achievement.category.color)
 
@@ -587,7 +587,7 @@ struct AchievementDetailPopup: View {
 
                     // 奖励
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("奖励".localized)
+                        Text(String(localized: "奖励"))
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
 
@@ -596,7 +596,7 @@ struct AchievementDetailPopup: View {
                                 HStack {
                                     Image(systemName: "shield.fill")
                                         .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
-                                    Text("专属徽章".localized)
+                                    Text(String(localized: "专属徽章"))
                                         .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
                                     Spacer()
                                 }
@@ -606,7 +606,7 @@ struct AchievementDetailPopup: View {
                                 HStack {
                                     Image(systemName: "crown.fill")
                                         .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
-                                    Text("称号".localized + ": \(title)")
+                                    Text(String(localized: "称号") + ": \(title)")
                                         .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
                                     Spacer()
                                 }
@@ -616,7 +616,7 @@ struct AchievementDetailPopup: View {
                                 HStack {
                                     Image(systemName: "star.fill")
                                         .foregroundColor(iconBlue)
-                                    Text("\(achievement.reward.experience) " + "经验".localized)
+                                    Text("\(achievement.reward.experience) " + String(localized: "经验"))
                                         .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
                                     Spacer()
                                 }
@@ -657,11 +657,11 @@ struct EmptyAchievementsView: View {
                 .font(.system(size: 60))
                 .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
 
-            Text("暂无成就".localized)
+            Text(String(localized: "暂无成就"))
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
 
-            Text("完成特定目标可解锁成就".localized)
+            Text(String(localized: "完成特定目标可解锁成就"))
                 .font(.system(size: 14))
                 .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
         }
@@ -679,10 +679,10 @@ enum AchievementStatusFilter: CaseIterable {
 
     var displayName: String {
         switch self {
-        case .all: return "全部".localized
-        case .unlocked: return "已解锁".localized
-        case .inProgress: return "进行中".localized
-        case .notStarted: return "未开始".localized
+        case .all: return String(localized: "全部")
+        case .unlocked: return String(localized: "已解锁")
+        case .inProgress: return String(localized: "进行中")
+        case .notStarted: return String(localized: "未开始")
         }
     }
 }
@@ -722,7 +722,7 @@ struct DifficultyFilterSheet: View {
                 VStack(spacing: 12) {
                     // 全部
                     DifficultyOptionRow(
-                        title: "全部难度".localized,
+                        title: String(localized: "全部难度"),
                         icon: "square.grid.2x2",
                         isSelected: selectedDifficulty == nil
                     ) {
@@ -750,11 +750,11 @@ struct DifficultyFilterSheet: View {
                 .padding()
             }
             .background(Color(red: 0x12/255, green: 0x18/255, blue: 0x26/255))
-            .navigationTitle("筛选难度".localized)
+            .navigationTitle(String(localized: "筛选难度"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成".localized) {
+                    Button(String(localized: "完成")) {
                         dismiss()
                     }
                     .foregroundColor(.yellow)

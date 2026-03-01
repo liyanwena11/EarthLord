@@ -65,7 +65,7 @@ struct BuildingPlacementView: View {
                     .padding()
                 }
             }
-            .navigationTitle("确认建造".localized)
+            .navigationTitle(String(localized: "确认建造"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

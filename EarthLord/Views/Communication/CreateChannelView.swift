@@ -165,7 +165,7 @@ struct CreateChannelView: View {
                     .padding()
                 }
             }
-            .navigationTitle("创建新频道".localized)
+            .navigationTitle(String(localized: "创建新频道"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

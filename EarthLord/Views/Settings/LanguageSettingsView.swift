@@ -64,7 +64,7 @@ struct LanguageSettingsView: View {
                                 .listRowBackground(Color.white.opacity(0.05))
                             }
                         } header: {
-                            Text("选择语言".localized)
+                            Text(String(localized: "选择语言"))
                                 .foregroundColor(.gray)
                         }
                     }
@@ -73,7 +73,7 @@ struct LanguageSettingsView: View {
                 }
             }
         }
-        .navigationTitle("语言设置".localized)
+        .navigationTitle(String(localized: "语言设置"))
         .navigationBarTitleDisplayMode(.inline)
         // 顶部返回按钮颜色
         .toolbar {

@@ -18,10 +18,10 @@ enum DeviceType: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .radio: return "收音机".localized
-        case .walkieTalkie: return "对讲机".localized
-        case .campRadio: return "营地电台".localized
-        case .satellite: return "卫星通讯".localized
+        case .radio: return String(localized: "收音机")
+        case .walkieTalkie: return String(localized: "对讲机")
+        case .campRadio: return String(localized: "营地电台")
+        case .satellite: return String(localized: "卫星通讯")
         }
     }
 
@@ -36,10 +36,10 @@ enum DeviceType: String, Codable, CaseIterable {
 
     var description: String {
         switch self {
-        case .radio: return "只能接收信号，无法发送消息".localized
-        case .walkieTalkie: return "可在3公里范围内通讯".localized
-        case .campRadio: return "可在30公里范围内广播".localized
-        case .satellite: return "可在100公里+范围内联络".localized
+        case .radio: return String(localized: "只能接收信号，无法发送消息")
+        case .walkieTalkie: return String(localized: "可在3公里范围内通讯")
+        case .campRadio: return String(localized: "可在30公里范围内广播")
+        case .satellite: return String(localized: "可在100公里+范围内联络")
         }
     }
 
@@ -54,10 +54,10 @@ enum DeviceType: String, Codable, CaseIterable {
 
     var rangeText: String {
         switch self {
-        case .radio: return "无限制（仅接收）".localized
-        case .walkieTalkie: return "3 公里".localized
-        case .campRadio: return "30 公里".localized
-        case .satellite: return "100+ 公里".localized
+        case .radio: return String(localized: "无限制（仅接收）")
+        case .walkieTalkie: return String(localized: "3 公里")
+        case .campRadio: return String(localized: "30 公里")
+        case .satellite: return String(localized: "100+ 公里")
         }
     }
 
@@ -65,9 +65,9 @@ enum DeviceType: String, Codable, CaseIterable {
 
     var unlockRequirement: String {
         switch self {
-        case .radio, .walkieTalkie: return "默认拥有".localized
-        case .campRadio: return "需建造「营地电台」建筑".localized
-        case .satellite: return "需建造「通讯塔」建筑".localized
+        case .radio, .walkieTalkie: return String(localized: "默认拥有")
+        case .campRadio: return String(localized: "需建造「营地电台」建筑")
+        case .satellite: return String(localized: "需建造「通讯塔」建筑")
         }
     }
 }
@@ -106,10 +106,10 @@ enum CommunicationSection: String, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .channels: return "频道".localized
-        case .messages: return "消息".localized
-        case .call: return "呼叫".localized
-        case .devices: return "设备".localized
+        case .channels: return String(localized: "频道")
+        case .messages: return String(localized: "消息")
+        case .call: return String(localized: "呼叫")
+        case .devices: return String(localized: "设备")
         }
     }
 
@@ -134,11 +134,11 @@ enum ChannelType: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .official: return "官方频道".localized
-        case .publicChannel: return "公开频道".localized
-        case .walkie: return "对讲频道".localized
-        case .camp: return "营地频道".localized
-        case .satellite: return "卫星频道".localized
+        case .official: return String(localized: "官方频道")
+        case .publicChannel: return String(localized: "公开频道")
+        case .walkie: return String(localized: "对讲频道")
+        case .camp: return String(localized: "营地频道")
+        case .satellite: return String(localized: "卫星频道")
         }
     }
 
@@ -154,10 +154,10 @@ enum ChannelType: String, Codable, CaseIterable {
 
     var rangeText: String {
         switch self {
-        case .official, .publicChannel: return "全局".localized
-        case .walkie: return "3 公里".localized
-        case .camp: return "30 公里".localized
-        case .satellite: return "100+ 公里".localized
+        case .official, .publicChannel: return String(localized: "全局")
+        case .walkie: return String(localized: "3 公里")
+        case .camp: return String(localized: "30 公里")
+        case .satellite: return String(localized: "100+ 公里")
         }
     }
 
@@ -183,10 +183,10 @@ enum MessageCategory: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .survival: return "生存指南".localized
-        case .news: return "游戏资讯".localized
-        case .mission: return "任务发布".localized
-        case .alert: return "紧急广播".localized
+        case .survival: return String(localized: "生存指南")
+        case .news: return String(localized: "游戏资讯")
+        case .mission: return String(localized: "任务发布")
+        case .alert: return String(localized: "紧急广播")
         }
     }
 
@@ -414,7 +414,7 @@ struct ChannelMessage: Codable, Identifiable {
 
     var timeAgo: String {
         let interval = Date().timeIntervalSince(createdAt)
-        if interval < 60 { return "刚刚".localized }
+        if interval < 60 { return String(localized: "刚刚") }
         if interval < 3600 { return String(format: NSLocalizedString("%lld分钟前", comment: ""), Int(interval / 60)) }
         if interval < 86400 { return String(format: NSLocalizedString("%lld小时前", comment: ""), Int(interval / 3600)) }
         let f = DateFormatter(); f.dateFormat = "MM-dd HH:mm"

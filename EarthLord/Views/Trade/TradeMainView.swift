@@ -46,7 +46,7 @@ struct TradeMainView: View {
                     contentArea
                 }
             }
-            .navigationTitle("交易中心".localized)
+            .navigationTitle(String(localized: "交易中心"))
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 Task {

@@ -46,7 +46,7 @@ struct MailboxView: View {
                 }
             }
         }
-        .navigationTitle("邮箱".localized)
+        .navigationTitle(String(localized: "邮箱"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .alert("领取提示", isPresented: .constant(mailbox.errorMessage != nil)) {

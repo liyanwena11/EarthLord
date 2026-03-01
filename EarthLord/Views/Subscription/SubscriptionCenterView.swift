@@ -36,7 +36,7 @@ struct SubscriptionCenterView: View {
             }
             .padding()
         }
-        .navigationTitle("订阅中心".localized)
+        .navigationTitle(String(localized: "订阅中心"))
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await loadProducts()

@@ -8,9 +8,9 @@ struct ResourcesTabView: View {
             VStack(spacing: 0) {
                 // 1. 顶部三段选择器
                 Picker("板块", selection: $selectedSegment) {
-                Text("背包".localized).tag(0)
-                Text("邮箱".localized).tag(1)
-                Text("交易".localized).tag(2)
+                Text(String(localized: "背包")).tag(0)
+                Text(String(localized: "邮箱")).tag(1)
+                Text(String(localized: "交易")).tag(2)
             }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -30,7 +30,7 @@ struct ResourcesTabView: View {
                 }
                 .animation(.easeInOut(duration: 0.2), value: selectedSegment)
             }
-            .navigationTitle("资源管理".localized)
+            .navigationTitle(String(localized: "资源管理"))
             .background(Color(.systemGroupedBackground))
         }
     }
@@ -43,11 +43,11 @@ struct ResourceBackpackView: View {
     
     // 模拟资源数据
     let resources = [
-        ResourceItem(name: "大米".localized, quantity: 20, capacity: 100, unit: "kg"),
-        ResourceItem(name: "木材".localized, quantity: 50, capacity: 200, unit: "个"),
-        ResourceItem(name: "金属".localized, quantity: 30, capacity: 150, unit: "个"),
-        ResourceItem(name: "燃油".localized, quantity: 15, capacity: 100, unit: "L"),
-        ResourceItem(name: "工具".localized, quantity: 5, capacity: 50, unit: "个")
+        ResourceItem(name: String(localized: "大米"), quantity: 20, capacity: 100, unit: "kg"),
+        ResourceItem(name: String(localized: "木材"), quantity: 50, capacity: 200, unit: "个"),
+        ResourceItem(name: String(localized: "金属"), quantity: 30, capacity: 150, unit: "个"),
+        ResourceItem(name: String(localized: "燃油"), quantity: 15, capacity: 100, unit: "L"),
+        ResourceItem(name: String(localized: "工具"), quantity: 5, capacity: 50, unit: "个")
     ]
     
     var body: some View {
@@ -57,12 +57,12 @@ struct ResourceBackpackView: View {
             VStack(spacing: 0) {
                 // 顶部标题
                 VStack(spacing: 12) {
-                    Text("资源".localized).font(.caption).foregroundColor(brandOrange)
+                    Text(String(localized: "资源")).font(.caption).foregroundColor(brandOrange)
 
                     // 背包容量
                     VStack(spacing: 8) {
                         HStack {
-                            Text("背包容量".localized).foregroundColor(.white)
+                            Text(String(localized: "背包容量")).foregroundColor(.white)
                             Spacer()
                             Text("20/100kg").foregroundColor(.white)
                         }
@@ -133,7 +133,7 @@ struct ResourcesResourceRow: View {
             
             // 使用按钮
             Button(action: {}) {
-                Text("使用".localized).foregroundColor(.white)
+                Text(String(localized: "使用")).foregroundColor(.white)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
                 .background(brandOrange)
@@ -261,7 +261,7 @@ struct PurchasedStoreView: View {
                     }
                 }
                 .padding()
-                .navigationTitle("评价购买".localized)
+                .navigationTitle(String(localized: "评价购买"))
                 .navigationBarTitleDisplayMode(.inline)
                 .background(ApocalypseTheme.background)
             }
