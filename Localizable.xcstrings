@@ -1,7 +1,16 @@
 {
   "sourceLanguage": "zh-Hans",
   "strings": {
-    "": {},
+    "": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        }
+      }
+    },
     "   使用提供的 Product ID 配置": {
       "localizations": {
         "en": {
@@ -32,11 +41,56 @@
         }
       }
     },
-    "   登录你的沙盒测试账号": {},
-    " \"%@\"": {},
-    " 接受": {},
-    " 的交易": {},
-    "-": {},
+    "   登录你的沙盒测试账号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Login to your sandbox test account"
+          }
+        }
+      }
+    },
+    " \"%@\"": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"%@\""
+          }
+        }
+      }
+    },
+    " 接受": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accept"
+          }
+        }
+      }
+    },
+    " 的交易": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " Trade"
+          }
+        }
+      }
+    },
+    "-": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-"
+          }
+        }
+      }
+    },
     "--选择--": {
       "localizations": {
         "en": {
@@ -47,12 +101,66 @@
         }
       }
     },
-    ", %@": {},
-    "·": {},
-    "(%lld)": {},
-    "/ %@": {},
-    "/%@": {},
-    "#%lld": {},
+    ", %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", %@"
+          }
+        }
+      }
+    },
+    "·": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "·"
+          }
+        }
+      }
+    },
+    "(%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(%lld)"
+          }
+        }
+      }
+    },
+    "/ %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/ %@"
+          }
+        }
+      }
+    },
+    "/%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/%@"
+          }
+        }
+      }
+    },
+    "#%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%lld"
+          }
+        }
+      }
+    },
     "%@  (~%@x)": {
       "localizations": {
         "en": {
@@ -165,7 +273,16 @@
         }
       }
     },
-    "%@: ": {},
+    "%@: ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: "
+          }
+        }
+      }
+    },
     "%@: %lld": {
       "localizations": {
         "en": {
@@ -182,7 +299,16 @@
         }
       }
     },
-    "%lld": {},
+    "%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
     "%lld / %lld": {
       "localizations": {
         "en": {
@@ -199,9 +325,36 @@
         }
       }
     },
-    "%lld kg": {},
-    "%lld m": {},
-    "%lld ㎡": {},
+    "%lld kg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kg"
+          }
+        }
+      }
+    },
+    "%lld m": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld m"
+          }
+        }
+      }
+    },
+    "%lld ㎡": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ㎡"
+          }
+        }
+      }
+    },
     "%lld 个": {
       "localizations": {
         "en": {
@@ -328,7 +481,16 @@
         }
       }
     },
-    "%lld/100": {},
+    "%lld/100": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/100"
+          }
+        }
+      }
+    },
     "%lld%@": {
       "localizations": {
         "en": {
@@ -345,8 +507,26 @@
         }
       }
     },
-    "%lld%%": {},
-    "%lldm": {},
+    "%lld%%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "%lldm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldm"
+          }
+        }
+      }
+    },
     "%lld分钟前": {
       "localizations": {
         "en": {
@@ -389,7 +569,16 @@
         }
       }
     },
-    "•": {},
+    "•": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "•"
+          }
+        }
+      }
+    },
     "• 建造加速: %@": {
       "localizations": {
         "en": {
@@ -430,7 +619,16 @@
         }
       }
     },
-    "+%lld": {},
+    "+%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld"
+          }
+        }
+      }
+    },
     "+%lld 积分": {
       "localizations": {
         "en": {
@@ -441,7 +639,16 @@
         }
       }
     },
-    "×%lld": {},
+    "×%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "×%lld"
+          }
+        }
+      }
+    },
     "⚠️ 未加载到产品，请检查：\n1. App Store Connect 配置\n2. 沙盒账号登录\n3. Product ID 匹配": {
       "localizations": {
         "en": {
@@ -548,7 +755,16 @@
         }
       }
     },
-    "$21": {},
+    "$21": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "$21"
+          }
+        }
+      }
+    },
     "1. 设置 → Apple ID → 沙盒与测试": {
       "localizations": {
         "en": {
@@ -635,8 +851,26 @@
         }
       }
     },
-    "20/100kg": {},
-    "23.1975, 114.4549": {},
+    "20/100kg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20/100kg"
+          }
+        }
+      }
+    },
+    "23.1975, 114.4549": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "23.1975, 114.4549"
+          }
+        }
+      }
+    },
     "24小时": {
       "localizations": {
         "en": {
@@ -689,13 +923,76 @@
         }
       }
     },
-    "Achievement System": {},
-    "AI": {},
-    "Control Center": {},
-    "Data & Privacy": {},
-    "Data Statistics": {},
-    "EARTH LORD": {},
-    "EarthLord": {},
+    "Achievement System": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievement System"
+          }
+        }
+      }
+    },
+    "AI": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI"
+          }
+        }
+      }
+    },
+    "Control Center": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control Center"
+          }
+        }
+      }
+    },
+    "Data & Privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data & Privacy"
+          }
+        }
+      }
+    },
+    "Data Statistics": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data Statistics"
+          }
+        }
+      }
+    },
+    "EARTH LORD": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EARTH LORD"
+          }
+        }
+      }
+    },
+    "EarthLord": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EarthLord"
+          }
+        }
+      }
+    },
     "Empire Tier 权益：额外 %lld%% 防御加成": {
       "localizations": {
         "en": {
@@ -706,10 +1003,46 @@
         }
       }
     },
-    "Enable background music and sound effects": {},
-    "Friends List": {},
-    "Game Audio": {},
-    "Game Settings": {},
+    "Enable background music and sound effects": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable background music and sound effects"
+          }
+        }
+      }
+    },
+    "Friends List": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Friends List"
+          }
+        }
+      }
+    },
+    "Game Audio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game Audio"
+          }
+        }
+      }
+    },
+    "Game Settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game Settings"
+          }
+        }
+      }
+    },
     "GPS 日志查看器": {
       "localizations": {
         "en": {
@@ -730,8 +1063,26 @@
         }
       }
     },
-    "Haptic Feedback": {},
-    "ID: %@": {},
+    "Haptic Feedback": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haptic Feedback"
+          }
+        }
+      }
+    },
+    "ID: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID: %@"
+          }
+        }
+      }
+    },
     "kg/个": {
       "localizations": {
         "en": {
@@ -748,11 +1099,56 @@
         }
       }
     },
-    "Lv.%lld": {},
-    "Manage your data and privacy settings": {},
-    "MAX": {},
-    "Message Center": {},
-    "Personalize your game experience": {},
+    "Lv.%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lv.%lld"
+          }
+        }
+      }
+    },
+    "Manage your data and privacy settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage your data and privacy settings"
+          }
+        }
+      }
+    },
+    "MAX": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MAX"
+          }
+        }
+      }
+    },
+    "Message Center": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message Center"
+          }
+        }
+      }
+    },
+    "Personalize your game experience": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalize your game experience"
+          }
+        }
+      }
+    },
     "POI 列表": {
       "localizations": {
         "en": {
@@ -773,7 +1169,16 @@
         }
       }
     },
-    "POI: %lld": {},
+    "POI: %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "POI: %lld"
+          }
+        }
+      }
+    },
     "POI列表": {
       "localizations": {
         "en": {
@@ -794,11 +1199,56 @@
         }
       }
     },
-    "Push Notifications": {},
-    "Quick Access": {},
-    "Quick access to common features": {},
-    "Receive territory and resource updates": {},
-    "StoreKit %@": {},
+    "Push Notifications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Push Notifications"
+          }
+        }
+      }
+    },
+    "Quick Access": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Access"
+          }
+        }
+      }
+    },
+    "Quick access to common features": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick access to common features"
+          }
+        }
+      }
+    },
+    "Receive territory and resource updates": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receive territory and resource updates"
+          }
+        }
+      }
+    },
+    "StoreKit %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "StoreKit %@"
+          }
+        }
+      }
+    },
     "Supabase 连接测试": {
       "localizations": {
         "en": {
@@ -809,7 +1259,16 @@
         }
       }
     },
-    "Tier %lld": {},
+    "Tier %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tier %lld"
+          }
+        }
+      }
+    },
     "Tier 倍数": {
       "localizations": {
         "en": {
@@ -820,10 +1279,46 @@
         }
       }
     },
-    "Vibration feedback during operations": {},
-    "VIP": {},
-    "x%lld": {},
-    "xmark.circle": {},
+    "Vibration feedback during operations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibration feedback during operations"
+          }
+        }
+      }
+    },
+    "VIP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VIP"
+          }
+        }
+      }
+    },
+    "x%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "x%lld"
+          }
+        }
+      }
+    },
+    "xmark.circle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xmark.circle"
+          }
+        }
+      }
+    },
     "一个好名字能让你在末日中更容易被记住": {
       "localizations": {
         "en": {
@@ -4922,7 +5417,22 @@
         }
       }
     },
-    "暂无可呼叫频道，请先在“频道”页订阅非官方频道": {},
+    "暂无可呼叫频道，请先在\"频道\"页订阅非官方频道": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No callable channels. Subscribe to non-official channels in Channels tab first"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无可呼叫频道，请先在\"频道\"页订阅非官方频道"
+          }
+        }
+      }
+    },
     "暂无可建造建筑": {
       "localizations": {
         "en": {
