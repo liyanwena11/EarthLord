@@ -126,7 +126,7 @@ struct SplashView: View {
 
                 // 标题
                 VStack(spacing: 8) {
-                    Text("末世领主")
+                    Text(String(localized: String.LocalizationValue("末世领主")))
                         .font(.system(size: 36, weight: .bold))
                         .foregroundColor(ApocalypseTheme.textPrimary)
 
@@ -158,7 +158,7 @@ struct SplashView: View {
                     }
 
                     // 加载文字
-                    Text("正在启动系统...")
+                    Text(String(localized: String.LocalizationValue("正在启动系统...")))
                         .font(.subheadline)
                         .foregroundColor(ApocalypseTheme.textSecondary)
                 }

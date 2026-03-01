@@ -33,11 +33,11 @@ struct AuthView: View {
                         .frame(width: 80, height: 80)
                         .foregroundColor(brandOrange)
                     
-                    Text("末世领主")
+                    Text(String(localized: String.LocalizationValue("末世领主")))
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
-                    
-                    Text("末日生存，探索领地")
+
+                    Text(String(localized: String.LocalizationValue("末日生存，探索领地")))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -46,11 +46,11 @@ struct AuthView: View {
                 VStack(spacing: 18) {
                     // 2. 登录/注册 切换
                     HStack(spacing: 0) {
-                        TabButton(title: "登录", isActive: !isRegisterMode) {
+                        TabButton(title: String(localized: String.LocalizationValue("登录")), isActive: !isRegisterMode) {
                             isRegisterMode = false
                             authManager.resetState()
                         }
-                        TabButton(title: "注册", isActive: isRegisterMode) {
+                        TabButton(title: String(localized: String.LocalizationValue("注册")), isActive: isRegisterMode) {
                             isRegisterMode = true
                             authManager.resetState()
                         }
@@ -60,8 +60,8 @@ struct AuthView: View {
 
                     // 3. 输入框
                     VStack(spacing: 15) {
-                        AuthInputField(icon: "envelope.fill", placeholder: "邮箱地址", text: $email)
-                        AuthInputField(icon: "lock.fill", placeholder: "访问密码", text: $password, isSecure: true)
+                        AuthInputField(icon: "envelope.fill", placeholder: String(localized: String.LocalizationValue("邮箱地址")), text: $email)
+                        AuthInputField(icon: "lock.fill", placeholder: String(localized: String.LocalizationValue("访问密码")), text: $password, isSecure: true)
                     }
 
                     // 错误显示
@@ -82,7 +82,7 @@ struct AuthView: View {
                         if authManager.isLoading {
                             ProgressView().tint(.white)
                         } else {
-                            Text(isRegisterMode ? "立即注册" : "登录系统")
+                            Text(isRegisterMode ? String(localized: String.LocalizationValue("立即注册")) : String(localized: String.LocalizationValue("登录系统")))
                                 .bold()
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -110,7 +110,7 @@ struct AuthView: View {
                 VStack(spacing: 15) {
                     HStack {
                         Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
-                        Text("或者使用以下方式登录").font(.caption2).foregroundColor(.gray).fixedSize()
+                        Text(String(localized: String.LocalizationValue("或者使用以下方式登录"))).font(.caption2).foregroundColor(.gray).fixedSize()
                         Rectangle().fill(Color.gray.opacity(0.3)).frame(height: 1)
                     }
                     
@@ -132,7 +132,7 @@ struct AuthView: View {
                     }) {
                         HStack {
                             Image(systemName: "g.circle.fill")
-                            Text("通过 Google 登录")
+                            Text(String(localized: String.LocalizationValue("通过 Google 登录")))
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)

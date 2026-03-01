@@ -26,10 +26,10 @@ struct ExplorationTestView: View {
                     // POI列表入口
                     NavigationLink(destination: POIListView()) {
                         testCard(
-                            title: "POI列表",
+                            title: String(localized: String.LocalizationValue("POI列表")),
                             icon: "mappin.and.ellipse",
                             color: ApocalypseTheme.primary,
-                            description: "查看附近的兴趣点"
+                            description: String(localized: String.LocalizationValue("查看附近的兴趣点"))
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -37,10 +37,10 @@ struct ExplorationTestView: View {
                     // 背包入口
                     NavigationLink(destination: BackpackView()) {
                         testCard(
-                            title: "背包",
+                            title: String(localized: String.LocalizationValue("背包")),
                             icon: "backpack.fill",
                             color: ApocalypseTheme.success,
-                            description: "管理你的物品"
+                            description: String(localized: String.LocalizationValue("管理你的物品"))
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -50,10 +50,10 @@ struct ExplorationTestView: View {
                         showResult = true
                     }) {
                         testCard(
-                            title: "探索结果",
+                            title: String(localized: String.LocalizationValue("探索结果")),
                             icon: "gift.fill",
                             color: ApocalypseTheme.info,
-                            description: "查看探索收获"
+                            description: String(localized: String.LocalizationValue("查看探索收获"))
                         )
                     }
 
@@ -61,7 +61,7 @@ struct ExplorationTestView: View {
                 }
                 .padding(20)
             }
-            .navigationTitle("探索功能测试")
+            .navigationTitle(String(localized: String.LocalizationValue("探索功能测试")))
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showResult) {
                 // ✅ 使用真实数据创建测试结果

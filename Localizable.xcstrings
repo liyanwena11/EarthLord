@@ -923,6 +923,22 @@
         }
       }
     },
+    "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In 2048, civilization is rebuilding. Become a pioneer, explore the wasteland, and establish your territory!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！"
+          }
+        }
+      }
+    },
     "Achievement System": {
       "localizations": {
         "en": {
@@ -1247,6 +1263,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enable background music and sound effects"
+          }
+        }
+      }
+    },
+    "English": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English"
           }
         }
       }
@@ -2094,6 +2126,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trade with %@"
+          }
+        }
+      }
+    },
+    "与其他幸存者互动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect with Survivors"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与其他幸存者互动"
           }
         }
       }
@@ -3163,6 +3211,22 @@
         }
       }
     },
+    "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join channels to chat globally, trade with other survivors. Team up with up to 4 players to explore together!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！"
+          }
+        }
+      }
+    },
     "加载中...": {
       "localizations": {
         "en": {
@@ -3413,6 +3477,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Posted: %@"
+          }
+        }
+      }
+    },
+    "发现POI地点": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover POIs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发现POI地点"
           }
         }
       }
@@ -3745,6 +3825,38 @@
         }
       }
     },
+    "圈地建领地": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claim Your Territory"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圈地建领地"
+          }
+        }
+      }
+    },
+    "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw enclosed areas on the map to claim territory. Larger areas provide better defense bonuses. Build shelters, farms, and warehouses!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！"
+          }
+        }
+      }
+    },
     "在地图上选择位置": {
       "localizations": {
         "en": {
@@ -3841,6 +3953,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "城邦"
+          }
+        }
+      }
+    },
+    "基于真实地理位置的冒险": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location-Based Adventure"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基于真实地理位置的冒险"
           }
         }
       }
@@ -3997,6 +4125,22 @@
         }
       }
     },
+    "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete daily tasks for rewards, unlock achievements for permanent bonuses. Level up your territory to unlock more features!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！"
+          }
+        }
+      }
+    },
     "完成特定目标可解锁成就": {
       "localizations": {
         "en": {
@@ -4065,6 +4209,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Real-time Defense Stats"
+          }
+        }
+      }
+    },
+    "实时频道聊天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-Time Chat"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时频道聊天"
           }
         }
       }
@@ -4699,6 +4859,22 @@
         }
       }
     },
+    "建造多样建筑": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build Various Structures"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建造多样建筑"
+          }
+        }
+      }
+    },
     "建造成功！": {
       "localizations": {
         "en": {
@@ -5203,6 +5379,22 @@
         }
       }
     },
+    "成就永久加成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanent Achievement Buffs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成就永久加成"
+          }
+        }
+      }
+    },
     "成就积分": {
       "localizations": {
         "en": {
@@ -5489,6 +5681,22 @@
         }
       }
     },
+    "打造你的末日堡垒": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build Your Sanctuary"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打造你的末日堡垒"
+          }
+        }
+      }
+    },
     "扫描中...": {
       "localizations": {
         "en": {
@@ -5547,6 +5755,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Demolish Building"
+          }
+        }
+      }
+    },
+    "持续成长的动力": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuous Growth"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "持续成长的动力"
           }
         }
       }
@@ -5619,6 +5843,22 @@
         }
       }
     },
+    "测试探索结果弹窗": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test Exploration Result Popup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试探索结果弹窗"
+          }
+        }
+      }
+    },
     "探索完成！": {
       "localizations": {
         "en": {
@@ -5667,6 +5907,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Exploration Status:"
+          }
+        }
+      }
+    },
+    "探索真实世界": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore the Real World"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探索真实世界"
           }
         }
       }
@@ -6555,6 +6811,22 @@
         }
       }
     },
+    "末日后生存冒险游戏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post-Apocalyptic Survival Adventure"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "末日后生存冒险游戏"
+          }
+        }
+      }
+    },
     "末日物资站": {
       "localizations": {
         "en": {
@@ -6571,6 +6843,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Survive the apocalypse, claim territories"
+          }
+        }
+      }
+    },
+    "末日生存主题": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post-Apocalyptic Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "末日生存主题"
           }
         }
       }
@@ -6821,6 +7109,22 @@
         }
       }
     },
+    "欢迎来到 EarthLord": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to EarthLord"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欢迎来到 EarthLord"
+          }
+        }
+      }
+    },
     "正在加载产品...": {
       "localizations": {
         "en": {
@@ -6861,6 +7165,23 @@
         }
       }
     },
+    "正在重启应用...": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restarting..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在重启应用..."
+          }
+        }
+      }
+    },
     "此次探索未发现物资": {
       "localizations": {
         "en": {
@@ -6889,6 +7210,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "每日任务会在每天0点刷新"
+          }
+        }
+      }
+    },
+    "每日任务奖励": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Task Rewards"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每日任务奖励"
+          }
+        }
+      }
+    },
+    "每日挑战与成就": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Challenges & Achievements"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每日挑战与成就"
           }
         }
       }
@@ -7621,6 +7974,22 @@
         }
       }
     },
+    "玩家自由交易": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Player Trading"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩家自由交易"
+          }
+        }
+      }
+    },
     "生产": {
       "extractionState": "stale",
       "localizations": {
@@ -7767,6 +8136,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Save 33%"
+          }
+        }
+      }
+    },
+    "真实世界地图": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-World Map"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "真实世界地图"
+          }
+        }
+      }
+    },
+    "真实地图导航": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real Map Navigation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "真实地图导航"
           }
         }
       }
@@ -8160,6 +8561,22 @@
         }
       }
     },
+    "简体中文": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simplified Chinese"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "简体中文"
+          }
+        }
+      }
+    },
     "简单介绍一下这个频道": {
       "localizations": {
         "en": {
@@ -8271,6 +8688,38 @@
         }
       }
     },
+    "组队社交交易": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Team Up & Trade"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "组队社交交易"
+          }
+        }
+      }
+    },
+    "组队联机冒险": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multiplayer Co-op"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "组队联机冒险"
+          }
+        }
+      }
+    },
     "经度: %@": {
       "localizations": {
         "en": {
@@ -8293,6 +8742,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "经验"
+          }
+        }
+      }
+    },
+    "绘制封闭区域": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw Enclosed Areas"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "绘制封闭区域"
           }
         }
       }
@@ -8555,6 +9020,22 @@
         }
       }
     },
+    "获得防御加成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defense Bonuses"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获得防御加成"
+          }
+        }
+      }
+    },
     "营地电台": {
       "localizations": {
         "en": {
@@ -8583,6 +9064,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "营地频道"
+          }
+        }
+      }
+    },
+    "行走搜刮物资": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walk to Scavenge"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行走搜刮物资"
           }
         }
       }
@@ -8665,6 +9162,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "要塞"
+          }
+        }
+      }
+    },
+    "角色扮演冒险": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RPG Adventure"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "角色扮演冒险"
           }
         }
       }
@@ -8945,6 +9458,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "详细统计"
+          }
+        }
+      }
+    },
+    "语言更改将立即生效": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language changes take effect immediately"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言更改将立即生效"
           }
         }
       }
@@ -9378,6 +9907,22 @@
         }
       }
     },
+    "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step out and explore real-world POIs. Discover ruins, malls, hospitals, and scavenge for supplies!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！"
+          }
+        }
+      }
+    },
     "起点终点距离": {
       "localizations": {
         "en": {
@@ -9430,6 +9975,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lldm from start (≤50m auto-close)"
+          }
+        }
+      }
+    },
+    "跟随系统": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow System"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟随系统"
           }
         }
       }
@@ -10427,6 +10988,22 @@
         }
       }
     },
+    "领地等级提升": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Territory Level Up"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "领地等级提升"
+          }
+        }
+      }
+    },
     "领地管理": {
       "localizations": {
         "en": {
@@ -10583,562 +11160,130 @@
         }
       }
     },
-    "欢迎来到 EarthLord": {
+    "登录": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Welcome to EarthLord"
+            "value": "Login"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "欢迎来到 EarthLord"
+            "value": "登录"
           }
         }
       }
     },
-    "探索真实世界": {
+    "注册": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Explore the Real World"
+            "value": "Register"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "探索真实世界"
+            "value": "注册"
           }
         }
       }
     },
-    "圈地建领地": {
+    "邮箱地址": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claim Your Territory"
+            "value": "Email Address"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "圈地建领地"
+            "value": "邮箱地址"
           }
         }
       }
     },
-    "组队社交交易": {
+    "访问密码": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Team Up & Trade"
+            "value": "Password"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "组队社交交易"
+            "value": "访问密码"
           }
         }
       }
     },
-    "每日挑战与成就": {
+    "完整的探索统计": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daily Challenges & Achievements"
+            "value": "Full exploration stats"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每日挑战与成就"
+            "value": "完整的探索统计"
           }
         }
       }
     },
-    "末日后生存冒险游戏": {
+    "完整的导航流程": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Post-Apocalyptic Survival Adventure"
+            "value": "Full navigation flow"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "末日后生存冒险游戏"
+            "value": "完整的导航流程"
           }
         }
       }
     },
-    "基于真实地理位置的冒险": {
+    "当前占领区": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Location-Based Adventure"
+            "value": "Territories"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "基于真实地理位置的冒险"
+            "value": "当前占领区"
           }
         }
       }
     },
-    "打造你的末日堡垒": {
+    "避难所等级": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Build Your Sanctuary"
+            "value": "Shelter Level"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打造你的末日堡垒"
-          }
-        }
-      }
-    },
-    "与其他幸存者互动": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect with Survivors"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "与其他幸存者互动"
-          }
-        }
-      }
-    },
-    "持续成长的动力": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continuous Growth"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "持续成长的动力"
-          }
-        }
-      }
-    },
-    "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In 2048, civilization is rebuilding. Become a pioneer, explore the wasteland, and establish your territory!"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！"
-          }
-        }
-      }
-    },
-    "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Step out and explore real-world POIs. Discover ruins, malls, hospitals, and scavenge for supplies!"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！"
-          }
-        }
-      }
-    },
-    "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Draw enclosed areas on the map to claim territory. Larger areas provide better defense bonuses. Build shelters, farms, and warehouses!"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！"
-          }
-        }
-      }
-    },
-    "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Join channels to chat globally, trade with other survivors. Team up with up to 4 players to explore together!"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！"
-          }
-        }
-      }
-    },
-    "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Complete daily tasks for rewards, unlock achievements for permanent bonuses. Level up your territory to unlock more features!"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！"
-          }
-        }
-      }
-    },
-    "真实世界地图": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Real-World Map"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "真实世界地图"
-          }
-        }
-      }
-    },
-    "末日生存主题": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Post-Apocalyptic Theme"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "末日生存主题"
-          }
-        }
-      }
-    },
-    "角色扮演冒险": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RPG Adventure"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "角色扮演冒险"
-          }
-        }
-      }
-    },
-    "发现POI地点": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Discover POIs"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "发现POI地点"
-          }
-        }
-      }
-    },
-    "行走搜刮物资": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Walk to Scavenge"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "行走搜刮物资"
-          }
-        }
-      }
-    },
-    "真实地图导航": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Real Map Navigation"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "真实地图导航"
-          }
-        }
-      }
-    },
-    "绘制封闭区域": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Draw Enclosed Areas"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "绘制封闭区域"
-          }
-        }
-      }
-    },
-    "建造多样建筑": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Build Various Structures"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "建造多样建筑"
-          }
-        }
-      }
-    },
-    "获得防御加成": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Defense Bonuses"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "获得防御加成"
-          }
-        }
-      }
-    },
-    "实时频道聊天": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Real-Time Chat"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "实时频道聊天"
-          }
-        }
-      }
-    },
-    "玩家自由交易": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Player Trading"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "玩家自由交易"
-          }
-        }
-      }
-    },
-    "组队联机冒险": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Multiplayer Co-op"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "组队联机冒险"
-          }
-        }
-      }
-    },
-    "每日任务奖励": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily Task Rewards"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "每日任务奖励"
-          }
-        }
-      }
-    },
-    "成就永久加成": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permanent Achievement Buffs"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成就永久加成"
-          }
-        }
-      }
-    },
-    "领地等级提升": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Territory Level Up"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "领地等级提升"
-          }
-        }
-      }
-    },
-    "跟随系统": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Follow System"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "跟随系统"
-          }
-        }
-      }
-    },
-    "简体中文": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Simplified Chinese"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "简体中文"
-          }
-        }
-      }
-    },
-    "English": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "English"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "English"
-          }
-        }
-      }
-    },
-    "语言更改将立即生效": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Language changes take effect immediately"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "语言更改将立即生效"
-          }
-        }
-      }
-    },
-    "正在重启应用...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restarting..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在重启应用..."
+            "value": "避难所等级"
           }
         }
       }

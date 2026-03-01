@@ -20,7 +20,7 @@ struct QuickTestView: View {
             ResourcesTabView()
                 .tabItem {
                     Image(systemName: "shippingbox.fill")
-                    Text("资源测试")
+                    Text(String(localized: String.LocalizationValue("资源测试")))
                 }
                 .tag(0)
 
@@ -30,7 +30,7 @@ struct QuickTestView: View {
             }
             .tabItem {
                 Image(systemName: "list.bullet")
-                Text("POI列表")
+                Text(String(localized: String.LocalizationValue("POI列表")))
             }
             .tag(1)
 
@@ -40,7 +40,7 @@ struct QuickTestView: View {
             }
             .tabItem {
                 Image(systemName: "backpack.fill")
-                Text("背包")
+                Text(String(localized: String.LocalizationValue("背包")))
             }
             .tag(2)
 
@@ -48,7 +48,7 @@ struct QuickTestView: View {
             ExplorationTestSheetView()
                 .tabItem {
                     Image(systemName: "gift.fill")
-                    Text("探索结果")
+                    Text(String(localized: String.LocalizationValue("探索结果")))
                 }
                 .tag(3)
         }
@@ -72,11 +72,11 @@ struct ExplorationTestSheetView: View {
                         .font(.system(size: 60))
                         .foregroundColor(ApocalypseTheme.success)
 
-                    Text("探索功能测试")
+                    Text(String(localized: String.LocalizationValue("探索功能测试")))
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(ApocalypseTheme.textPrimary)
 
-                    Text("点击下方按钮测试各项功能")
+                    Text(String(localized: String.LocalizationValue("点击下方按钮测试各项功能")))
                         .font(.system(size: 14))
                         .foregroundColor(ApocalypseTheme.textSecondary)
                 }
@@ -89,7 +89,7 @@ struct ExplorationTestSheetView: View {
                     }) {
                         testButtonLabel(
                             icon: "gift.fill",
-                            title: "测试探索结果弹窗",
+                            title: String(localized: String.LocalizationValue("测试探索结果弹窗")),
                             color: ApocalypseTheme.primary
                         )
                     }

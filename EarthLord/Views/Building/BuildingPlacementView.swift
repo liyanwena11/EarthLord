@@ -175,7 +175,7 @@ struct BuildingPlacementView: View {
                             .font(.subheadline)
                             .foregroundColor(ApocalypseTheme.textPrimary)
                     }
-                    Text("坐标点数量不足（至少需要 3 个点），无法显示多边形边界。当前数量: \(territoryCoordinates.count)")
+                    Text(String(localized: String.LocalizationValue("坐标点数量不足（至少需要 3 个点），无法显示多边形边界。当前数量: ")) + "\(territoryCoordinates.count)")
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textSecondary)
                 }

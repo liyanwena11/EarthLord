@@ -42,7 +42,7 @@ struct POIProximityPopup: View {
                         .cornerRadius(12)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("发现废墟")
+                        Text(String(localized: String.LocalizationValue("发现废墟")))
                             .font(.caption)
                             .foregroundColor(.gray)
 
@@ -66,7 +66,7 @@ struct POIProximityPopup: View {
                 HStack(spacing: 0) {
                     // 危险等级
                     VStack(spacing: 4) {
-                        Text("危险等级")
+                        Text(String(localized: String.LocalizationValue("危险等级")))
                             .font(.caption2)
                             .foregroundColor(.gray)
                         HStack(spacing: 2) {
@@ -85,7 +85,7 @@ struct POIProximityPopup: View {
 
                     // POI 类型
                     VStack(spacing: 4) {
-                        Text("类型")
+                        Text(String(localized: String.LocalizationValue("类型")))
                             .font(.caption2)
                             .foregroundColor(.gray)
                         Text(poi.type.rawValue)
@@ -100,7 +100,7 @@ struct POIProximityPopup: View {
 
                     // 状态
                     VStack(spacing: 4) {
-                        Text("状态")
+                        Text(String(localized: String.LocalizationValue("状态")))
                             .font(.caption2)
                             .foregroundColor(.gray)
                         Text(poi.status.rawValue)
@@ -133,7 +133,7 @@ struct POIProximityPopup: View {
                 HStack(spacing: 12) {
                     // 稍后再说
                     Button(action: onDismiss) {
-                        Text("稍后再说")
+                        Text(String(localized: String.LocalizationValue("稍后再说")))
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
@@ -152,7 +152,7 @@ struct POIProximityPopup: View {
                             } else {
                                 Image(systemName: "magnifyingglass")
                             }
-                            Text(isLooting ? "搜刮中..." : "立即搜刮")
+                            Text(isLooting ? String(localized: String.LocalizationValue("搜刮中...")) : String(localized: String.LocalizationValue("立即搜刮")))
                         }
                         .font(.headline)
                         .frame(maxWidth: .infinity)

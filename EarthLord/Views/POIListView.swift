@@ -16,7 +16,7 @@ struct POIListView: View {
             }) {
                 HStack {
                     Image(systemName: "antenna.radiowaves.left.and.right")
-                    Text("扫描附近资源点")
+                    Text(String(localized: String.LocalizationValue("扫描附近资源点")))
                 }
                 .font(.headline)
                 .frame(maxWidth: .infinity)
@@ -32,7 +32,7 @@ struct POIListView: View {
                 VStack(spacing: 20) {
                     Spacer()
                     Image(systemName: "binoculars.fill").font(.system(size: 60)).foregroundColor(.gray)
-                    Text("雷达未发现目标")
+                    Text(String(localized: String.LocalizationValue("雷达未发现目标")))
                     Text(String(localized: "请点击上方按钮开始扫描")).font(.caption).foregroundColor(.secondary)
                     Spacer()
                 }
