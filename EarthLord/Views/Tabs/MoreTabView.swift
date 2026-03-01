@@ -71,8 +71,8 @@ struct MoreTabView: View {
                             SectionHeader(icon: "shield.lefthalf.filled", title: "Data & Privacy", subtitle: "Manage your data and privacy settings")
 
                             VStack(spacing: 1) {
-                                SettingLinkRow(icon: "globe.fill", title: "技术支持", subtitle: "访问我们的技术支持网站", url: URL(string: "https://liyanwena11.github.io/earthlord-support/")!, iconColor: .blue)
-                                SettingLinkRow(icon: "lock.fill", title: "隐私政策", subtitle: "查看我们的隐私政策", url: URL(string: "https://liyanwena11.github.io/earthlord-support/privacy.html")!, iconColor: .green)
+                                SettingLinkRow(icon: "globe.fill", title: LocalizedStringKey("技术支持"), subtitle: LocalizedStringKey("访问我们的技术支持��站"), url: URL(string: "https://liyanwena11.github.io/earthlord-support/")!, iconColor: .blue)
+                                SettingLinkRow(icon: "lock.fill", title: LocalizedStringKey("隐私政策"), subtitle: LocalizedStringKey("查看我们的隐私政策"), url: URL(string: "https://liyanwena11.github.io/earthlord-support/privacy.html")!, iconColor: .green)
                             }
                             .background(Color.white.opacity(0.05))
                             .cornerRadius(15)

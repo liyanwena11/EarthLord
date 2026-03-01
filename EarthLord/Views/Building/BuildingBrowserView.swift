@@ -83,7 +83,7 @@ struct BuildingBrowserView: View {
                     }
                 }
             }
-            .navigationTitle("建筑图鉴")
+            .navigationTitle("建筑图鉴".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

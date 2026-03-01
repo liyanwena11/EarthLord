@@ -86,7 +86,7 @@ class LeaderboardManager: ObservableObject {
     }
 
     /// 获取速度排行榜
-    func fetchSpeedLeaderboard(milestone: MilestoneType, limit: Int = 100) async throws -> [SpeedRecord] {
+    func fetchSpeedLeaderboard(milestone: LeaderboardMilestoneType, limit: Int = 100) async throws -> [SpeedRecord] {
         isLoading = true
         defer { isLoading = false }
 
@@ -412,7 +412,7 @@ extension CategoryLeaderboardEntry {
 }
 
 extension SpeedRecord {
-    static func sampleData(milestone: MilestoneType) -> [SpeedRecord] {
+    static func sampleData(milestone: LeaderboardMilestoneType) -> [SpeedRecord] {
         return [
             SpeedRecord(
                 id: UUID(),

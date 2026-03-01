@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct AchievementStatsView: View {
-    @StateObject private var achievementManager = AchievementManager.shared
+    @ObservedObject private var achievementManager = AchievementManager.shared
     @StateObject private var leaderboardManager = LeaderboardManager()
     @Binding var showFullLeaderboard: Bool
     @State private var userStats: UserLeaderboardStats?
@@ -28,7 +28,7 @@ struct AchievementStatsView: View {
                     .font(.system(size: 20))
                     .foregroundColor(iconBlue)
 
-                Text("成就统计")
+                Text("成就统计".localized)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
 
@@ -63,7 +63,7 @@ struct AchievementStatsView: View {
             // 总积分（使用 AchievementManager 的数据）
             AchievementStatRow(
                 icon: "star.fill",
-                title: "成就积分",
+                title: "成就积分".localized,
                 value: "\(achievementManager.totalPoints)",
                 color: iconBlue
             )
@@ -77,7 +77,7 @@ struct AchievementStatsView: View {
             // 解锁数量
             AchievementStatRow(
                 icon: "lock.open.fill",
-                title: "已解锁",
+                title: "已解锁".localized,
                 value: "\(achievementManager.totalUnlocked)",
                 color: iconBlue
             )
@@ -91,7 +91,7 @@ struct AchievementStatsView: View {
             // 完成度
             AchievementStatRow(
                 icon: "percent",
-                title: "完成度",
+                title: "完成度".localized,
                 value: "\(achievementManager.completionPercentage)%",
                 color: iconBlue
             )
@@ -105,7 +105,7 @@ struct AchievementStatsView: View {
             // 当前排名
             AchievementStatRow(
                 icon: "list.number",
-                title: "当前排名",
+                title: "当前排名".localized,
                 value: stats.rankingPosition != nil ? "#\(stats.rankingPosition!)" : "-",
                 color: iconBlue
             )
@@ -117,7 +117,7 @@ struct AchievementStatsView: View {
                 showFullLeaderboard = true
             } label: {
                 HStack {
-                    Text("查看完整排行榜")
+                    Text("查看完整排行榜".localized)
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
 
@@ -140,7 +140,7 @@ struct AchievementStatsView: View {
                 .font(.system(size: 40))
                 .foregroundColor(.gray)
 
-            Text("暂无成就数据")
+            Text("暂无成就数据".localized)
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
         }
@@ -156,12 +156,13 @@ struct AchievementStatsView: View {
         isLoading = true
 
         Task {
-            // 同时加载成就数据和排行榜数据
-            async let achievementData = achievementManager.refreshData()
-            async let leaderboardData = fetchLeaderboardStats(userId: userId)
-
             do {
-                let (_, stats) = try await (achievementData, leaderboardData)
+                // 先刷新成就数据
+                await achievementManager.refreshData()
+
+                // 再加载排行榜数据
+                let stats = try await fetchLeaderboardStats(userId: userId)
+
                 await MainActor.run {
                     self.userStats = stats
                     self.isLoading = false
@@ -243,7 +244,7 @@ struct AchievementLeaderboardDetailView: View {
                 VStack(spacing: 0) {
                     // 顶部标题栏
                     HStack {
-                        Text("成就排行榜")
+                        Text("成就排行榜".localized)
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
@@ -315,20 +316,40 @@ struct AchievementLeaderboardDetailView: View {
     }
 
     private var leaderboardContent: some View {
-        VStack(spacing: 0) {
-            ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                AchievementLeaderboardEntryRow(
-                    entry: entry,
-                    rank: index + 1,
-                    iconColor: iconBlue,
-                    dividerColor: dividerColor
-                )
-
-                if index < entries.count - 1 {
-                    Divider()
-                        .background(dividerColor)
-                        .padding(.leading, 60)
+        Group {
+            if isLoading {
+                VStack(spacing: 0) {
+                    ForEach(0..<5, id: \.self) { index in
+                        LeaderboardRowSkeleton()
+                        if index < 4 {
+                            Divider()
+                                .background(dividerColor)
+                                .padding(.leading, 60)
+                        }
+                    }
                 }
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                        AchievementLeaderboardEntryRow(
+                            entry: entry,
+                            rank: index + 1,
+                            iconColor: iconBlue,
+                            dividerColor: dividerColor
+                        )
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .opacity
+                        ))
+
+                        if index < entries.count - 1 {
+                            Divider()
+                                .background(dividerColor)
+                                .padding(.leading, 60)
+                        }
+                    }
+                }
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: entries.count)
             }
         }
         .background(cardBackground)
@@ -341,7 +362,7 @@ struct AchievementLeaderboardDetailView: View {
                     .font(.system(size: 20))
                     .foregroundColor(iconBlue)
 
-                Text("我的排名")
+                Text("我的排名".localized)
                     .font(.system(size: 14))
                     .foregroundColor(.white)
 
@@ -421,10 +442,14 @@ struct AchievementLeaderboardEntryRow: View {
     var body: some View {
         HStack(spacing: 12) {
             // 排名
-            Text(rankDisplay)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(rankColor)
-                .frame(width: 40)
+            if rank <= 3 {
+                topRankBadge
+            } else {
+                Text("#\(rank)")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.gray)
+                    .frame(width: 40)
+            }
 
             // 玩家信息
             VStack(alignment: .leading, spacing: 4) {
@@ -444,12 +469,61 @@ struct AchievementLeaderboardEntryRow: View {
         .contentShape(Rectangle())
     }
 
-    private var rankDisplay: String {
+    // Top 3 特殊徽章
+    private var topRankBadge: some View {
+        ZStack {
+            Circle()
+                .fill(rankGradient)
+                .frame(width: 44, height: 44)
+
+            VStack(spacing: 0) {
+                Image(systemName: rankIcon)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+
+                Text("\(rank)")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.white)
+            }
+        }
+        .shadow(color: rankColor.opacity(0.5), radius: 4, x: 0, y: 2)
+    }
+
+    private var rankGradient: LinearGradient {
         switch rank {
-        case 1: return "🥇"
-        case 2: return "🥈"
-        case 3: return "🥉"
-        default: return "#\(rank)"
+        case 1:
+            return LinearGradient(
+                colors: [Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255), Color(red: 0xFF/255, green: 0xA5/255, blue: 0x00/255)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case 2:
+            return LinearGradient(
+                colors: [Color(red: 0xE0/255, green: 0xE0/255, blue: 0xE0/255), Color(red: 0xA0/255, green: 0xA0/255, blue: 0xA0/255)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case 3:
+            return LinearGradient(
+                colors: [Color(red: 0xCD/255, green: 0x7F/255, blue: 0x32/255), Color(red: 0xB8/255, green: 0x69/255, blue: 0x14/255)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        default:
+            return LinearGradient(
+                colors: [Color.gray],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+
+    private var rankIcon: String {
+        switch rank {
+        case 1: return "crown.fill"
+        case 2: return "medal.fill"
+        case 3: return "shield.fill"
+        default: return "number"
         }
     }
 
@@ -464,7 +538,7 @@ struct AchievementLeaderboardEntryRow: View {
 
     private var rankSubtitle: String {
         // 根据当前显示的数据类型显示
-        return "\(entry.totalPoints) 积分 • \(entry.totalAchievements) 成就"
+        return "\(entry.totalPoints) " + "积分".localized + " • \(entry.totalAchievements) " + "成就".localized
     }
 }
 

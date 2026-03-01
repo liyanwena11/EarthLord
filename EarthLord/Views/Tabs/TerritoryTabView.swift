@@ -14,14 +14,14 @@ struct TerritoryTabView: View {
                         StatCard(
                             icon: "flag.fill",
                             iconColor: .green,
-                            title: "领地数量",
+                            title: "领地数量".localized,
                             value: "\(myTerritories.count)",
-                            unit: "块"
+                            unit: "块".localized
                         )
                         StatCard(
                             icon: "map.fill",
                             iconColor: .blue,
-                            title: "总面积",
+                            title: "总面积".localized,
                             value: formatArea(totalArea),
                             unit: "㎡"
                         )
@@ -30,7 +30,7 @@ struct TerritoryTabView: View {
 
                     // MARK: - 领地列表
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("我的领地")
+                        Text("我的领地".localized)
                             .font(.headline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
@@ -51,7 +51,7 @@ struct TerritoryTabView: View {
                 .padding(.vertical)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("领地管理")
+            .navigationTitle("领地管理".localized)
             .task {
                 await loadMyTerritories()
             }
@@ -156,7 +156,7 @@ struct TerritoryCard: View {
                 // 采样点显示 - 始终显示，nil时使用path数组长度
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.circle").font(.caption)
-                    Text("采样点: \(territory.calculatedPointCount) 个").font(.caption)
+                    Text("采样点".localized + ": \(territory.calculatedPointCount) " + "个".localized).font(.caption)
                 }
                 .foregroundColor(.secondary)
 
@@ -175,7 +175,7 @@ struct TerritoryCard: View {
             if let prosperity = territory.prosperity {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text("繁荣度")
+                        Text("繁荣度".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Spacer()
@@ -239,8 +239,8 @@ struct EmptyTerritoryView: View {
             Image(systemName: "map")
                 .font(.system(size: 60))
                 .foregroundColor(.gray.opacity(0.5))
-            Text("暂无领地").font(.title3).fontWeight(.medium).foregroundColor(.secondary)
-            Text("前往地图页面，点击「圈地」按钮开始行走采样！")
+            Text("暂无领地".localized).font(.title3).fontWeight(.medium).foregroundColor(.secondary)
+            Text("前往地图页面，点击「圈地」按钮开始行走采样！".localized)
                 .font(.subheadline).foregroundColor(.gray).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, minHeight: 250)

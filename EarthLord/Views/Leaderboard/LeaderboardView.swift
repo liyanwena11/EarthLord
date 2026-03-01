@@ -12,7 +12,7 @@ struct LeaderboardView: View {
     @StateObject private var manager = LeaderboardManager()
     @State private var selectedTab: LeaderboardTab = .points
     @State private var selectedCategory: AchievementCategory? = nil
-    @State private var selectedMilestone: MilestoneType = .first10
+    @State private var selectedMilestone: LeaderboardMilestoneType = .first10
     @State private var season: LeaderboardSeason?
     @State private var entries: [LeaderboardEntry] = []
     @State private var categoryEntries: [CategoryLeaderboardEntry] = []
@@ -501,14 +501,14 @@ struct CategoryLeaderboardRow: View {
 
 struct SpeedLeaderboardContentView: View {
     let speedRecords: [SpeedRecord]
-    @Binding var selectedMilestone: MilestoneType
+    @Binding var selectedMilestone: LeaderboardMilestoneType
 
     var body: some View {
         VStack(spacing: 12) {
             // 里程碑选择器
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach([MilestoneType.first10, .first50, .first100, .allAchievements], id: \.self) { milestone in
+                    ForEach([LeaderboardMilestoneType.first10, .first50, .first100, .allAchievements], id: \.self) { milestone in
                         MilestoneFilterButton(
                             milestone: milestone,
                             isSelected: selectedMilestone == milestone
@@ -530,7 +530,7 @@ struct SpeedLeaderboardContentView: View {
 }
 
 struct MilestoneFilterButton: View {
-    let milestone: MilestoneType
+    let milestone: LeaderboardMilestoneType
     let isSelected: Bool
     let onTap: () -> Void
 

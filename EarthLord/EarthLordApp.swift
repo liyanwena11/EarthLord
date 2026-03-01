@@ -42,6 +42,9 @@ struct AuthFlowView: View {
     @State private var hasCheckedOnboarding = false
     @AppStorage("debug_force_show_onboarding") private var debugForceShowOnboarding = true  // 🔧 调试模式：强制显示引导
 
+    // ✅ 成就通知相关状态
+    @StateObject private var notificationManager = AchievementNotificationManager.shared
+
     var body: some View {
         ZStack {
             Group {
@@ -74,6 +77,22 @@ struct AuthFlowView: View {
                 }
                 .transition(.opacity)
                 .zIndex(999)
+            }
+
+            // ✅ 成就解锁弹窗覆盖层
+            if notificationManager.isShowingPopup,
+               let achievement = notificationManager.currentPopupAchievement?.achievement {
+                AchievementUnlockedPopup(
+                    achievement: achievement,
+                    onDismiss: {
+                        notificationManager.dismissPopup()
+                    }
+                )
+                .transition(.asymmetric(
+                    insertion: .scale.combined(with: .opacity),
+                    removal: .opacity
+                ))
+                .zIndex(1000)
             }
         }
         .task(id: splashFinished) {

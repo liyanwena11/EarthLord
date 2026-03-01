@@ -18,46 +18,59 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 struct LanguageSettingsView: View {
     @ObservedObject var langManager = LanguageManager.shared
     @Environment(\.dismiss) var dismiss
-    @State private var showRestartAlert = false
 
     // 品牌橙
     let brandOrange = Color(red: 1.0, green: 0.42, blue: 0.13)
+    @State private var isRestarting = false
 
     var body: some View {
         ZStack {
             // 1. 纯黑背景
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                List {
-                    Section {
-                        ForEach(AppLanguage.allCases) { language in
-                            Button(action: {
-                                // 如果选择的是当前语言，不做任何操作
-                                if langManager.currentLanguage != language.rawValue {
-                                    changeLanguage(language.rawValue)
-                                }
-                            }) {
-                                HStack {
-                                    Text(language.displayName)
-                                        .foregroundColor(.white)
-                                    Spacer()
-                                    if langManager.currentLanguage == language.rawValue {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(brandOrange)
-                                            .font(.system(size: 14, weight: .bold))
+            if isRestarting {
+                // 重启加载界面
+                VStack(spacing: 20) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(brandOrange)
+                    Text("正在重启应用...".localized)
+                        .foregroundColor(.white)
+                        .font(.caption)
+                }
+            } else {
+                VStack(spacing: 0) {
+                    List {
+                        Section {
+                            ForEach(AppLanguage.allCases) { language in
+                                Button(action: {
+                                    // 如果选择的是当前语言，不做任何操作
+                                    if langManager.currentLanguage != language.rawValue {
+                                        changeLanguage(language.rawValue)
+                                    }
+                                }) {
+                                    HStack {
+                                        Text(language.displayName)
+                                            .foregroundColor(.white)
+                                        Spacer()
+                                        if langManager.currentLanguage == language.rawValue {
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(brandOrange)
+                                                .font(.system(size: 14, weight: .bold))
+                                        }
                                     }
                                 }
+                                .disabled(isRestarting)
+                                .listRowBackground(Color.white.opacity(0.05))
                             }
-                            .listRowBackground(Color.white.opacity(0.05))
+                        } header: {
+                            Text("选择语言".localized)
+                                .foregroundColor(.gray)
                         }
-                    } header: {
-                        Text("选择语言".localized)
-                            .foregroundColor(.gray)
                     }
+                    .scrollContentBackground(.hidden)
+                    .background(Color.black)
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.black)
             }
         }
         .navigationTitle("语言设置".localized)
@@ -71,22 +84,27 @@ struct LanguageSettingsView: View {
                 }
             }
         }
-        .alert("需要重启应用", isPresented: $showRestartAlert) {
-            Button("好的", role: .cancel) { }
-        } message: {
-            Text("语言更改需要重启应用才能生效。请关闭并重新打开应用。")
-        }
     }
 
     private func changeLanguage(_ languageCode: String) {
+        // 显示重启界面
+        isRestarting = true
+
         // 保存到 UserDefaults
         UserDefaults.standard.set(languageCode, forKey: "selected_language")
         UserDefaults.standard.set([languageCode], forKey: "AppleLanguages")
+        UserDefaults.standard.synchronize()
 
-        LogDebug("🌐 [LanguageSettings] 语言已更改至: \(languageCode)，需要重启应用")
+        // 同步更新 LanguageManager，确保界面立即更新
+        langManager.currentLanguage = languageCode
 
-        // 显示重启提示
-        showRestartAlert = true
+        LogDebug("🌐 [LanguageSettings] 语言已更改至: \(languageCode)，准备重启应用")
+
+        // 延迟后重启应用，给用户视觉反馈
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            // 使用 exit(0) 重启应用（iOS 会自动重新启动）
+            exit(0)
+        }
     }
 }
 

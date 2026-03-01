@@ -7,26 +7,26 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             MainMapView()
-                .tabItem { Label("地图", systemImage: "map.fill") }
+                .tabItem { Label("地图".localized, systemImage: "map.fill") }
                 .tag(0)
 
             TerritoryTabView()
-                .tabItem { Label("领地", systemImage: "flag.fill") }
+                .tabItem { Label("领地".localized, systemImage: "flag.fill") }
                 .tag(1)
 
             ResourcesTabView()
-                .tabItem { Label("资源", systemImage: "bag.fill") }
+                .tabItem { Label("资源".localized, systemImage: "bag.fill") }
                 .tag(2)
 
             CommunicationTabView()
                 .environmentObject(AuthManager.shared)
-                .tabItem { Label("通讯", systemImage: "antenna.radiowaves.left.and.right") }
+                .tabItem { Label("通讯".localized, systemImage: "antenna.radiowaves.left.and.right") }
                 .tag(3)
 
             ProfileTabView()
                 .environmentObject(AuthManager.shared)
                 .environmentObject(TierManager.shared)
-                .tabItem { Label("个人", systemImage: "person.fill") }
+                .tabItem { Label("个人".localized, systemImage: "person.fill") }
                 .tag(4)
         }
         .accentColor(ApocalypseTheme.primary)

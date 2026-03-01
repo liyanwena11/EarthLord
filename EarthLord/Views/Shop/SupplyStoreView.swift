@@ -30,7 +30,7 @@ struct SupplyStoreView: View {
             }
             .padding()
         }
-        .navigationTitle("物资商城")
+        .navigationTitle("物资商城".localized)
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await loadProducts()
@@ -46,7 +46,7 @@ struct SupplyStoreView: View {
                 .foregroundColor(.orange)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("物资商城")
+                Text("物资商城".localized)
                     .font(.headline)
                     .foregroundColor(.white)
 
@@ -746,7 +746,7 @@ struct SupplyPackDetailSheetView: View {
                     .disabled(isPurchasing)
                 }
             }
-            .navigationTitle("物资详情")
+            .navigationTitle("物资详情".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

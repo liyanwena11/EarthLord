@@ -371,7 +371,7 @@ struct MapBottomButtons: View {
             Button(action: onExplore) {
                 VStack(spacing: 5) {
                     Image(systemName: "binoculars.fill").font(.title2)
-                    Text("开始探索").font(.caption.bold())
+                    Text("开始探索".localized).font(.caption.bold())
                 }
                 .frame(maxWidth: .infinity).frame(height: 64)
                 .background(Color(red: 0.78, green: 0.36, blue: 0.12))
@@ -394,7 +394,7 @@ struct MapBottomButtons: View {
             Button(action: onTerritory) {
                 VStack(spacing: 5) {
                     Image(systemName: isTracking ? "stop.fill" : "flag.2.crossed.fill").font(.title2)
-                    Text(isTracking ? "停止圈地" : "开始圈地").font(.caption.bold())
+                    Text(isTracking ? "停止圈地".localized : "开始圈地".localized).font(.caption.bold())
                 }
                 .frame(maxWidth: .infinity).frame(height: 64)
                 .background(isTracking ? Color.orange : Color(red: 0.20, green: 0.33, blue: 0.45))
@@ -437,7 +437,7 @@ struct ExplorationActiveCard: View {
                         .opacity(isPulsing ? 0.5 : 1.0)
                         .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isPulsing)
                         .onAppear { isPulsing = true }
-                    Text("探索中")
+                    Text("探索中".localized)
                         .font(.system(.subheadline, weight: .bold))
                         .foregroundColor(.white)
                 }
@@ -446,7 +446,7 @@ struct ExplorationActiveCard: View {
                 Button(action: onStop) {
                     HStack(spacing: 5) {
                         Image(systemName: "stop.fill").font(.caption.bold())
-                        Text("停止探索").font(.caption.bold())
+                        Text("停止探索".localized).font(.caption.bold())
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 12).padding(.vertical, 7)
@@ -459,11 +459,11 @@ struct ExplorationActiveCard: View {
 
             // 数据行
             HStack(spacing: 0) {
-                ExploreStatCell(icon: "figure.walk", label: "行走距离", value: formatDistance(distance))
+                ExploreStatCell(icon: "figure.walk", label: "行走距离".localized, value: formatDistance(distance))
                 Divider().background(Color.white.opacity(0.2)).frame(height: 36)
-                ExploreStatCell(icon: "clock", label: "探索时长", value: formatDuration(elapsed))
+                ExploreStatCell(icon: "clock", label: "探索时长".localized, value: formatDuration(elapsed))
                 Divider().background(Color.white.opacity(0.2)).frame(height: 36)
-                ExploreStatCell(icon: "mappin.and.ellipse", label: "最近资源", value: "\(nearestResourceDist)m")
+                ExploreStatCell(icon: "mappin.and.ellipse", label: "最近资源".localized, value: "\(nearestResourceDist)m")
             }
         }
         .padding(14)
@@ -542,28 +542,28 @@ struct ExplorationStopResultView: View {
                         .font(.system(size: 44))
                         .foregroundColor(.green)
                         .padding(.top, 40)
-                    Text("探索结束").font(.title.bold()).foregroundColor(.white)
-                    Text("共探索了 \(formatDuration(result.duration))").font(.subheadline).foregroundColor(.gray)
+                    Text("探索结束".localized).font(.title.bold()).foregroundColor(.white)
+                    Text("共探索了 ".localized + formatDuration(result.duration)).font(.subheadline).foregroundColor(.gray)
                 }
                 .padding(.bottom, 24)
 
                 // 统计卡
                 HStack(spacing: 12) {
-                    SummaryCard(icon: "figure.walk", color: .blue, label: "行走距离", value: formatDistance(result.walkDistance))
-                    SummaryCard(icon: "clock.fill", color: .orange, label: "探索时长", value: formatDuration(result.duration))
-                    SummaryCard(icon: "shippingbox.fill", color: .green, label: "获得物品", value: "\(result.itemsFound.reduce(0) { $0 + $1.quantity }) 件")
+                    SummaryCard(icon: "figure.walk", color: .blue, label: "行走距离".localized, value: formatDistance(result.walkDistance))
+                    SummaryCard(icon: "clock.fill", color: .orange, label: "探索时长".localized, value: formatDuration(result.duration))
+                    SummaryCard(icon: "shippingbox.fill", color: .green, label: "获得物品".localized, value: "\(result.itemsFound.reduce(0) { $0 + $1.quantity }) " + "件".localized)
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
 
                 // 物品列表
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("新增物品").font(.headline).foregroundColor(.white).padding(.horizontal, 20).padding(.bottom, 10)
+                    Text("新增物品".localized).font(.headline).foregroundColor(.white).padding(.horizontal, 20).padding(.bottom, 10)
 
                     if result.itemsFound.isEmpty {
                         HStack {
                             Spacer()
-                            Text("此次探索未发现物资").font(.subheadline).foregroundColor(.gray)
+                            Text("此次探索未发现物资".localized).font(.subheadline).foregroundColor(.gray)
                             Spacer()
                         }.padding(.vertical, 20)
                     } else {
@@ -597,7 +597,7 @@ struct ExplorationStopResultView: View {
                 if result.experienceGained > 0 {
                     HStack {
                         Image(systemName: "star.fill").foregroundColor(.yellow).font(.caption)
-                        Text("获得经验: \(result.experienceGained) 点")
+                        Text("获得经验: ".localized + "\(result.experienceGained) " + "点".localized)
                             .font(.caption).foregroundColor(.gray)
                     }
                     .padding(.top, 8)
@@ -607,7 +607,7 @@ struct ExplorationStopResultView: View {
                 let backpack = ExplorationManager.shared
                 HStack {
                     Image(systemName: "scalemass.fill").foregroundColor(.orange).font(.caption)
-                    Text("背包负重：\(String(format: "%.1f", backpack.totalWeight)) / \(Int(backpack.maxCapacity)) kg")
+                    Text("背包负重：".localized + "\(String(format: "%.1f", backpack.totalWeight)) / \(Int(backpack.maxCapacity)) kg")
                         .font(.caption).foregroundColor(.gray)
                 }
                 .padding(.top, 14)
@@ -615,7 +615,7 @@ struct ExplorationStopResultView: View {
                 Spacer()
 
                 Button(action: { onDismiss(); dismiss() }) {
-                    Text("收下物资")
+                    Text("收下物资".localized)
                         .font(.headline).bold()
                         .frame(maxWidth: .infinity).padding()
                         .background(Color.orange)
@@ -967,7 +967,7 @@ struct TerritoryPreviewSheet: View {
                 }
                 .padding(.top, 20)
             }
-            .navigationTitle("领地预览")
+            .navigationTitle("领地预览".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

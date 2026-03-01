@@ -31,7 +31,7 @@ struct CategoryAchievementStatsView: View {
                     VStack(spacing: 0) {
                         // 标题栏
                         HStack {
-                            Text("详细统计")
+                            Text("详细统计".localized)
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.white)
 
@@ -87,45 +87,18 @@ struct CategoryAchievementStatsView: View {
         }
     }
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    if isLoading {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, minHeight: 200)
-                    } else {
-                        ForEach(AchievementCategory.allCases, id: \.self) { category in
-                            if let stats = categoryStats.first(where: { $0.category == category }) {
-                                CategoryModuleCard(
-                                    category: category,
-                                    stats: stats,
-                                    cardBackground: cardBackground,
-                                    dividerColor: dividerColor,
-                                    iconColor: iconBlue
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .background(Color(red: 0x12/255, green: 0x18/255, blue: 0x26/255))
-        .onAppear {
-            loadStats()
-        }
-    }
-
     private func loadStats() {
         guard let userId = AuthManager.shared.currentUser?.id else { return }
 
         isLoading = true
 
         Task {
-            // 同时加载成就数据和排行榜数据
-            async let achievementData = achievementManager.refreshData()
-            async let leaderboardData = fetchLeaderboardStats(userId: userId)
-
+            // 加载排行榜数据
             do {
-                let (_, stats) = try await (achievementData, leaderboardData)
+                let stats = try await fetchLeaderboardStats(userId: userId)
+                // 同时刷新成就数据（不等待结果）
+                _ = await achievementManager.refreshData()
+
                 await MainActor.run {
                     self.categoryStats = stats.categoryStats
                     self.isLoading = false
@@ -165,7 +138,7 @@ struct CategoryModuleCard: View {
                     .font(.system(size: 18))
                     .foregroundColor(iconColor)
 
-                Text("\(category.displayName)统计")
+                Text("\(category.displayName)" + "统计".localized)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
             }
@@ -177,7 +150,7 @@ struct CategoryModuleCard: View {
             VStack(spacing: 0) {
                 // 积分
                 CategoryStatRow(
-                    label: "成就积分",
+                    label: "成就积分".localized,
                     value: "\(stats.points)"
                 )
                 .padding(.horizontal, 16)
@@ -189,7 +162,7 @@ struct CategoryModuleCard: View {
 
                 // 解锁数量
                 CategoryStatRow(
-                    label: "已解锁",
+                    label: "已解锁".localized,
                     value: "\(stats.achievements)"
                 )
                 .padding(.horizontal, 16)
@@ -201,7 +174,7 @@ struct CategoryModuleCard: View {
 
                 // 当前排名
                 CategoryStatRow(
-                    label: "当前排名",
+                    label: "当前排名".localized,
                     value: stats.ranking != nil ? "#\(stats.ranking!)" : "-"
                 )
                 .padding(.horizontal, 16)

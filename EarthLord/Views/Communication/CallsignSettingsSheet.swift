@@ -46,7 +46,7 @@ struct CallsignSettingsSheet: View {
                     .padding(20)
                 }
             }
-            .navigationTitle("呼号设置")
+            .navigationTitle("呼号设置".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

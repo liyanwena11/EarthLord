@@ -12,7 +12,7 @@ struct BackpackView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "scalemass.fill").foregroundColor(.orange)
-                    Text("背包负重").font(.headline)
+                    Text("背包负重".localized).font(.headline)
                     Spacer()
                     Text("\(String(format: "%.1f", manager.totalWeight)) / \(Int(manager.maxCapacity)) kg")
                         .font(.system(.body, design: .monospaced))
@@ -26,11 +26,11 @@ struct BackpackView: View {
                     .animation(.easeInOut(duration: 0.3), value: manager.totalWeight)
 
                 HStack(spacing: 12) {
-                    Label("\(manager.backpackItems.count) 种", systemImage: "archivebox")
-                    Label("\(totalQuantity) 件", systemImage: "number")
+                    Label("\(manager.backpackItems.count) " + "种".localized, systemImage: "archivebox")
+                    Label("\(totalQuantity) " + "件".localized, systemImage: "number")
                     Spacer()
                     if manager.totalWeight >= manager.maxCapacity {
-                        Text("已满载").font(.caption).bold()
+                        Text("已满载".localized).font(.caption).bold()
                             .padding(.horizontal, 8).padding(.vertical, 2)
                             .background(Color.red.opacity(0.2)).foregroundColor(.red)
                             .cornerRadius(4)
@@ -48,8 +48,8 @@ struct BackpackView: View {
                 VStack(spacing: 20) {
                     Spacer()
                     Image(systemName: "shippingbox").font(.system(size: 60)).foregroundColor(.gray)
-                    Text("背包空空如也").foregroundColor(.gray)
-                    Text("探索废墟搜刮物资吧").font(.caption).foregroundColor(.secondary)
+                    Text("背包空空如也".localized).foregroundColor(.gray)
+                    Text("探索废墟搜刮物资吧".localized).font(.caption).foregroundColor(.secondary)
                     Spacer()
                 }
             } else {
@@ -74,7 +74,7 @@ struct BackpackView: View {
             }
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("物资背包")
+        .navigationTitle("物资背包".localized)
         .onAppear {
             manager.updateWeight()
             isLoading = false
@@ -89,7 +89,7 @@ struct BackpackView: View {
             if showUsedToast, let name = usedItemName {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                    Text("已使用：\(name)").font(.subheadline.bold()).foregroundColor(.white)
+                    Text("已使用：".localized + name).font(.subheadline.bold()).foregroundColor(.white)
                 }
                 .padding(.horizontal, 18).padding(.vertical, 10)
                 .background(Color.black.opacity(0.85))
@@ -162,8 +162,8 @@ struct BackpackItemRow: View {
                             }
                             HStack(spacing: 6) {
                                 Text(item.category.rawValue).font(.caption2).foregroundColor(categoryColor(item.category))
-                                Text("\(String(format: "%.1f", item.weight))kg/个").font(.caption2).foregroundColor(.secondary)
-                                Text("共\(String(format: "%.1f", item.totalWeight))kg").font(.caption2).foregroundColor(.secondary)
+                                Text("\(String(format: "%.1f", item.weight))" + "kg/个".localized).font(.caption2).foregroundColor(.secondary)
+                                Text("共".localized + "\(String(format: "%.1f", item.totalWeight))kg").font(.caption2).foregroundColor(.secondary)
                             }
                         }
                     }
@@ -176,7 +176,7 @@ struct BackpackItemRow: View {
                 VStack(alignment: .trailing, spacing: 6) {
                     Text("x\(item.quantity)").font(.headline).foregroundColor(.orange)
                     Button(action: onUse) {
-                        Text("使用")
+                        Text("使用".localized)
                             .font(.caption2).bold()
                             .padding(.horizontal, 10).padding(.vertical, 5)
                             .background(Color.orange)
@@ -193,7 +193,7 @@ struct BackpackItemRow: View {
                 HStack(alignment: .top, spacing: 8) {
                     Rectangle().fill(Color.orange.opacity(0.5)).frame(width: 3)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("物品档案").font(.system(size: 9, weight: .bold)).foregroundColor(.orange.opacity(0.7))
+                        Text("物品档案".localized).font(.system(size: 9, weight: .bold)).foregroundColor(.orange.opacity(0.7))
                         Text(story).font(.caption).foregroundColor(.secondary).italic()
                     }
                 }

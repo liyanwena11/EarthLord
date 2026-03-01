@@ -10,9 +10,11 @@ struct DebugTestView: View {
     @StateObject private var store = StoreManager.shared
     @StateObject private var mailbox = MailboxManager.shared
     @StateObject private var engine = EarthLordEngine.shared
+    @StateObject private var iapManager = IAPManager.shared
 
     @State private var testResults: [String] = []
     @State private var isRunningTests = false
+    @State private var showPaymentTest = false
 
     var body: some View {
         NavigationView {
@@ -95,6 +97,10 @@ struct DebugTestView: View {
 
                         // 测试按钮
                         VStack(spacing: 12) {
+                            testButton("💳 支付测试（沙盒）", color: .purple) {
+                                showPaymentTest = true
+                            }
+
                             testButton("🔄 刷新商城", color: .blue) {
                                 await store.loadProducts()
                             }
@@ -125,6 +131,13 @@ struct DebugTestView: View {
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showPaymentTest) {
+                PaymentTestView()
+                    .environmentObject(iapManager)
+                    .environmentObject(store)
+                    .environmentObject(mailbox)
+                    .environmentObject(TierManager.shared)
+            }
         }
     }
 

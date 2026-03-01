@@ -7,9 +7,12 @@ struct POIListView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 1. 生成 POI 按钮
+            // 1. 扫描 POI 按钮
             Button(action: {
-                engine.createMultipleTestPOIs(count: 3)
+                // 触发 POI 发现（生产环境使用真实扫描）
+                Task {
+                    await engine.triggerPOIDiscovery()
+                }
             }) {
                 HStack {
                     Image(systemName: "antenna.radiowaves.left.and.right")
@@ -30,7 +33,7 @@ struct POIListView: View {
                     Spacer()
                     Image(systemName: "binoculars.fill").font(.system(size: 60)).foregroundColor(.gray)
                     Text("雷达未发现目标")
-                    Text("请点击上方按钮开始扫描").font(.caption).foregroundColor(.secondary)
+                    Text("请点击上方按钮开始扫描".localized).font(.caption).foregroundColor(.secondary)
                     Spacer()
                 }
             } else {
@@ -46,18 +49,18 @@ struct POIListView: View {
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(poi.name).font(.headline)
-                                Text("等级: \(poi.rarity.rawValue)")
+                                Text("等级".localized + ": \(poi.rarity.rawValue)")
                                     .font(.caption)
                                     .foregroundColor(poi.rarity.color)
                                 if let userLoc = engine.userLocation {
                                     let dist = userLoc.distance(from: poi.location)
-                                    Text("距离: \(Int(dist))m")
+                                    Text("距离".localized + ": \(Int(dist))m")
                                         .font(.system(.caption, design: .monospaced))
                                         .foregroundColor(.secondary)
                                 }
                             }
                             Spacer()
-                            Text(poi.isScavenged ? "已搜刮" : "可搜刮")
+                            Text(poi.isScavenged ? "已搜刮".localized : "可搜刮".localized)
                                 .font(.system(size: 10))
                                 .padding(5)
                                 .background((poi.isScavenged ? Color.gray : Color.green).opacity(0.1))
@@ -104,7 +107,7 @@ struct POIDetailSheet: View {
 
                         Text(poi.name)
                             .font(.title2.bold())
-                        Text("等级: \(poi.rarity.rawValue)")
+                        Text("等级".localized + ": \(poi.rarity.rawValue)")
                             .font(.subheadline)
                             .foregroundColor(poi.rarity.color)
                     }
@@ -115,7 +118,7 @@ struct POIDetailSheet: View {
                         let dist = userLoc.distance(from: poi.location)
                         HStack {
                             Image(systemName: "location.fill")
-                            Text("距离: \(Int(dist)) 米")
+                            Text("距离".localized + ": \(Int(dist)) " + "米".localized)
                         }
                         .foregroundColor(.secondary)
                     }
@@ -125,7 +128,7 @@ struct POIDetailSheet: View {
                         Circle()
                             .fill(poi.isScavenged ? Color.gray : Color.green)
                             .frame(width: 8, height: 8)
-                        Text(poi.isScavenged ? "已被搜刮" : "尚未搜刮")
+                        Text(poi.isScavenged ? "已被搜刮".localized : "尚未搜刮".localized)
                             .foregroundColor(poi.isScavenged ? .gray : .green)
                     }
 
@@ -157,7 +160,7 @@ struct POIDetailSheet: View {
                                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 } else {
                                     Image(systemName: "hand.tap.fill")
-                                    Text("搜刮资源点")
+                                    Text("搜刮资源点".localized)
                                 }
                             }
                             .font(.headline)
@@ -171,7 +174,7 @@ struct POIDetailSheet: View {
                     } else {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
-                            Text("已搜刮完毕")
+                            Text("已搜刮完毕".localized)
                         }
                         .font(.headline)
                         .frame(maxWidth: .infinity)
@@ -185,11 +188,11 @@ struct POIDetailSheet: View {
                 }
                 .padding()
             }
-            .navigationTitle("资源点详情")
+            .navigationTitle("资源点详情".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("关闭") {
+                    Button("关闭".localized) {
                         dismiss()
                     }
                 }
@@ -217,15 +220,15 @@ struct LootResultSheet: View {
                     .foregroundColor(.green)
                     .padding(.top, 30)
 
-                Text("搜刮成功!")
+                Text("搜刮成功!".localized)
                     .font(.title2.bold())
-                Text("从 \(poiName) 获得了物资")
+                Text("从 ".localized + "\(poiName) " + "获得了物资".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
                 // 物品列表
                 if items.isEmpty {
-                    Text("没有发现任何物品")
+                    Text("没有发现任何物品".localized)
                         .foregroundColor(.gray)
                         .padding()
                 } else {
@@ -251,7 +254,7 @@ struct LootResultSheet: View {
 
                 Spacer()
 
-                Button("收下") {
+                Button("收下".localized) {
                     dismiss()
                 }
                 .font(.headline)
@@ -263,7 +266,7 @@ struct LootResultSheet: View {
                 .padding(.horizontal)
                 .padding(.bottom, 30)
             }
-            .navigationTitle("搜刮结果")
+            .navigationTitle("搜刮结果".localized)
             .navigationBarTitleDisplayMode(.inline)
         }
     }

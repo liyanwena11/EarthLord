@@ -21,7 +21,7 @@ struct DailyTasksView: View {
                 HStack(spacing: 12) {
                     StatBox(
                         icon: "checkmark.circle.fill",
-                        title: "已完成",
+                        title: "已完成".localized,
                         value: "\(completedCount)",
                         total: "\(dailyTasks.count)",
                         color: ApocalypseTheme.success
@@ -29,7 +29,7 @@ struct DailyTasksView: View {
 
                     StatBox(
                         icon: "gift.fill",
-                        title: "可领取",
+                        title: "可领取".localized,
                         value: "\(claimableCount)",
                         total: "",
                         color: ApocalypseTheme.warning
@@ -37,7 +37,7 @@ struct DailyTasksView: View {
 
                     StatBox(
                         icon: "clock.fill",
-                        title: "剩余时间",
+                        title: "剩余时间".localized,
                         value: formattedRemainingTime,
                         total: "",
                         color: ApocalypseTheme.info
@@ -47,7 +47,7 @@ struct DailyTasksView: View {
 
                 // 任务列表
                 if isLoading {
-                    ProgressView("加载中...")
+                    ProgressView("加载中...".localized)
                         .frame(maxWidth: .infinity, minHeight: 200)
                 } else if dailyTasks.isEmpty {
                     EmptyTasksView()
@@ -68,9 +68,9 @@ struct DailyTasksView: View {
         .task {
             await loadDailyTasks()
         }
-        .alert("领取奖励", isPresented: $showClaimAlert) {
-            Button("取消", role: .cancel) { }
-            Button("领取") {
+        .alert("领取奖励".localized, isPresented: $showClaimAlert) {
+            Button("取消".localized, role: .cancel) { }
+            Button("领取".localized) {
                 Task {
                     if let task = taskToClaim {
                         await claimTaskReward(task)
@@ -79,7 +79,7 @@ struct DailyTasksView: View {
             }
         } message: {
             if let task = taskToClaim {
-                Text("确定要领取任务奖励吗？\n经验: \(task.reward.experience)")
+                Text("确定要领取任务奖励吗？\n经验".localized + ": \(task.reward.experience)")
             }
         }
     }
@@ -99,7 +99,7 @@ struct DailyTasksView: View {
     private var formattedRemainingTime: String {
         guard let expiry = earliestExpiry else { return "--:--" }
         let remaining = max(expiry.timeIntervalSince(Date()), 0)
-        if remaining <= 0 { return "已过期" }
+        if remaining <= 0 { return "已过期".localized }
 
         let hours = Int(remaining) / 3600
         let minutes = (Int(remaining) % 3600) / 60
@@ -165,18 +165,18 @@ struct DailyTaskCard: View {
 
                 // 状态标签
                 if task.isClaimed {
-                    StatusBadge(text: "已领取", color: ApocalypseTheme.textMuted)
+                    StatusBadge(text: "已领取".localized, color: ApocalypseTheme.textMuted)
                 } else if task.isCompleted {
-                    StatusBadge(text: "可领取", color: ApocalypseTheme.success)
+                    StatusBadge(text: "可领取".localized, color: ApocalypseTheme.success)
                 } else {
-                    StatusBadge(text: "进行中", color: ApocalypseTheme.primary)
+                    StatusBadge(text: "进行中".localized, color: ApocalypseTheme.primary)
                 }
             }
 
             // 进度条
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("进度")
+                    Text("进度".localized)
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textSecondary)
                     Spacer()
@@ -196,7 +196,7 @@ struct DailyTaskCard: View {
                 Image(systemName: "gift.fill")
                     .font(.caption)
                     .foregroundColor(ApocalypseTheme.warning)
-                Text("奖励: 经验+\(task.reward.experience)")
+                Text("奖励".localized + ": " + "经验".localized + "+\(task.reward.experience)")
                     .font(.caption)
                     .foregroundColor(ApocalypseTheme.textSecondary)
 
@@ -213,7 +213,7 @@ struct DailyTaskCard: View {
                     Button {
                         onTap()
                     } label: {
-                        Text("领取")
+                        Text("领取".localized)
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
@@ -299,10 +299,10 @@ struct EmptyTasksView: View {
             Image(systemName: "tray")
                 .font(.system(size: 50))
                 .foregroundColor(ApocalypseTheme.textMuted)
-            Text("暂无任务")
+            Text("暂无任务".localized)
                 .font(.title3)
                 .foregroundColor(ApocalypseTheme.textSecondary)
-            Text("每日任务会在每天0点刷新")
+            Text("每日任务会在每天0点刷新".localized)
                 .font(.caption)
                 .foregroundColor(ApocalypseTheme.textMuted)
         }

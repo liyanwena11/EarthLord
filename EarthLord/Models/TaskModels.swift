@@ -99,7 +99,7 @@ struct TaskReward: Codable {
 
 // MARK: - Achievement
 
-struct Achievement: Codable, Identifiable {
+struct Achievement: Codable, Identifiable, Equatable {
     let id: String
     let category: AchievementCategory
     let title: String
@@ -107,12 +107,19 @@ struct Achievement: Codable, Identifiable {
     let icon: String
     let requirement: AchievementRequirement
     let reward: AchievementReward
+    let difficulty: AchievementDifficulty? // 难度
     let isUnlocked: Bool
     let unlockedAt: Date?
     let progress: Double // 0.0 ~ 1.0
+    var wasUnlocked: Bool = false // 用于追踪是否新解锁
 
     var progressPercentage: Int {
         return Int(progress * 100)
+    }
+
+    // Equatable 实现
+    static func == (lhs: Achievement, rhs: Achievement) -> Bool {
+        lhs.id == rhs.id
     }
 }
 
@@ -191,13 +198,77 @@ enum AchievementRequirement: Codable {
     }
 }
 
-// MARK: - AchievementReward
+/// MARK: - AchievementReward
 
 struct AchievementReward: Codable {
-    let emblemId: String? // 解锁的徽章ID
-    let bonusResources: [String: Int] // 资源加成
+    let points: Int // 积分奖励
+    let badge: String? // 解锁的徽章名称
     let title: String? // 获得称号
-    let experience: Int
+    let resources: [AchievementResourceItem]? // 资源奖励
+    let experience: Int // 经验值
+    let emblemId: String? // 解锁的徽章ID（旧字段，保留兼容性）
+    let bonusResources: [String: Int] // 资源加成（旧字段，保留兼容性）
+}
+
+// MARK: - AchievementDifficulty
+
+enum AchievementDifficulty: String, Codable, CaseIterable {
+    case common = "common"
+    case rare = "rare"
+    case epic = "epic"
+    case legendary = "legendary"
+
+    var displayName: String {
+        switch self {
+        case .common: return "普通"
+        case .rare: return "稀有"
+        case .epic: return "史诗"
+        case .legendary: return "传说"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .common: return "⚪"
+        case .rare: return "🔵"
+        case .epic: return "🟣"
+        case .legendary: return "🟠"
+        }
+    }
+}
+
+// MARK: - AchievementResourceItem
+
+struct AchievementResourceItem: Identifiable, Codable {
+    var id: UUID = UUID()
+    let name: String
+    let type: String
+    let weight: Double
+    let quantity: Int
+
+    // 排除 id 从 Codable，因为它是自动生成的
+    enum CodingKeys: String, CodingKey {
+        case name, type, weight, quantity
+    }
+
+    // 自定义解码器，为 id 生成新值
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.type = try container.decode(String.self, forKey: .type)
+        self.weight = try container.decode(Double.self, forKey: .weight)
+        self.quantity = try container.decode(Int.self, forKey: .quantity)
+        self.id = UUID()
+    }
+
+    // 自定义编码器，跳过 id
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(type, forKey: .type)
+        try container.encode(weight, forKey: .weight)
+        try container.encode(quantity, forKey: .quantity)
+    }
 }
 
 // MARK: - TaskError

@@ -180,7 +180,7 @@ struct ChannelDetailView: View {
                     .padding(.bottom, 40)
                 }
             }
-            .navigationTitle("频道详情")
+            .navigationTitle("频道详情".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

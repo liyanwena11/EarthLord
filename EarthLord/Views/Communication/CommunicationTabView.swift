@@ -29,7 +29,7 @@ struct CommunicationTabView: View {
                     contentArea
                 }
             }
-            .navigationTitle("通讯中心")
+            .navigationTitle("通讯中心".localized)
             .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {
@@ -72,7 +72,7 @@ struct CommunicationTabView: View {
             Circle()
                 .fill(Color.green)
                 .frame(width: 8, height: 8)
-            Text("在线")
+            Text("在线".localized)
                 .font(.caption2)
                 .foregroundColor(.green)
         }

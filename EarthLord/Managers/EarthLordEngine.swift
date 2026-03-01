@@ -220,7 +220,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
 
         // ✅ 新增：自相交检测
-        if hasSelfIntersection(newPoint: location.coordinate) {
+        if hasSelfIntersection() {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             LogWarning("⚠️ [圈地] 检测到自相交（画8字形），拒绝此点")
             return  // 不添加这个点
@@ -441,6 +441,15 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         LogDebug("🗺️ [圈地] 当前本地领地数量: \(claimedTerritories.count)")
         LogDebug("🗺️ [圈地] 新领地 pathCoordinates 数量: \(newTerritory.pathCoordinates.count)")
 
+        // ✅ 触发领地成就检查
+        AchievementGameIntegration.shared.checkTerritoryAchievements(territoryCount: claimedTerritories.count)
+
+        // ✅ 触发领地面积成就检查
+        AchievementGameIntegration.shared.checkTerritoryAreaAchievements(area: area)
+
+        // ✅ 触发移动距离成就检查
+        AchievementGameIntegration.shared.checkTravelDistanceAchievements(distance: trackingDistance)
+
         // 先快照坐标，避免异步任务读取到被清空后的 pathPoints
         let coordinates = pathPoints.map { $0.coordinate }
         let startTime = Date()
@@ -618,6 +627,11 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
                 self.showProximityAlert = true
                 UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                 LogDebug("🎯 [搜刮] 进入 POI 范围：\(target.name)（\(target.rarity.rawValue)）")
+
+                // ✅ 触发POI发现成就检查
+                AchievementGameIntegration.shared.checkPOIDiscoveryAchievements(
+                    discoveredCount: nearbyPOIs.count
+                )
             }
         } else {
             if showProximityAlert {
@@ -667,6 +681,27 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
 
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         LogDebug("📦 [搜刮] 在「\(poi.name)」(\(poi.rarity.rawValue)) 获得：\(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))")
+
+        // ✅ 触发搜刮成就检查
+        let scavengedCount = nearbyPOIs.filter { $0.isScavenged }.count
+        AchievementGameIntegration.shared.checkScavengeAchievements(
+            scavengedCount: scavengedCount,
+            rarity: poi.rarity.rawValue
+        )
+
+        // ✅ 触发资源收集成就检查
+        for item in items {
+            AchievementGameIntegration.shared.checkResourceCollectionAchievements(
+                itemType: item.category.rawValue,
+                count: item.quantity
+            )
+        }
+
+        // ✅ 触发背包容量成就检查
+        AchievementGameIntegration.shared.checkBackpackCapacityAchievements(
+            capacity: Int(backpack.totalWeight)
+        )
+
         return items
     }
 
@@ -841,6 +876,9 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.claimedTerritories.append(newT)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         LogDebug("🚩 [圈地] 快速占领 @ (\(String(format: "%.5f", newT.lat)), \(String(format: "%.5f", newT.lon)))")
+
+        // ✅ 触发领地成就检查
+        AchievementGameIntegration.shared.checkTerritoryAchievements(territoryCount: claimedTerritories.count)
     }
 
     // MARK: - 测试 POI
@@ -869,5 +907,58 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     #endif
+
+    // MARK: - 生产环境 POI 发现
+
+    /// 触发 POI 发现（在生产环境中生成附近的 POI）
+    @MainActor
+    func triggerPOIDiscovery() async {
+        guard let loc = userLocation else {
+            LogDebug("📍 [POI] 无法发现 POI：用户位置未知")
+            return
+        }
+
+        // 检查是否已有足够的 POI
+        let nearbyCount = nearbyPOIs.filter { !$0.isScavenged }.count
+        if nearbyCount >= 5 {
+            LogDebug("📍 [POI] 附近已有足够的 POI（\(nearbyCount) 个）")
+            return
+        }
+
+        // 生成一个新的 POI
+        let rarity = POIRarity.allCases.randomElement() ?? .common
+        let newPOI = POIModel(
+            id: UUID(),
+            name: generatePOIName(for: rarity),
+            latitude: loc.coordinate.latitude + Double.random(in: -0.001...0.001),
+            longitude: loc.coordinate.longitude + Double.random(in: -0.001...0.001),
+            rarity: rarity
+        )
+
+        self.nearbyPOIs.append(newPOI)
+        LogDebug("📍 [POI] 发现新资源点：\(newPOI.name)（\(rarity.rawValue)）")
+
+        // 触发 POI 发现成就检查
+        AchievementGameIntegration.shared.checkPOIDiscoveryAchievements(
+            discoveredCount: nearbyPOIs.count
+        )
+    }
+
+    /// 生成 POI 名称
+    private func generatePOIName(for rarity: POIRarity) -> String {
+        let prefixes = ["废弃的", "神秘的", "古老的", "荒废的", "遗失的"]
+        let types = ["补给站", "仓库", "营地", "避难所", "物资箱"]
+
+        switch rarity {
+        case .common:
+            return "\(types.randomElement()!) #\(Int.random(in: 100...999))"
+        case .rare:
+            return "\(prefixes.randomElement()!)\(types.randomElement()!)"
+        case .epic:
+            return "精英\(types.randomElement()!)"
+        case .legendary:
+            return "传说\(types.randomElement()!)"
+        }
+    }
 
 }

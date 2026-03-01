@@ -15,11 +15,46 @@ struct AchievementsView: View {
     @State private var showAchievementDetail = false
     @State private var showLeaderboard = false
 
+    // ✅ 新增：筛选和搜索状态
+    @State private var searchText = ""
+    @State private var selectedStatus: AchievementStatusFilter = .all
+    @State private var selectedDifficulty: AchievementDifficulty? = nil
+    @State private var showFilterSheet = false
+
     var filteredAchievements: [Achievement] {
+        var result = manager.achievements
+
+        // 分类筛选
         if let category = selectedCategory {
-            return manager.achievements.filter { $0.category == category }
+            result = result.filter { $0.category == category }
         }
-        return manager.achievements
+
+        // 搜索筛选
+        if !searchText.isEmpty {
+            result = result.filter {
+                $0.title.localizedCaseInsensitiveContains(searchText) ||
+                $0.description.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+
+        // 状态筛选
+        switch selectedStatus {
+        case .all:
+            break
+        case .unlocked:
+            result = result.filter { $0.isUnlocked }
+        case .inProgress:
+            result = result.filter { !$0.isUnlocked && $0.progress > 0 }
+        case .notStarted:
+            result = result.filter { $0.progress == 0 }
+        }
+
+        // 难度筛选
+        if let difficulty = selectedDifficulty {
+            result = result.filter { $0.difficulty == difficulty }
+        }
+
+        return result
     }
 
     var body: some View {
@@ -38,8 +73,20 @@ struct AchievementsView: View {
                         statsOverview
                             .padding(.horizontal, 16)
 
+                        // 里程碑展示
+                        AchievementMilestoneView()
+                            .padding(.horizontal, 16)
+
+                        // 搜索和筛选栏
+                        searchAndFilterBar
+                            .padding(.horizontal, 16)
+
                         // 分类筛选
                         categoryFilter
+
+                        // 状态���选
+                        statusFilter
+                            .padding(.horizontal, 16)
 
                         // 成就列表
                         achievementsList
@@ -71,7 +118,7 @@ struct AchievementsView: View {
 
     private var navigationBar: some View {
         HStack {
-            Text("成就")
+            Text("成就".localized)
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
 
@@ -96,34 +143,46 @@ struct AchievementsView: View {
     // MARK: - Stats Overview
 
     private var statsOverview: some View {
-        HStack(spacing: 12) {
-            // 解锁数量
-            AchievementStatCard(
-                icon: "trophy.fill",
-                title: "已解锁",
-                value: "\(manager.totalUnlocked)",
-                subtitle: "/\(manager.achievements.count)",
-                color: Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255)
-            )
+        Group {
+            if manager.isLoading && manager.achievements.isEmpty {
+                HStack(spacing: 12) {
+                    AchievementStatSkeleton()
+                    AchievementStatSkeleton()
+                    AchievementStatSkeleton()
+                }
+            } else {
+                HStack(spacing: 12) {
+                    // 解锁数量
+                    AchievementStatCard(
+                        icon: "trophy.fill",
+                        title: "已解锁".localized,
+                        value: "\(manager.totalUnlocked)",
+                        subtitle: "/\(manager.achievements.count)",
+                        color: Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255)
+                    )
 
-            // 完成度
-            AchievementStatCard(
-                icon: "percent",
-                title: "完成度",
-                value: "\(manager.completionPercentage)%",
-                subtitle: "",
-                color: Color(red: 0x00/255, green: 0xFF/255, blue: 0x88/255)
-            )
+                    // 完成度
+                    AchievementStatCard(
+                        icon: "percent",
+                        title: "完成度".localized,
+                        value: "\(manager.completionPercentage)%",
+                        subtitle: "",
+                        color: Color(red: 0x00/255, green: 0xFF/255, blue: 0x88/255)
+                    )
 
-            // 总积分
-            AchievementStatCard(
-                icon: "star.fill",
-                title: "总积分",
-                value: "\(manager.totalPoints)",
-                subtitle: "",
-                color: Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
-            )
+                    // 总积分
+                    AchievementStatCard(
+                        icon: "star.fill",
+                        title: "总积分".localized,
+                        value: "\(manager.totalPoints)",
+                        subtitle: "",
+                        color: Color(red: 0x34/255, green: 0x98/255, blue: 0xDB/255)
+                    )
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
         }
+        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: manager.isLoading)
     }
 
     // MARK: - Category Filter
@@ -133,7 +192,7 @@ struct AchievementsView: View {
             HStack(spacing: 8) {
                 CategoryFilterChip(
                     icon: "square.grid.2x2",
-                    title: "全部",
+                    title: "全部".localized,
                     count: manager.achievements.count,
                     isSelected: selectedCategory == nil
                 ) {
@@ -155,13 +214,76 @@ struct AchievementsView: View {
         }
     }
 
+    // MARK: - Search and Filter Bar
+
+    private var searchAndFilterBar: some View {
+        HStack(spacing: 12) {
+            // 搜索框
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+
+                TextField("搜索成就...".localized, text: $searchText)
+                    .foregroundColor(.white)
+
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(red: 0x1E/255, green: 0x24/255, blue: 0x33/255))
+            .cornerRadius(10)
+
+            // 筛选按钮
+            Button {
+                showFilterSheet = true
+            } label: {
+                Image(systemName: selectedDifficulty != nil ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedDifficulty != nil ? .yellow : .gray)
+            }
+            .frame(width: 44, height: 44)
+            .background(Color(red: 0x1E/255, green: 0x24/255, blue: 0x33/255))
+            .cornerRadius(10)
+        }
+        .sheet(isPresented: $showFilterSheet) {
+            DifficultyFilterSheet(
+                selectedDifficulty: $selectedDifficulty
+            )
+        }
+    }
+
+    // MARK: - Status Filter
+
+    private var statusFilter: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(AchievementStatusFilter.allCases, id: \.self) { status in
+                    StatusFilterChip(
+                        title: status.displayName,
+                        isSelected: selectedStatus == status
+                    ) {
+                        withAnimation {
+                            selectedStatus = status
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: - Achievements List
 
     private var achievementsList: some View {
         LazyVStack(spacing: 12) {
             if manager.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 200)
+                AchievementListSkeleton(count: 5)
             } else if filteredAchievements.isEmpty {
                 EmptyAchievementsView()
             } else {
@@ -171,10 +293,15 @@ struct AchievementsView: View {
                             selectedAchievement = achievement
                             showAchievementDetail = true
                         }
+                        .transition(.asymmetric(
+                            insertion: .scale(scale: 0.9).combined(with: .opacity),
+                            removal: .opacity
+                        ))
                 }
             }
         }
         .padding(.horizontal, 16)
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: filteredAchievements.count)
     }
 }
 
@@ -350,7 +477,7 @@ struct AchievementCardEnhanced: View {
                     Image(systemName: "gift.fill")
                         .font(.system(size: 10))
 
-                    Text("已获得奖励")
+                    Text("已获得奖励".localized)
                         .font(.system(size: 11))
                 }
                 .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
@@ -444,7 +571,7 @@ struct AchievementDetailPopup: View {
                     // 进度
                     if !achievement.isUnlocked {
                         VStack(spacing: 8) {
-                            Text("进度: \(achievement.progressPercentage)%")
+                            Text("进度".localized + ": \(achievement.progressPercentage)%")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(achievement.category.color)
 
@@ -460,16 +587,16 @@ struct AchievementDetailPopup: View {
 
                     // 奖励
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("奖励")
+                        Text("奖励".localized)
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
 
                         VStack(spacing: 8) {
-                            if let emblemId = achievement.reward.emblemId {
+                            if achievement.reward.emblemId != nil {
                                 HStack {
                                     Image(systemName: "shield.fill")
                                         .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
-                                    Text("专属徽章")
+                                    Text("专属徽章".localized)
                                         .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
                                     Spacer()
                                 }
@@ -479,7 +606,7 @@ struct AchievementDetailPopup: View {
                                 HStack {
                                     Image(systemName: "crown.fill")
                                         .foregroundColor(Color(red: 0xFF/255, green: 0xD7/255, blue: 0x00/255))
-                                    Text("称号: \(title)")
+                                    Text("称号".localized + ": \(title)")
                                         .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
                                     Spacer()
                                 }
@@ -489,7 +616,7 @@ struct AchievementDetailPopup: View {
                                 HStack {
                                     Image(systemName: "star.fill")
                                         .foregroundColor(iconBlue)
-                                    Text("\(achievement.reward.experience) 经验")
+                                    Text("\(achievement.reward.experience) " + "经验".localized)
                                         .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
                                     Spacer()
                                 }
@@ -530,15 +657,144 @@ struct EmptyAchievementsView: View {
                 .font(.system(size: 60))
                 .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
 
-            Text("暂无成就")
+            Text("暂无成就".localized)
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(Color(red: 0xB0/255, green: 0xB8/255, blue: 0xC4/255))
 
-            Text("完成特定目标可解锁成就")
+            Text("完成特定目标可解锁成就".localized)
                 .font(.system(size: 14))
                 .foregroundColor(Color(red: 0x6B/255, green: 0x77/255, blue: 0x85/255))
         }
         .frame(maxWidth: .infinity, minHeight: 300)
+    }
+}
+
+// MARK: - Achievement Status Filter
+
+enum AchievementStatusFilter: CaseIterable {
+    case all
+    case unlocked
+    case inProgress
+    case notStarted
+
+    var displayName: String {
+        switch self {
+        case .all: return "全部".localized
+        case .unlocked: return "已解锁".localized
+        case .inProgress: return "进行中".localized
+        case .notStarted: return "未开始".localized
+        }
+    }
+}
+
+// MARK: - Status Filter Chip
+
+struct StatusFilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button {
+            onTap()
+        } label: {
+            Text(title)
+                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                .foregroundColor(isSelected ? .black : .gray)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.yellow : Color(red: 0x1E/255, green: 0x24/255, blue: 0x33/255))
+                .cornerRadius(16)
+        }
+    }
+}
+
+// MARK: - Difficulty Filter Sheet
+
+struct DifficultyFilterSheet: View {
+    @Environment(\.dismiss) var dismiss
+    @Binding var selectedDifficulty: AchievementDifficulty?
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // 难度选项
+                VStack(spacing: 12) {
+                    // 全部
+                    DifficultyOptionRow(
+                        title: "全部难度".localized,
+                        icon: "square.grid.2x2",
+                        isSelected: selectedDifficulty == nil
+                    ) {
+                        selectedDifficulty = nil
+                    }
+
+                    Divider()
+                        .background(Color(red: 0x2A/255, green: 0x30/255, blue: 0x3D/255))
+
+                    ForEach(AchievementDifficulty.allCases, id: \.self) { difficulty in
+                        DifficultyOptionRow(
+                            title: difficulty.displayName,
+                            icon: difficulty.icon,
+                            isSelected: selectedDifficulty == difficulty
+                        ) {
+                            selectedDifficulty = difficulty
+                        }
+
+                        if difficulty != .legendary {
+                            Divider()
+                                .background(Color(red: 0x2A/255, green: 0x30/255, blue: 0x3D/255))
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(Color(red: 0x12/255, green: 0x18/255, blue: 0x26/255))
+            .navigationTitle("筛选难度".localized)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("完成".localized) {
+                        dismiss()
+                    }
+                    .foregroundColor(.yellow)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Difficulty Option Row
+
+struct DifficultyOptionRow: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button {
+            onTap()
+        } label: {
+            HStack(spacing: 12) {
+                Text(icon)
+                    .font(.system(size: 24))
+
+                Text(title)
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.yellow)
+                        .font(.system(size: 20))
+                }
+            }
+            .padding(.vertical, 12)
+            .contentShape(Rectangle())
+        }
     }
 }
 

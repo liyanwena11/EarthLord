@@ -104,7 +104,7 @@ struct SpeedRecord: Codable, Identifiable {
     let username: String
     let displayName: String?
     let avatarUrl: String?
-    let milestoneType: MilestoneType
+    let milestoneType: LeaderboardMilestoneType
     let daysTaken: Int
     let achievedAt: Date
     let ranking: Int
@@ -122,7 +122,7 @@ struct SpeedRecord: Codable, Identifiable {
     }
 }
 
-enum MilestoneType: String, Codable {
+enum LeaderboardMilestoneType: String, Codable {
     case first10 = "first_10"
     case first50 = "first_50"
     case first100 = "first_100"

@@ -50,11 +50,15 @@ class AchievementManager: ObservableObject {
                     icon: def.icon,
                     requirement: parseRequirement(def.requirement),
                     reward: AchievementReward(
-                        emblemId: def.rewardEmblemId,
-                        bonusResources: def.rewardResources ?? [:],
+                        points: def.points ?? 0,
+                        badge: def.rewardEmblemId,
                         title: def.rewardTitle,
-                        experience: def.rewardExperience
+                        resources: nil,
+                        experience: def.rewardExperience,
+                        emblemId: def.rewardEmblemId,
+                        bonusResources: def.rewardResources ?? [:]
                     ),
+                    difficulty: def.difficulty.flatMap { AchievementDifficulty(rawValue: $0) },
                     isUnlocked: false,
                     unlockedAt: nil,
                     progress: 0.0
@@ -179,6 +183,7 @@ class AchievementManager: ObservableObject {
                     icon: achievement.icon,
                     requirement: achievement.requirement,
                     reward: achievement.reward,
+                    difficulty: achievement.difficulty,
                     isUnlocked: userAch.isUnlocked,
                     unlockedAt: userAch.unlockedAt,
                     progress: userAch.progress
