@@ -1491,7 +1491,7 @@
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "needs_review",
+            "state": "translated",
             "value": "About Game"
           }
         },
@@ -1685,7 +1685,7 @@
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "needs_review",
+            "state": "translated",
             "value": "Claimed on %@"
           }
         },
@@ -1844,7 +1844,7 @@
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "needs_review",
+            "state": "translated",
             "value": "Rebuild civilization in the apocalypse"
           }
         },
@@ -3210,7 +3210,7 @@
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "needs_review",
+            "state": "translated",
             "value": "Locating..."
           }
         },
@@ -3831,7 +3831,7 @@
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "needs_review",
+            "state": "translated",
             "value": "Latitude"
           }
         },
