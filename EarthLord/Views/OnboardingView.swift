@@ -26,53 +26,73 @@ extension OnboardingPage {
     static let pages: [OnboardingPage] = [
         OnboardingPage(
             id: 0,
-            title: "欢迎来到 EarthLord",
-            subtitle: "末日后生存冒险游戏",
-            description: "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！",
+            title: String(localized: String.LocalizationValue("欢迎来到 EarthLord")),
+            subtitle: String(localized: String.LocalizationValue("末日后生存冒险游戏")),
+            description: String(localized: String.LocalizationValue("2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！")),
             iconName: "globe.americas.fill",
             iconColor: ApocalypseTheme.primary,
             gradientColors: [ApocalypseTheme.primary, Color.orange],
-            features: ["真实世界地图", "末日生存主题", "角色扮演冒险"]
+            features: [
+                String(localized: String.LocalizationValue("真实世界地图")),
+                String(localized: String.LocalizationValue("末日生存主题")),
+                String(localized: String.LocalizationValue("角色扮演冒险"))
+            ]
         ),
         OnboardingPage(
             id: 1,
-            title: "探索真实世界",
-            subtitle: "基于真实地理位置的冒险",
-            description: "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！",
+            title: String(localized: String.LocalizationValue("探索真实世界")),
+            subtitle: String(localized: String.LocalizationValue("基于真实地理位置的冒险")),
+            description: String(localized: String.LocalizationValue("走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！")),
             iconName: "map.fill",
             iconColor: Color.green,
             gradientColors: [Color.green, Color.mint],
-            features: ["发现POI地点", "行走搜刮物资", "真实地图导航"]
+            features: [
+                String(localized: String.LocalizationValue("发现POI地点")),
+                String(localized: String.LocalizationValue("行走搜刮物资")),
+                String(localized: String.LocalizationValue("真实地图导航"))
+            ]
         ),
         OnboardingPage(
             id: 2,
-            title: "圈地建领地",
-            subtitle: "打造你的末日堡垒",
-            description: "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！",
+            title: String(localized: String.LocalizationValue("圈地建领地")),
+            subtitle: String(localized: String.LocalizationValue("打造你的末日堡垒")),
+            description: String(localized: String.LocalizationValue("在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！")),
             iconName: "flag.fill",
             iconColor: Color.blue,
             gradientColors: [Color.blue, Color.cyan],
-            features: ["绘制封闭区域", "建造多样建筑", "获得防御加成"]
+            features: [
+                String(localized: String.LocalizationValue("绘制封闭区域")),
+                String(localized: String.LocalizationValue("建造多样建筑")),
+                String(localized: String.LocalizationValue("获得防御加成"))
+            ]
         ),
         OnboardingPage(
             id: 3,
-            title: "组队社交交易",
-            subtitle: "与其他幸存者互动",
-            description: "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！",
+            title: String(localized: String.LocalizationValue("组队社交交易")),
+            subtitle: String(localized: String.LocalizationValue("与其他幸存者互动")),
+            description: String(localized: String.LocalizationValue("加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！")),
             iconName: "person.2.fill",
             iconColor: Color.purple,
             gradientColors: [Color.purple, Color.pink],
-            features: ["实时频道聊天", "玩家自由交易", "组队联机冒险"]
+            features: [
+                String(localized: String.LocalizationValue("实时频道聊天")),
+                String(localized: String.LocalizationValue("玩家自由交易")),
+                String(localized: String.LocalizationValue("组队联机冒险"))
+            ]
         ),
         OnboardingPage(
             id: 4,
-            title: "每日挑战与成就",
-            subtitle: "持续成长的动力",
-            description: "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！",
+            title: String(localized: String.LocalizationValue("每日挑战与成就")),
+            subtitle: String(localized: String.LocalizationValue("持续成长的动力")),
+            description: String(localized: String.LocalizationValue("完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！")),
             iconName: "star.fill",
             iconColor: Color.yellow,
             gradientColors: [Color.yellow, Color.orange],
-            features: ["每日任务奖励", "成就永久加成", "领地等级提升"]
+            features: [
+                String(localized: String.LocalizationValue("每日任务奖励")),
+                String(localized: String.LocalizationValue("成就永久加成")),
+                String(localized: String.LocalizationValue("领地等级提升"))
+            ]
         )
     ]
 }
@@ -193,7 +213,7 @@ struct OnboardingView: View {
                         Button(action: {
                             completeOnboarding()
                         }) {
-                            Text("跳过")
+                            Text(String(localized: String.LocalizationValue("跳过")))
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(Color.white.opacity(0.4))
                                 .padding(.vertical, 12)
@@ -213,7 +233,7 @@ struct OnboardingView: View {
                             }
                         }) {
                             HStack(spacing: 8) {
-                                Text(currentPage < OnboardingPage.pages.count - 1 ? "下一页" : "开始游戏")
+                                Text(currentPage < OnboardingPage.pages.count - 1 ? String(localized: String.LocalizationValue("下一页")) : String(localized: String.LocalizationValue("开始游戏")))
                                     .font(.system(size: 16, weight: .bold))
 
                                 Image(systemName: currentPage < OnboardingPage.pages.count - 1 ? "arrow.right" : "sparkles")

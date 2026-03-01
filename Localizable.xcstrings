@@ -943,12 +943,233 @@
         }
       }
     },
+    "antibiotic": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antibiotic"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抗生素"
+          }
+        }
+      }
+    },
+    "bandage": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bandage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "绷带"
+          }
+        }
+      }
+    },
+    "battery": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电池"
+          }
+        }
+      }
+    },
+    "bread": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bread"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "面包"
+          }
+        }
+      }
+    },
+    "brick": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brick"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "砖"
+          }
+        }
+      }
+    },
+    "canned_food": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canned Food"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "罐头"
+          }
+        }
+      }
+    },
+    "cement": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cement"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "水泥"
+          }
+        }
+      }
+    },
+    "circuit": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Circuit Board"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电路板"
+          }
+        }
+      }
+    },
+    "clay": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clay"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘土"
+          }
+        }
+      }
+    },
+    "cloth": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloth"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "布料"
+          }
+        }
+      }
+    },
+    "coal": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "煤"
+          }
+        }
+      }
+    },
     "Control Center": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Control Center"
+          }
+        }
+      }
+    },
+    "copper": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copper"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铜"
+          }
+        }
+      }
+    },
+    "copper_ore": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copper Ore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铜矿"
           }
         }
       }
@@ -993,6 +1214,23 @@
         }
       }
     },
+    "electronics": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Electronics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电子元件"
+          }
+        }
+      }
+    },
     "Empire Tier 权益：额外 %lld%% 防御加成": {
       "localizations": {
         "en": {
@@ -1013,12 +1251,63 @@
         }
       }
     },
+    "food": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "食物"
+          }
+        }
+      }
+    },
     "Friends List": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Friends List"
+          }
+        }
+      }
+    },
+    "fruit": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fruit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "水果"
+          }
+        }
+      }
+    },
+    "fuel": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "燃料"
           }
         }
       }
@@ -1039,6 +1328,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Game Settings"
+          }
+        }
+      }
+    },
+    "glass": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glass"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玻璃"
+          }
+        }
+      }
+    },
+    "gold": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gold"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金"
           }
         }
       }
@@ -1083,6 +1406,40 @@
         }
       }
     },
+    "iron": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iron"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铁"
+          }
+        }
+      }
+    },
+    "iron_ore": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iron Ore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铁矿"
+          }
+        }
+      }
+    },
     "kg/个": {
       "localizations": {
         "en": {
@@ -1095,6 +1452,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "kg/个"
+          }
+        }
+      }
+    },
+    "leather": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leather"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "皮革"
           }
         }
       }
@@ -1119,12 +1493,131 @@
         }
       }
     },
+    "material_001": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "material_001"
+          }
+        }
+      }
+    },
+    "material_002": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "material_002"
+          }
+        }
+      }
+    },
+    "material_003": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iron Ore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "material_003"
+          }
+        }
+      }
+    },
+    "material_004": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copper Ore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "material_004"
+          }
+        }
+      }
+    },
+    "material_005": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "material_005"
+          }
+        }
+      }
+    },
     "MAX": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "MAX"
+          }
+        }
+      }
+    },
+    "meat": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meat"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "肉"
+          }
+        }
+      }
+    },
+    "medicine": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medicine"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "药品"
           }
         }
       }
@@ -1139,12 +1632,63 @@
         }
       }
     },
+    "metal": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金属"
+          }
+        }
+      }
+    },
+    "oil": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oil"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "石油"
+          }
+        }
+      }
+    },
     "Personalize your game experience": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Personalize your game experience"
+          }
+        }
+      }
+    },
+    "plastic": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plastic"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "塑料"
           }
         }
       }
@@ -1239,6 +1783,108 @@
         }
       }
     },
+    "rope": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rope"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "绳子"
+          }
+        }
+      }
+    },
+    "rubber": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rubber"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "橡胶"
+          }
+        }
+      }
+    },
+    "scrap": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "废料"
+          }
+        }
+      }
+    },
+    "steel": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "钢"
+          }
+        }
+      }
+    },
+    "steel_ingot": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steel Ingot"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "钢锭"
+          }
+        }
+      }
+    },
+    "stone": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "石头"
+          }
+        }
+      }
+    },
     "StoreKit %@": {
       "localizations": {
         "en": {
@@ -1279,6 +1925,39 @@
         }
       }
     },
+    "unit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "units"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unit"
+          }
+        }
+      }
+    },
+    "vegetable": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vegetable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "蔬菜"
+          }
+        }
+      }
+    },
     "Vibration feedback during operations": {
       "localizations": {
         "en": {
@@ -1295,6 +1974,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "VIP"
+          }
+        }
+      }
+    },
+    "water": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Water"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "水"
+          }
+        }
+      }
+    },
+    "wire": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wire"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电线"
+          }
+        }
+      }
+    },
+    "wood": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wood"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "木材"
           }
         }
       }
@@ -1423,6 +2152,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "个人"
+          }
+        }
+      }
+    },
+    "临时营地": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporary Camp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "临时营地"
           }
         }
       }
@@ -3080,6 +3825,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "块"
+          }
+        }
+      }
+    },
+    "城邦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "City State"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "城邦"
           }
         }
       }
@@ -4810,6 +5571,22 @@
         }
       }
     },
+    "据点": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outpost"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "据点"
+          }
+        }
+      }
+    },
     "探索中": {
       "localizations": {
         "en": {
@@ -5700,6 +6477,7 @@
       }
     },
     "木材": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5721,6 +6499,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unranked"
+          }
+        }
+      }
+    },
+    "未命名领地": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unnamed Territory"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未命名领地"
           }
         }
       }
@@ -7859,6 +8653,22 @@
         }
       }
     },
+    "要塞": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortress"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要塞"
+          }
+        }
+      }
+    },
     "解锁终极游戏体验": {
       "localizations": {
         "en": {
@@ -8968,6 +9778,22 @@
         }
       }
     },
+    "避难所": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shelter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "避难所"
+          }
+        }
+      }
+    },
     "邮箱": {
       "localizations": {
         "en": {
@@ -9757,786 +10583,562 @@
         }
       }
     },
-    "wood": {
+    "欢迎来到 EarthLord": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wood"
+            "value": "Welcome to EarthLord"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "木材"
+            "value": "欢迎来到 EarthLord"
           }
         }
       }
     },
-    "stone": {
+    "探索真实世界": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stone"
+            "value": "Explore the Real World"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "石头"
+            "value": "探索真实世界"
           }
         }
       }
     },
-    "iron": {
+    "圈地建领地": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Iron"
+            "value": "Claim Your Territory"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "铁"
+            "value": "圈地建领地"
           }
         }
       }
     },
-    "iron_ore": {
+    "组队社交交易": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Iron Ore"
+            "value": "Team Up & Trade"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "铁矿"
+            "value": "组队社交交易"
           }
         }
       }
     },
-    "copper": {
+    "每日挑战与成就": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copper"
+            "value": "Daily Challenges & Achievements"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "铜"
+            "value": "每日挑战与成就"
           }
         }
       }
     },
-    "copper_ore": {
+    "末日后生存冒险游戏": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copper Ore"
+            "value": "Post-Apocalyptic Survival Adventure"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "铜矿"
+            "value": "末日后生存冒险游戏"
           }
         }
       }
     },
-    "coal": {
+    "基于真实地理位置的冒险": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Coal"
+            "value": "Location-Based Adventure"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "煤"
+            "value": "基于真实地理位置的冒险"
           }
         }
       }
     },
-    "steel": {
+    "打造你的末日堡垒": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steel"
+            "value": "Build Your Sanctuary"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钢"
+            "value": "打造你的末日堡垒"
           }
         }
       }
     },
-    "steel_ingot": {
+    "与其他幸存者互动": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Steel Ingot"
+            "value": "Connect with Survivors"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钢锭"
+            "value": "与其他幸存者互动"
           }
         }
       }
     },
-    "gold": {
+    "持续成长的动力": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gold"
+            "value": "Continuous Growth"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "金"
+            "value": "持续成长的动力"
           }
         }
       }
     },
-    "cement": {
+    "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cement"
+            "value": "In 2048, civilization is rebuilding. Become a pioneer, explore the wasteland, and establish your territory!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "水泥"
+            "value": "2048年，末日后的人类文明正在重建。成为新时代的开拓者，用脚步丈量废土，建立属于你的领地！"
           }
         }
       }
     },
-    "glass": {
+    "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Glass"
+            "value": "Step out and explore real-world POIs. Discover ruins, malls, hospitals, and scavenge for supplies!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "玻璃"
+            "value": "走出避难所，在真实世界中探索POI地点。行走发现废墟、商场、医院等地点，搜刮珍贵生存物资！"
           }
         }
       }
     },
-    "brick": {
+    "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Brick"
+            "value": "Draw enclosed areas on the map to claim territory. Larger areas provide better defense bonuses. Build shelters, farms, and warehouses!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "砖"
+            "value": "在地图上绘制封闭区域创建领地。圈地越大，防御加成越高。消耗资源建造避难所、农场、仓库！"
           }
         }
       }
     },
-    "clay": {
+    "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clay"
+            "value": "Join channels to chat globally, trade with other survivors. Team up with up to 4 players to explore together!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "粘土"
+            "value": "加入频道与全球玩家交流，与其他幸存者交易物资。最多4人组队联机，共同探索末日世界！"
           }
         }
       }
     },
-    "water": {
+    "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Water"
+            "value": "Complete daily tasks for rewards, unlock achievements for permanent bonuses. Level up your territory to unlock more features!"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "水"
+            "value": "完成每日任务获得丰厚奖励，解锁成就获得永久加成。提升领地等级，解锁更多建筑和功能！"
           }
         }
       }
     },
-    "food": {
+    "真实世界地图": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Food"
+            "value": "Real-World Map"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "食物"
+            "value": "真实世界地图"
           }
         }
       }
     },
-    "meat": {
+    "末日生存主题": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meat"
+            "value": "Post-Apocalyptic Theme"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "肉"
+            "value": "末日生存主题"
           }
         }
       }
     },
-    "vegetable": {
+    "角色扮演冒险": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vegetable"
+            "value": "RPG Adventure"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "蔬菜"
+            "value": "角色扮演冒险"
           }
         }
       }
     },
-    "fruit": {
+    "发现POI地点": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fruit"
+            "value": "Discover POIs"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "水果"
+            "value": "发现POI地点"
           }
         }
       }
     },
-    "bread": {
+    "行走搜刮物资": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bread"
+            "value": "Walk to Scavenge"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "面包"
+            "value": "行走搜刮物资"
           }
         }
       }
     },
-    "canned_food": {
+    "真实地图导航": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Canned Food"
+            "value": "Real Map Navigation"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "罐头"
+            "value": "真实地图导航"
           }
         }
       }
     },
-    "medicine": {
+    "绘制封闭区域": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Medicine"
+            "value": "Draw Enclosed Areas"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "药品"
+            "value": "绘制封闭区域"
           }
         }
       }
     },
-    "bandage": {
+    "建造多样建筑": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bandage"
+            "value": "Build Various Structures"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "绷带"
+            "value": "建造多样建筑"
           }
         }
       }
     },
-    "antibiotic": {
+    "获得防御加成": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Antibiotic"
+            "value": "Defense Bonuses"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "抗生素"
+            "value": "获得防御加成"
           }
         }
       }
     },
-    "metal": {
+    "实时频道聊天": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metal"
+            "value": "Real-Time Chat"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "金属"
+            "value": "实时频道聊天"
           }
         }
       }
     },
-    "plastic": {
+    "玩家自由交易": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plastic"
+            "value": "Player Trading"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "塑料"
+            "value": "玩家自由交易"
           }
         }
       }
     },
-    "rubber": {
+    "组队联机冒险": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rubber"
+            "value": "Multiplayer Co-op"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "橡胶"
+            "value": "组队联机冒险"
           }
         }
       }
     },
-    "cloth": {
+    "每日任务奖励": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cloth"
+            "value": "Daily Task Rewards"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "布料"
+            "value": "每日任务奖励"
           }
         }
       }
     },
-    "leather": {
+    "成就永久加成": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leather"
+            "value": "Permanent Achievement Buffs"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "皮革"
+            "value": "成就永久加成"
           }
         }
       }
     },
-    "rope": {
+    "领地等级提升": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rope"
+            "value": "Territory Level Up"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "绳子"
+            "value": "领地等级提升"
           }
         }
       }
     },
-    "electronics": {
+    "跟随系统": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Electronics"
+            "value": "Follow System"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "电子元件"
+            "value": "跟随系统"
           }
         }
       }
     },
-    "circuit": {
+    "简体中文": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Circuit Board"
+            "value": "Simplified Chinese"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "电路板"
+            "value": "简体中文"
           }
         }
       }
     },
-    "battery": {
+    "English": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Battery"
+            "value": "English"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "电池"
+            "value": "English"
           }
         }
       }
     },
-    "wire": {
+    "语言更改将立即生效": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wire"
+            "value": "Language changes take effect immediately"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "电线"
+            "value": "语言更改将立即生效"
           }
         }
       }
     },
-    "fuel": {
+    "正在重启应用...": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fuel"
+            "value": "Restarting..."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "燃料"
-          }
-        }
-      }
-    },
-    "oil": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oil"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "石油"
-          }
-        }
-      }
-    },
-    "scrap": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scrap"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "废料"
-          }
-        }
-      }
-    },
-    "material_001": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wood"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "material_001"
-          }
-        }
-      }
-    },
-    "material_002": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stone"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "material_002"
-          }
-        }
-      }
-    },
-    "material_003": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Iron Ore"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "material_003"
-          }
-        }
-      }
-    },
-    "material_004": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copper Ore"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "material_004"
-          }
-        }
-      }
-    },
-    "material_005": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coal"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "material_005"
-          }
-        }
-      }
-    },
-    "未命名领地": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unnamed Territory"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未命名领地"
-          }
-        }
-      }
-    },
-    "临时营地": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Temporary Camp"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "临时营地"
-          }
-        }
-      }
-    },
-    "避难所": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shelter"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "避难所"
-          }
-        }
-      }
-    },
-    "据点": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Outpost"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "据点"
-          }
-        }
-      }
-    },
-    "要塞": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fortress"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要塞"
-          }
-        }
-      }
-    },
-    "城邦": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "City State"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "城邦"
-          }
-        }
-      }
-    },
-    "unit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "units"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "unit"
+            "value": "正在重启应用..."
           }
         }
       }
