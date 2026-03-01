@@ -59,19 +59,19 @@ struct Territory: Codable, Identifiable {
         if let name = name, !name.isEmpty {
             return name
         }
-        return "未命名领地"
+        return String(localized: "未命名领地")
     }
 
     /// 领地等级显示名称
     var levelName: String {
-        guard let lvl = level else { return "临时营地" }
+        guard let lvl = level else { return String(localized: "临时营地") }
         switch lvl {
-        case 1: return "临时营地"
-        case 2: return "避难所"
-        case 3: return "据点"
-        case 4: return "要塞"
-        case 5: return "城邦"
-        default: return "临时营地"
+        case 1: return String(localized: "临时营地")
+        case 2: return String(localized: "避难所")
+        case 3: return String(localized: "据点")
+        case 4: return String(localized: "要塞")
+        case 5: return String(localized: "城邦")
+        default: return String(localized: "临时营地")
         }
     }
 

@@ -261,15 +261,6 @@ struct ResourceRowView: View {
     }
 
     private func resourceDisplayName(_ id: String) -> String {
-        switch id {
-        case "wood": return "木材"
-        case "stone": return "石头"
-        case "metal": return "金属"
-        case "glass": return "玻璃"
-        case "cloth": return "布料"
-        case "food": return "食物"
-        case "water": return "水"
-        default: return id
-        }
+        return String(localized: String.LocalizationValue(id))
     }
 }

@@ -44,7 +44,7 @@ struct ResourceBackpackView: View {
     // 模拟资源数据
     let resources = [
         ResourceItem(name: String(localized: "大米"), quantity: 20, capacity: 100, unit: "kg"),
-        ResourceItem(name: String(localized: "木材"), quantity: 50, capacity: 200, unit: "个"),
+        ResourceItem(name: String(localized: "wood"), quantity: 50, capacity: 200, unit: String(localized: "unit")),
         ResourceItem(name: String(localized: "金属"), quantity: 30, capacity: 150, unit: "个"),
         ResourceItem(name: String(localized: "燃油"), quantity: 15, capacity: 100, unit: "L"),
         ResourceItem(name: String(localized: "工具"), quantity: 5, capacity: 50, unit: "个")

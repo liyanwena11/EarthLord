@@ -42,7 +42,7 @@ struct MainMapView: View {
 
                 // 领地标注
                 ForEach(engine.claimedTerritories) { territory in
-                    Annotation(territory.name, coordinate: territory.location.coordinate) {
+                    Annotation(territory.displayName, coordinate: territory.location.coordinate) {
                         TerritoryAnnotationView()
                     }
                 }

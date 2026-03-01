@@ -48,13 +48,21 @@ struct TerritoryModel: Identifiable, Codable {
     let lat: Double          // 中心点纬度
     let lon: Double          // 中心点经度
     let claimedAt: Date
-    var name: String = "未命名领地"
+    var name: String = ""    // 领地名称（用户自定义）
     var area: Double = 0     // 面积（平方米）
     var pointCount: Int = 0  // 采样点数
     var pathLatitudes: [Double] = []   // 路径纬度数组
     var pathLongitudes: [Double] = []  // 路径经度数组
 
     var location: CLLocation { CLLocation(latitude: lat, longitude: lon) }
+
+    /// 显示名称
+    var displayName: String {
+        if !name.isEmpty {
+            return name
+        }
+        return String(localized: "未命名领地")
+    }
 
     /// 获取路径坐标数组
     var pathCoordinates: [CLLocationCoordinate2D] {
