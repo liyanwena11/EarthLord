@@ -390,7 +390,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "从 "
+            "value": "From "
           }
         },
         "zh-Hans": {
@@ -406,7 +406,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "件"
+            "value": "item"
           }
         },
         "zh-Hans": {
@@ -438,7 +438,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "任务发布"
+            "value": "Mission Posted"
           }
         },
         "zh-Hans": {
@@ -470,7 +470,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用"
+            "value": "Use"
           }
         },
         "zh-Hans": {
@@ -486,7 +486,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用中"
+            "value": "In Use"
           }
         },
         "zh-Hans": {
@@ -518,7 +518,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "停止探索"
+            "value": "Stop Exploring"
           }
         },
         "zh-Hans": {
@@ -534,7 +534,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "全局"
+            "value": "Global"
           }
         },
         "zh-Hans": {
@@ -582,7 +582,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "公开频道"
+            "value": "Public Channel"
           }
         },
         "zh-Hans": {
@@ -598,7 +598,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "共"
+            "value": "Total"
           }
         },
         "zh-Hans": {
@@ -630,7 +630,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "关于"
+            "value": "About"
           }
         },
         "zh-Hans": {
@@ -662,7 +662,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大容量"
+            "value": "Max Capacity"
           }
         },
         "zh-Hans": {
@@ -694,7 +694,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "切换"
+            "value": "Switch"
           }
         },
         "zh-Hans": {
@@ -710,7 +710,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "切换设备失败："
+            "value": "Failed to switch device: "
           }
         },
         "zh-Hans": {
@@ -726,7 +726,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "刚刚"
+            "value": "Just now"
           }
         },
         "zh-Hans": {
@@ -742,7 +742,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "创建新频道"
+            "value": "Create New Channel"
           }
         },
         "zh-Hans": {
@@ -758,7 +758,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "删除账号"
+            "value": "Delete Account"
           }
         },
         "zh-Hans": {
@@ -774,7 +774,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "前往地图页面，点击「圈地」按钮开始行走采样！"
+            "value": "Go to map, tap 'Claim Land' to start walking!"
           }
         },
         "zh-Hans": {
@@ -790,7 +790,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "前往地图页面开始圈地，占领你的第一块领地！"
+            "value": "Go to map to claim your first territory!"
           }
         },
         "zh-Hans": {
@@ -822,7 +822,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "加入 %lld 天"
+            "value": "Joined %lld days"
           }
         },
         "zh-Hans": {
@@ -838,7 +838,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "加入 EarthLord"
+            "value": "Join EarthLord"
           }
         },
         "zh-Hans": {
@@ -854,7 +854,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "加入时间:"
+            "value": "Join Time:"
           }
         },
         "zh-Hans": {
@@ -870,7 +870,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "卫星通讯"
+            "value": "Satellite Comm"
           }
         },
         "zh-Hans": {
@@ -886,7 +886,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "卫星频道"
+            "value": "Satellite Channel"
           }
         },
         "zh-Hans": {
@@ -918,7 +918,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "只能接收信号，无法发送消息"
+            "value": "Receive only, cannot send messages"
           }
         },
         "zh-Hans": {
@@ -934,7 +934,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "可在3公里范围内通讯"
+            "value": "3km communication range"
           }
         },
         "zh-Hans": {
@@ -950,7 +950,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "可在30公里范围内广播"
+            "value": "30km broadcast range"
           }
         },
         "zh-Hans": {
@@ -966,7 +966,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "可在100公里+范围内联络"
+            "value": "100km+ range"
           }
         },
         "zh-Hans": {
@@ -982,7 +982,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "可建造建筑"
+            "value": "Buildable"
           }
         },
         "zh-Hans": {
@@ -1030,7 +1030,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "呼叫"
+            "value": "Call"
           }
         },
         "zh-Hans": {
@@ -1046,7 +1046,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "呼号设置"
+            "value": "Callsign Settings"
           }
         },
         "zh-Hans": {
@@ -1142,7 +1142,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "天"
+            "value": "days"
           }
         },
         "zh-Hans": {
@@ -1222,7 +1222,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "官方频道"
+            "value": "Official Channel"
           }
         },
         "zh-Hans": {
@@ -1238,7 +1238,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "对讲机"
+            "value": "Walkie-Talkie"
           }
         },
         "zh-Hans": {
@@ -1254,7 +1254,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "对讲频道"
+            "value": "Talk Channel"
           }
         },
         "zh-Hans": {
@@ -1270,7 +1270,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚未占领任何领地"
+            "value": "No territory claimed"
           }
         },
         "zh-Hans": {
@@ -1318,7 +1318,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "已使用："
+            "value": "Used: "
           }
         },
         "zh-Hans": {
@@ -1334,7 +1334,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "已占领领地"
+            "value": "Territory Claimed"
           }
         },
         "zh-Hans": {
@@ -1382,7 +1382,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "已建造"
+            "value": "Built"
           }
         },
         "zh-Hans": {
@@ -1430,7 +1430,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "已满载"
+            "value": "Full"
           }
         },
         "zh-Hans": {
@@ -1446,7 +1446,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "已生存:"
+            "value": "Survived:"
           }
         },
         "zh-Hans": {
@@ -1558,7 +1558,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "帮助"
+            "value": "Help"
           }
         },
         "zh-Hans": {
@@ -1590,7 +1590,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "建筑"
+            "value": "Building"
           }
         },
         "zh-Hans": {
@@ -1606,7 +1606,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "建筑图鉴"
+            "value": "Building Guide"
           }
         },
         "zh-Hans": {
@@ -1622,7 +1622,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "建造"
+            "value": "Build"
           }
         },
         "zh-Hans": {
@@ -1654,7 +1654,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "开始探索"
+            "value": "Start Exploring"
           }
         },
         "zh-Hans": {
@@ -1670,7 +1670,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前排名"
+            "value": "Current Rank"
           }
         },
         "zh-Hans": {
@@ -1686,7 +1686,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前设备"
+            "value": "Current Device"
           }
         },
         "zh-Hans": {
@@ -1702,7 +1702,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前负重"
+            "value": "Current Load"
           }
         },
         "zh-Hans": {
@@ -1718,7 +1718,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "总积分"
+            "value": "Total Points"
           }
         },
         "zh-Hans": {
@@ -1830,7 +1830,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "我的领地"
+            "value": "My Territory"
           }
         },
         "zh-Hans": {
@@ -1846,7 +1846,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有设备"
+            "value": "All Devices"
           }
         },
         "zh-Hans": {
@@ -1862,7 +1862,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "技术支持"
+            "value": "Technical Support"
           }
         },
         "zh-Hans": {
@@ -1878,7 +1878,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "探索中"
+            "value": "Exploring"
           }
         },
         "zh-Hans": {
@@ -1894,7 +1894,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "探索废墟搜刮物资吧"
+            "value": "Explore ruins for supplies"
           }
         },
         "zh-Hans": {
@@ -1926,7 +1926,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "探索结束"
+            "value": "Exploration Ended"
           }
         },
         "zh-Hans": {
@@ -1942,7 +1942,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "提示"
+            "value": "Notice"
           }
         },
         "zh-Hans": {
@@ -1958,7 +1958,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "提示: 探索时可获得物资，请注意背包负重。"
+            "value": "Tip: You can get supplies while exploring. Watch your backpack!"
           }
         },
         "zh-Hans": {
@@ -2038,7 +2038,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "收下物资"
+            "value": "Collect Supplies"
           }
         },
         "zh-Hans": {
@@ -2054,7 +2054,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "收音机"
+            "value": "Radio"
           }
         },
         "zh-Hans": {
@@ -2070,7 +2070,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "新增物品"
+            "value": "New Item"
           }
         },
         "zh-Hans": {
@@ -2086,7 +2086,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "无限制（仅接收）"
+            "value": "Unlimited (Receive Only)"
           }
         },
         "zh-Hans": {
@@ -2118,7 +2118,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无可建造建筑"
+            "value": "No buildable buildings"
           }
         },
         "zh-Hans": {
@@ -2134,7 +2134,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无建筑"
+            "value": "No buildings"
           }
         },
         "zh-Hans": {
@@ -2182,7 +2182,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无领地"
+            "value": "No territory"
           }
         },
         "zh-Hans": {
@@ -2262,7 +2262,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "末日通行证"
+            "value": "Apocalypse Pass"
           }
         },
         "zh-Hans": {
@@ -2294,7 +2294,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看我们的隐私政策"
+            "value": "View Privacy Policy"
           }
         },
         "zh-Hans": {
@@ -2310,7 +2310,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "此次探索未发现物资"
+            "value": "No supplies found this time"
           }
         },
         "zh-Hans": {
@@ -2358,7 +2358,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "消息"
+            "value": "Messages"
           }
         },
         "zh-Hans": {
@@ -2374,7 +2374,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "游戏资讯"
+            "value": "Game News"
           }
         },
         "zh-Hans": {
@@ -2406,7 +2406,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击此处开始建造"
+            "value": "Tap here to start building"
           }
         },
         "zh-Hans": {
@@ -2454,7 +2454,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "物品档案"
+            "value": "Item Archive"
           }
         },
         "zh-Hans": {
@@ -2486,7 +2486,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "物资商城"
+            "value": "Supply Store"
           }
         },
         "zh-Hans": {
@@ -2502,7 +2502,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "物资背包"
+            "value": "Supply Backpack"
           }
         },
         "zh-Hans": {
@@ -2518,7 +2518,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "物资详情"
+            "value": "Supply Details"
           }
         },
         "zh-Hans": {
@@ -2534,7 +2534,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "生存指南"
+            "value": "Survival Guide"
           }
         },
         "zh-Hans": {
@@ -2550,7 +2550,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "确定"
+            "value": "OK"
           }
         },
         "zh-Hans": {
@@ -2615,7 +2615,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "确认建造"
+            "value": "Confirm Build"
           }
         },
         "zh-Hans": {
@@ -2647,7 +2647,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "种"
+            "value": "type"
           }
         },
         "zh-Hans": {
@@ -2759,7 +2759,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "紧急广播"
+            "value": "Emergency Broadcast"
           }
         },
         "zh-Hans": {
@@ -2807,7 +2807,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "繁荣度"
+            "value": "Prosperity"
           }
         },
         "zh-Hans": {
@@ -2823,7 +2823,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "背包"
+            "value": "Backpack"
           }
         },
         "zh-Hans": {
@@ -2839,7 +2839,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "背包容量"
+            "value": "Backpack Capacity"
           }
         },
         "zh-Hans": {
@@ -2871,7 +2871,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "背包容量使用情况"
+            "value": "Backpack Usage"
           }
         },
         "zh-Hans": {
@@ -2887,7 +2887,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "背包空空如也"
+            "value": "Backpack is empty"
           }
         },
         "zh-Hans": {
@@ -2919,7 +2919,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "背包负重"
+            "value": "Backpack Weight"
           }
         },
         "zh-Hans": {
@@ -2951,7 +2951,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "获得了物资"
+            "value": "Got supplies"
           }
         },
         "zh-Hans": {
@@ -2999,7 +2999,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "营地电台"
+            "value": "Camp Radio"
           }
         },
         "zh-Hans": {
@@ -3015,7 +3015,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "营地频道"
+            "value": "Camp Channel"
           }
         },
         "zh-Hans": {
@@ -3031,7 +3031,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "行走距离"
+            "value": "Walking Distance"
           }
         },
         "zh-Hans": {
@@ -3047,7 +3047,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "订阅中心"
+            "value": "Subscription Center"
           }
         },
         "zh-Hans": {
@@ -3063,7 +3063,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "设备"
+            "value": "Device"
           }
         },
         "zh-Hans": {
@@ -3079,7 +3079,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "设备管理"
+            "value": "Device Management"
           }
         },
         "zh-Hans": {
@@ -3095,7 +3095,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "设备记录初始化失败，请重试"
+            "value": "Device init failed, retry"
           }
         },
         "zh-Hans": {
@@ -3111,7 +3111,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置您的电台身份标识"
+            "value": "Set your radio callsign"
           }
         },
         "zh-Hans": {
@@ -3127,7 +3127,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "访问我们的技术支持��站"
+            "value": "Visit our support site"
           }
         },
         "zh-Hans": {
@@ -3143,7 +3143,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "评价购买"
+            "value": "Rate Purchase"
           }
         },
         "zh-Hans": {
@@ -3159,7 +3159,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "该设备尚未解锁："
+            "value": "Device locked: "
           }
         },
         "zh-Hans": {
@@ -3223,7 +3223,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "警告：此操作不可逆！您的所有数据将被永久删除。"
+            "value": "Warning: This cannot be undone! All data will be permanently deleted."
           }
         },
         "zh-Hans": {
@@ -3271,7 +3271,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "资源管理"
+            "value": "Resource Management"
           }
         },
         "zh-Hans": {
@@ -3335,7 +3335,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "退出登录"
+            "value": "Logout"
           }
         },
         "zh-Hans": {
@@ -3351,7 +3351,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择建造位置"
+            "value": "Select Build Location"
           }
         },
         "zh-Hans": {
@@ -3383,7 +3383,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择通讯设备，不同设备有不���覆盖范围"
+            "value": "Select communication device, different ranges"
           }
         },
         "zh-Hans": {
@@ -3399,7 +3399,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "通知"
+            "value": "Notification"
           }
         },
         "zh-Hans": {
@@ -3415,7 +3415,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "通讯"
+            "value": "Communication"
           }
         },
         "zh-Hans": {
@@ -3431,7 +3431,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "通讯中心"
+            "value": "Communication Center"
           }
         },
         "zh-Hans": {
@@ -3447,7 +3447,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "邮箱"
+            "value": "Mailbox"
           }
         },
         "zh-Hans": {
@@ -3479,7 +3479,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "采样点"
+            "value": "Sampling Point"
           }
         },
         "zh-Hans": {
@@ -3511,7 +3511,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "附近幸存者"
+            "value": "Nearby Survivors"
           }
         },
         "zh-Hans": {
@@ -3527,7 +3527,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "附近幸存者说明"
+            "value": "Players in your area"
           }
         },
         "zh-Hans": {
@@ -3559,7 +3559,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "隐私政策"
+            "value": "Privacy Policy"
           }
         },
         "zh-Hans": {
@@ -3575,7 +3575,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "雷达扫描范围内的其他幸存者"
+            "value": "Other survivors in radar range"
           }
         },
         "zh-Hans": {
@@ -3591,7 +3591,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "需建造「营地电台」建筑"
+            "value": "Need to build Camp Radio"
           }
         },
         "zh-Hans": {
@@ -3607,7 +3607,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "需建造「通讯塔」建筑"
+            "value": "Need to build Comm Tower"
           }
         },
         "zh-Hans": {
@@ -3623,7 +3623,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要:"
+            "value": "Need:"
           }
         },
         "zh-Hans": {
@@ -3687,7 +3687,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "领地命名"
+            "value": "Name Territory"
           }
         },
         "zh-Hans": {
@@ -3719,7 +3719,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "领地管理"
+            "value": "Territory Management"
           }
         },
         "zh-Hans": {
@@ -3751,7 +3751,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "领地预览"
+            "value": "Territory Preview"
           }
         },
         "zh-Hans": {
@@ -3767,7 +3767,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "频道"
+            "value": "Channel"
           }
         },
         "zh-Hans": {
@@ -3783,7 +3783,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "频道详情"
+            "value": "Channel Details"
           }
         },
         "zh-Hans": {
@@ -3799,7 +3799,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "默认拥有"
+            "value": "Default"
           }
         },
         "zh-Hans": {
