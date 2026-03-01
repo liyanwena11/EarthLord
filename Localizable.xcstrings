@@ -3,160 +3,160 @@
   "strings": {
     "%@  (~%@x)": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@  (~%2$@x)"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@  (~%@x)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@  (~%2$@x)"
           }
         }
       }
     },
     "%@ · %@": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ · %2$@"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@ · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ · %2$@"
           }
         }
       }
     },
     "%@ (×%lld)": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ (×%2$lld)"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@ (×%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ (×%2$lld)"
           }
         }
       }
     },
     "%@ / %lld kg": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ / %2$lld kg"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@ / %lld kg"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ / %2$lld kg"
           }
         }
       }
     },
     "%@ ×%lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ ×%2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@ ×%lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ ×%2$lld"
           }
         }
       }
     },
     "%@ x%lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ x%2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@ x%lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ x%2$lld"
           }
         }
       }
     },
     "%@ 开始建造，预计 %@ 后完成": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ 开始建造，预计 %2$@ 后完成"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@ started, ETA: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ 开始建造，预计 %2$@ 后完成"
           }
         }
       }
     },
     "%@: %lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@: %2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%@: %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@: %2$lld"
           }
         }
       }
     },
     "%lld / %lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$lld / %2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld / %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld / %2$lld"
           }
         }
       }
     },
     "%lld/%lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$lld/%2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld/%lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld/%2$lld"
           }
         }
       }
@@ -211,16 +211,16 @@
     },
     "📦 %@ ×%lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "📦 %1$@ ×%2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "📦 %@ ×%lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "📦 %1$@ ×%2$lld"
           }
         }
       }
@@ -451,16 +451,16 @@
     },
     "你将给出：%@\n\n你将获得：%@\n\n确认接受此交易？物品将立即转移。": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "你将给出：%1$@\n\n你将获得：%2$@\n\n确认接受此交易？物品将立即转移。"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "You will give: %@\n\nYou will receive: %@\n\nConfirm this trade? Items will be transferred immediately."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "你将给出：%1$@\n\n你将获得：%2$@\n\n确认接受此交易？物品将立即转移。"
           }
         }
       }
@@ -1363,16 +1363,16 @@
     },
     "已建 %lld / 最多 %lld 个": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "已建 %1$lld / 最多 %2$lld 个"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Built %lld / Max %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "已建 %1$lld / 最多 %2$lld 个"
           }
         }
       }
@@ -2211,16 +2211,16 @@
     },
     "期望 %@ (~%@x)": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "期望 %1$@ (~%2$@x)"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Expected %@ (~%@x)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "期望 %1$@ (~%2$@x)"
           }
         }
       }
@@ -2563,32 +2563,32 @@
     },
     "确定要将「%@」升级到 Lv.%lld 吗？": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "确定要将「%1$@」升级到 Lv.%2$lld 吗？"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Upgrade \"%@\" to Lv.%lld?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "确定要将「%1$@」升级到 Lv.%2$lld 吗？"
           }
         }
       }
     },
     "确定要收集 %@ x%lld 吗？": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "确定要收集 %1$@ x%2$lld 吗？"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Collect %@ x%lld?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "确定要收集 %1$@ x%2$lld 吗？"
           }
         }
       }
@@ -2628,16 +2628,16 @@
     },
     "确认花费 %@ 购买 %@？\n\n购买后物品将发送到待领取，请及时领取。": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "确认花费 %1$@ 购买 %2$@？\n\n购买后物品将发送到待领取，请及时领取。"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Spend %@ to buy %@?\n\nItems will be sent to mailbox after purchase."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "确认花费 %1$@ 购买 %2$@？\n\n购买后物品将发送到待领取，请及时领取。"
           }
         }
       }
@@ -2852,16 +2852,16 @@
     },
     "背包容量: %lld/%lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "背包容量: %1$lld/%2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Backpack: %lld/%lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "背包容量: %1$lld/%2$lld"
           }
         }
       }
@@ -3460,16 +3460,16 @@
     },
     "采样 %lld/%lld": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "new",
-            "value": "采样 %1$lld/%2$lld"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Sampling %lld/%lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "采样 %1$lld/%2$lld"
           }
         }
       }
