@@ -69,7 +69,7 @@ struct BuildingPlacementView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("关闭") { close() }
+                    Button(String(localized: "关闭")) { close() }
                         .foregroundColor(ApocalypseTheme.primary)
                 }
             }
@@ -145,7 +145,7 @@ struct BuildingPlacementView: View {
 
     private var locationCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("建造位置", systemImage: "mappin.circle.fill")
+            Label(String(localized: "建造位置"), systemImage: "mappin.circle.fill")
                 .font(.subheadline.bold())
                 .foregroundColor(ApocalypseTheme.textPrimary)
 
@@ -155,11 +155,11 @@ struct BuildingPlacementView: View {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(ApocalypseTheme.warning)
-                        Text("领地坐标数据缺失")
+                        Text(String(localized: "领地坐标数据缺失"))
                             .font(.subheadline)
                             .foregroundColor(ApocalypseTheme.textPrimary)
                     }
-                    Text("该领地可能尚未完成圈地，或坐标数据损坏。请联系管理员或尝试重新圈地。")
+                    Text(String(localized: "该领地可能尚未完成圈地，或坐标数据损坏。请联系管理员或尝试重新圈地。"))
                         .font(.caption)
                         .foregroundColor(ApocalypseTheme.textSecondary)
                 }
@@ -171,7 +171,7 @@ struct BuildingPlacementView: View {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(ApocalypseTheme.warning)
-                        Text("领地坐标不完整")
+                        Text(String(localized: "领地坐标不完整"))
                             .font(.subheadline)
                             .foregroundColor(ApocalypseTheme.textPrimary)
                     }
@@ -187,7 +187,7 @@ struct BuildingPlacementView: View {
                     .font(.caption)
                     .foregroundColor(ApocalypseTheme.textSecondary)
             } else {
-                Text("请在地图上选择建造位置")
+                Text(String(localized: "请在地图上选择建造位置"))
                     .font(.caption)
                     .foregroundColor(ApocalypseTheme.textMuted)
             }
@@ -199,7 +199,7 @@ struct BuildingPlacementView: View {
                 } label: {
                     HStack {
                         Image(systemName: "map.fill")
-                        Text("在地图上选择位置")
+                        Text(String(localized: "在地图上选择位置"))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity)
@@ -218,7 +218,7 @@ struct BuildingPlacementView: View {
 
     private var resourceCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("资源消耗", systemImage: "cube.fill")
+            Label(String(localized: "资源消耗"), systemImage: "cube.fill")
                 .font(.subheadline.bold())
                 .foregroundColor(ApocalypseTheme.textPrimary)
 
@@ -266,7 +266,7 @@ struct BuildingPlacementView: View {
 
     private func startBuild() {
         guard let coord = selectedCoordinate else {
-            errorMessage = "请先在地图上选择建造位置"
+            errorMessage = String(localized: "请先在地图上选择建造位置")
             return
         }
 
@@ -313,10 +313,10 @@ struct BuildingPlacementView: View {
     }
 
     private func buttonTitle(canBuild: Bool, atMax: Bool, locationSelected: Bool) -> String {
-        if atMax { return "已达上限" }
-        if !canBuild { return "资源不足" }
-        if !locationSelected { return "请选择位置" }
-        return "确认建造"
+        if atMax { return String(localized: "已达上限") }
+        if !canBuild { return String(localized: "资源不足") }
+        if !locationSelected { return String(localized: "请选择位置") }
+        return String(localized: "确认建造")
     }
 
     private func formatBuildTime(_ seconds: Int) -> String {

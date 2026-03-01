@@ -79,21 +79,21 @@ struct TerritoryBuildingRow: View {
                 Menu {
                     if building.level >= template.maxLevel {
                         Button {} label: {
-                            Label("已达最高等级", systemImage: "checkmark.circle.fill")
+                            Label(String(localized: "已达最高等级"), systemImage: "checkmark.circle.fill")
                         }
                         .disabled(true)
                     } else {
                         Button {
                             onUpgrade?()
                         } label: {
-                            Label("升级", systemImage: "arrow.up.circle")
+                            Label(String(localized: "升级"), systemImage: "arrow.up.circle")
                         }
                     }
 
                     Button(role: .destructive) {
                         onDemolish?()
                     } label: {
-                        Label("拆除", systemImage: "trash")
+                        Label(String(localized: "拆除"), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")

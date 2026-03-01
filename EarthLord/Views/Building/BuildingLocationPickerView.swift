@@ -31,11 +31,11 @@ struct BuildingLocationPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("取消") { dismiss() }
+                    Button(String(localized: "取消")) { dismiss() }
                         .foregroundColor(ApocalypseTheme.primary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") { dismiss() }
+                    Button(String(localized: "完成")) { dismiss() }
                         .foregroundColor(
                             selectedCoordinate == nil ? ApocalypseTheme.textMuted : ApocalypseTheme.primary
                         )

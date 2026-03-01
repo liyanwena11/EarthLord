@@ -65,12 +65,12 @@ struct BuildingDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("关闭") { dismiss() }
+                    Button(String(localized: "关闭")) { dismiss() }
                         .foregroundColor(ApocalypseTheme.primary)
                 }
             }
-            .alert("建造成功！", isPresented: $showSuccess) {
-                Button("好的") { dismiss() }
+            .alert(String(localized: "建造成功！"), isPresented: $showSuccess) {
+                Button(String(localized: "好的")) { dismiss() }
             } message: {
                 Text("\(template.name) 开始建造，预计 \(formatBuildTime(template.buildTimeSeconds)) 后完成")
             }
@@ -113,7 +113,7 @@ struct BuildingDetailView: View {
             }
 
             let count = buildingManager.getBuildingCount(templateId: template.templateId, territoryId: territoryId)
-            Text("已建 \(count) / 最多 \(template.maxPerTerritory) 个")
+            Text(String(format: String(localized: "已建 %lld / 最多 %lld 个"), count, template.maxPerTerritory))
                 .font(.caption)
                 .foregroundColor(count >= template.maxPerTerritory ? ApocalypseTheme.danger : ApocalypseTheme.textMuted)
         }
@@ -125,7 +125,7 @@ struct BuildingDetailView: View {
 
     private var descriptionCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("建筑描述", systemImage: "doc.text.fill")
+            Label(String(localized: "建筑描述"), systemImage: "doc.text.fill")
                 .font(.subheadline.bold())
                 .foregroundColor(ApocalypseTheme.textPrimary)
             Text(template.description)
@@ -141,7 +141,7 @@ struct BuildingDetailView: View {
 
     private var buildInfoCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("建造信息", systemImage: "info.circle.fill")
+            Label(String(localized: "建造信息"), systemImage: "info.circle.fill")
                 .font(.subheadline.bold())
                 .foregroundColor(ApocalypseTheme.textPrimary)
 
@@ -161,12 +161,12 @@ struct BuildingDetailView: View {
 
     private var resourcesCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("所需资源", systemImage: "cube.fill")
+            Label(String(localized: "所需资源"), systemImage: "cube.fill")
                 .font(.subheadline.bold())
                 .foregroundColor(ApocalypseTheme.textPrimary)
 
             if template.requiredResources.isEmpty {
-                Text("无需材料").font(.subheadline).foregroundColor(ApocalypseTheme.textMuted)
+                Text(String(localized: "无需材料")).font(.subheadline).foregroundColor(ApocalypseTheme.textMuted)
             } else {
                 ForEach(Array(template.requiredResources.sorted(by: { $0.key < $1.key })), id: \.key) { resourceId, required in
                     ResourceRowView(
@@ -193,7 +193,7 @@ struct BuildingDetailView: View {
                     ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
                     Image(systemName: "hammer.fill")
-                    Text(atMax ? "已达上限" : "开始建造")
+                    Text(atMax ? String(localized: "已达上限") : String(localized: "开始建造"))
                         .fontWeight(.bold)
                 }
             }
