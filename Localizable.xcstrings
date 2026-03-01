@@ -1,98 +1,290 @@
 {
   "sourceLanguage": "zh-Hans",
   "strings": {
-    "%lld分钟前": {
+    "%@  (~%@x)": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
-            "state": "translated",
-            "value": "%lld分钟前"
+            "state": "new",
+            "value": "%1$@  (~%2$@x)"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
+            "value": "%@  (~%@x)"
+          }
+        }
+      }
+    },
+    "%@ · %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@"
+          }
+        }
+      }
+    },
+    "%@ (×%lld)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ (×%2$lld)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (×%lld)"
+          }
+        }
+      }
+    },
+    "%@ / %lld kg": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ / %2$lld kg"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ / %lld kg"
+          }
+        }
+      }
+    },
+    "%@ ×%lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ ×%2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ×%lld"
+          }
+        }
+      }
+    },
+    "%@ x%lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ x%2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ x%lld"
+          }
+        }
+      }
+    },
+    "%@ 开始建造，预计 %@ 后完成": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ 开始建造，预计 %2$@ 后完成"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ started, ETA: %@"
+          }
+        }
+      }
+    },
+    "%@: %lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@: %2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: %lld"
+          }
+        }
+      }
+    },
+    "%lld / %lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld / %2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        }
+      }
+    },
+    "%lld/%lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld/%2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld"
+          }
+        }
+      }
+    },
+    "%lld%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld%2$@"
+          }
+        }
+      }
+    },
+    "%lld分钟前": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
             "value": "%lld mins ago"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld分钟前"
           }
         }
       }
     },
     "%lld小时前": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld小时前"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld hours ago"
           }
-        }
-      }
-    },
-    "100+ 公里": {
-      "localizations": {
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "100+ 公里"
+            "value": "%lld小时前"
+          }
+        }
+      }
+    },
+    "📦 %@ ×%lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "📦 %1$@ ×%2$lld"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "100+ km"
+            "value": "📦 %@ ×%lld"
           }
         }
       }
     },
     "3 公里": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3 公里"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "3 km"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 公里"
           }
         }
       }
     },
     "30 公里": {
       "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 km"
+          }
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "30 公里"
           }
-        },
+        }
+      }
+    },
+    "100+ 公里": {
+      "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "30 km"
+            "value": "100+ km"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100+ 公里"
           }
         }
       }
     },
     "kg/个": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "kg/个"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "kg/unit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kg/个"
           }
         }
       }
@@ -147,61 +339,61 @@
     },
     "交易": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "交易"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Trade"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交易"
           }
         }
       }
     },
     "交易中心": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "交易中心"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Trading Center"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交易中心"
           }
         }
       }
     },
     "人": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "people"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "人"
           }
         }
       }
     },
     "从 ": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "从 "
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "从 "
@@ -211,13 +403,13 @@
     },
     "件": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "件"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "件"
@@ -243,13 +435,13 @@
     },
     "任务发布": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "任务发布"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "任务发布"
@@ -257,15 +449,31 @@
         }
       }
     },
-    "使用": {
+    "你将给出：%@\n\n你将获得：%@\n\n确认接受此交易？物品将立即转移。": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "你将给出：%1$@\n\n你将获得：%2$@\n\n确认接受此交易？物品将立即转移。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You will give: %@\n\nYou will receive: %@\n\nConfirm this trade? Items will be transferred immediately."
+          }
+        }
+      }
+    },
+    "使用": {
+      "localizations": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "使用"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "使用"
@@ -275,13 +483,13 @@
     },
     "使用中": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "使用中"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "使用中"
@@ -307,13 +515,13 @@
     },
     "停止探索": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "停止探索"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "停止探索"
@@ -323,13 +531,13 @@
     },
     "全局": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "全局"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "全局"
@@ -371,13 +579,13 @@
     },
     "公开频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "公开频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "公开频道"
@@ -387,13 +595,13 @@
     },
     "共": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "共"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "共"
@@ -419,13 +627,13 @@
     },
     "关于": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "关于"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "关于"
@@ -449,15 +657,47 @@
         }
       }
     },
+    "最大容量": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大容量"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大容量"
+          }
+        }
+      }
+    },
+    "最近资源": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nearest Resource"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近资源"
+          }
+        }
+      }
+    },
     "切换": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "切换"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "切换"
@@ -467,13 +707,13 @@
     },
     "切换设备失败：": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "切换设备失败："
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "切换设备失败："
@@ -483,13 +723,13 @@
     },
     "刚刚": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "刚刚"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "刚刚"
@@ -499,13 +739,13 @@
     },
     "创建新频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "创建新频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "创建新频道"
@@ -515,48 +755,48 @@
     },
     "删除账号": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "删除账号"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "删除账号"
           }
-        }
-      }
-    },
-    "前往地图页面开始圈地，占领你的第一块领地！": {
-      "localizations": {
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "前往地图页面开始圈地，占领你的第一块领地！"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "前往地图页面开始圈地，占领你的第一块领地！"
+            "value": "删除账号"
           }
         }
       }
     },
     "前往地图页面，点击「圈地」按钮开始行走采样！": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "前往地图页面，点击「圈地」按钮开始行走采样！"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "前往地图页面，点击「圈地」按钮开始行走采样！"
+          }
+        }
+      }
+    },
+    "前往地图页面开始圈地，占领你的第一块领地！": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往地图页面开始圈地，占领你的第一块领地！"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往地图页面开始圈地，占领你的第一块领地！"
           }
         }
       }
@@ -579,13 +819,13 @@
     },
     "加入 %lld 天": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "加入 %lld 天"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "加入 %lld 天"
@@ -595,13 +835,13 @@
     },
     "加入 EarthLord": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "加入 EarthLord"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "加入 EarthLord"
@@ -611,13 +851,13 @@
     },
     "加入时间:": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "加入时间:"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "加入时间:"
@@ -627,13 +867,13 @@
     },
     "卫星通讯": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "卫星通讯"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "卫星通讯"
@@ -643,13 +883,13 @@
     },
     "卫星频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "卫星频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "卫星频道"
@@ -675,61 +915,29 @@
     },
     "只能接收信号，无法发送消息": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "只能接收信号，无法发送消息"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "只能接收信号，无法发送消息"
           }
-        }
-      }
-    },
-    "可在100公里+范围内联络": {
-      "localizations": {
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可在100公里+范围内联络"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可在100公里+范围内联络"
-          }
-        }
-      }
-    },
-    "可在30公里范围内广播": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可在30公里范围内广播"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可在30公里范围内广播"
+            "value": "只能接收信号，无法发送消息"
           }
         }
       }
     },
     "可在3公里范围内通讯": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "可在3公里范围内通讯"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "可在3公里范围内通讯"
@@ -737,15 +945,47 @@
         }
       }
     },
+    "可在30公里范围内广播": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可在30公里范围内广播"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可在30公里范围内广播"
+          }
+        }
+      }
+    },
+    "可在100公里+范围内联络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可在100公里+范围内联络"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可在100公里+范围内联络"
+          }
+        }
+      }
+    },
     "可建造建筑": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "可建造建筑"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "可建造建筑"
@@ -787,13 +1027,13 @@
     },
     "呼叫": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "呼叫"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "呼叫"
@@ -803,13 +1043,13 @@
     },
     "呼号设置": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "呼号设置"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "呼号设置"
@@ -899,13 +1139,13 @@
     },
     "天": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "天"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "天"
@@ -979,13 +1219,13 @@
     },
     "官方频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "官方频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "官方频道"
@@ -995,13 +1235,13 @@
     },
     "对讲机": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "对讲机"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "对讲机"
@@ -1011,13 +1251,13 @@
     },
     "对讲频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "对讲频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "对讲频道"
@@ -1027,13 +1267,13 @@
     },
     "尚未占领任何领地": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "尚未占领任何领地"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "尚未占领任何领地"
@@ -1075,13 +1315,13 @@
     },
     "已使用：": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "已使用："
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "已使用："
@@ -1091,13 +1331,13 @@
     },
     "已占领领地": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "已占领领地"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "已占领领地"
@@ -1121,15 +1361,31 @@
         }
       }
     },
-    "已建造": {
+    "已建 %lld / 最多 %lld 个": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "已建 %1$lld / 最多 %2$lld 个"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Built %lld / Max %lld"
+          }
+        }
+      }
+    },
+    "已建造": {
+      "localizations": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "已建造"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "已建造"
@@ -1171,13 +1427,13 @@
     },
     "已满载": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "已满载"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "已满载"
@@ -1187,13 +1443,13 @@
     },
     "已生存:": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "已生存:"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "已生存:"
@@ -1265,6 +1521,22 @@
         }
       }
     },
+    "已选择位置：%@, %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected: %@, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "已选择位置：%1$@, %2$@"
+          }
+        }
+      }
+    },
     "已领取": {
       "localizations": {
         "en": {
@@ -1283,13 +1555,13 @@
     },
     "帮助": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "帮助"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "帮助"
@@ -1315,13 +1587,13 @@
     },
     "建筑": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "建筑"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "建筑"
@@ -1331,13 +1603,13 @@
     },
     "建筑图鉴": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "建筑图鉴"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "建筑图鉴"
@@ -1347,13 +1619,13 @@
     },
     "建造": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "建造"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "建造"
@@ -1379,13 +1651,13 @@
     },
     "开始探索": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "开始探索"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "开始探索"
@@ -1395,13 +1667,13 @@
     },
     "当前排名": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "当前排名"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "当前排名"
@@ -1411,13 +1683,13 @@
     },
     "当前设备": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "当前设备"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "当前设备"
@@ -1427,13 +1699,13 @@
     },
     "当前负重": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "当前负重"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "当前负重"
@@ -1443,13 +1715,13 @@
     },
     "总积分": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "总积分"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "总积分"
@@ -1555,13 +1827,13 @@
     },
     "我的领地": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "我的领地"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "我的领地"
@@ -1571,13 +1843,13 @@
     },
     "所有设备": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "所有设备"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "所有设备"
@@ -1587,13 +1859,13 @@
     },
     "技术支持": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "技术支持"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "技术支持"
@@ -1603,13 +1875,13 @@
     },
     "探索中": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "探索中"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "探索中"
@@ -1619,13 +1891,13 @@
     },
     "探索废墟搜刮物资吧": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "探索废墟搜刮物资吧"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "探索废墟搜刮物资吧"
@@ -1651,13 +1923,13 @@
     },
     "探索结束": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "探索结束"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "探索结束"
@@ -1667,13 +1939,13 @@
     },
     "提示": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "提示"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "提示"
@@ -1683,13 +1955,13 @@
     },
     "提示: 探索时可获得物资，请注意背包负重。": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "提示: 探索时可获得物资，请注意背包负重。"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "提示: 探索时可获得物资，请注意背包负重。"
@@ -1763,13 +2035,13 @@
     },
     "收下物资": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "收下物资"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "收下物资"
@@ -1779,13 +2051,13 @@
     },
     "收音机": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "收音机"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "收音机"
@@ -1795,13 +2067,13 @@
     },
     "新增物品": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "新增物品"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "新增物品"
@@ -1811,13 +2083,13 @@
     },
     "无限制（仅接收）": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "无限制（仅接收）"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "无限制（仅接收）"
@@ -1843,13 +2115,13 @@
     },
     "暂无可建造建筑": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "暂无可建造建筑"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "暂无可建造建筑"
@@ -1859,13 +2131,13 @@
     },
     "暂无建筑": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "暂无建筑"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "暂无建筑"
@@ -1907,13 +2179,13 @@
     },
     "暂无领地": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "暂无领地"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "暂无领地"
@@ -1921,34 +2193,34 @@
         }
       }
     },
-    "最大容量": {
+    "有效期: %lld 天 (%@)": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最大容量"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "最大容量"
+            "value": "Valid: %lld days (%@)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "有效期: %1$lld 天 (%2$@)"
           }
         }
       }
     },
-    "最近资源": {
+    "期望 %@ (~%@x)": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "期望 %1$@ (~%2$@x)"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nearest Resource"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最近资源"
+            "value": "Expected %@ (~%@x)"
           }
         }
       }
@@ -1987,13 +2259,13 @@
     },
     "末日通行证": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "末日通行证"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "末日通行证"
@@ -2019,13 +2291,13 @@
     },
     "查看我们的隐私政策": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "查看我们的隐私政策"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "查看我们的隐私政策"
@@ -2035,13 +2307,13 @@
     },
     "此次探索未发现物资": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "此次探索未发现物资"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "此次探索未发现物资"
@@ -2083,13 +2355,13 @@
     },
     "消息": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "消息"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "消息"
@@ -2099,13 +2371,13 @@
     },
     "游戏资讯": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "游戏资讯"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "游戏资讯"
@@ -2131,13 +2403,13 @@
     },
     "点击此处开始建造": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "点击此处开始建造"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "点击此处开始建造"
@@ -2179,13 +2451,13 @@
     },
     "物品档案": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "物品档案"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "物品档案"
@@ -2211,13 +2483,13 @@
     },
     "物资商城": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "物资商城"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "物资商城"
@@ -2227,13 +2499,13 @@
     },
     "物资背包": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "物资背包"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "物资背包"
@@ -2243,13 +2515,13 @@
     },
     "物资详情": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "物资详情"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "物资详情"
@@ -2259,13 +2531,13 @@
     },
     "生存指南": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "生存指南"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "生存指南"
@@ -2275,16 +2547,48 @@
     },
     "确定": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "确定"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "确定"
+          }
+        }
+      }
+    },
+    "确定要将「%@」升级到 Lv.%lld 吗？": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "确定要将「%1$@」升级到 Lv.%2$lld 吗？"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade \"%@\" to Lv.%lld?"
+          }
+        }
+      }
+    },
+    "确定要收集 %@ x%lld 吗？": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "确定要收集 %1$@ x%2$lld 吗？"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collect %@ x%lld?"
           }
         }
       }
@@ -2308,13 +2612,13 @@
     },
     "确认建造": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "确认建造"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "确认建造"
@@ -2322,15 +2626,31 @@
         }
       }
     },
-    "种": {
+    "确认花费 %@ 购买 %@？\n\n购买后物品将发送到待领取，请及时领取。": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "确认花费 %1$@ 购买 %2$@？\n\n购买后物品将发送到待领取，请及时领取。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spend %@ to buy %@?\n\nItems will be sent to mailbox after purchase."
+          }
+        }
+      }
+    },
+    "种": {
+      "localizations": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "种"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "种"
@@ -2436,32 +2756,16 @@
     },
     "紧急广播": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "紧急广播"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "紧急广播"
           }
-        }
-      }
-    },
-    "繁荣度": {
-      "localizations": {
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "繁荣度"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "繁荣度"
+            "value": "紧急广播"
           }
         }
       }
@@ -2498,15 +2802,31 @@
         }
       }
     },
+    "繁荣度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繁荣度"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繁荣度"
+          }
+        }
+      }
+    },
     "背包": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "背包"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "背包"
@@ -2516,13 +2836,13 @@
     },
     "背包容量": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "背包容量"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "背包容量"
@@ -2530,15 +2850,31 @@
         }
       }
     },
-    "背包容量使用情况": {
+    "背包容量: %lld/%lld": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "背包容量: %1$lld/%2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backpack: %lld/%lld"
+          }
+        }
+      }
+    },
+    "背包容量使用情况": {
+      "localizations": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "背包容量使用情况"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "背包容量使用情况"
@@ -2548,13 +2884,13 @@
     },
     "背包空空如也": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "背包空空如也"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "背包空空如也"
@@ -2580,13 +2916,13 @@
     },
     "背包负重": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "背包负重"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "背包负重"
@@ -2612,13 +2948,13 @@
     },
     "获得了物资": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "获得了物资"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "获得了物资"
@@ -2660,13 +2996,13 @@
     },
     "营地电台": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "营地电台"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "营地电台"
@@ -2676,13 +3012,13 @@
     },
     "营地频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "营地频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "营地频道"
@@ -2692,45 +3028,29 @@
     },
     "行走距离": {
       "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "行走距离"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "行走距离"
           }
-        }
-      }
-    },
-    "警告：此操作不可逆！您的所有数据将被永久删除。": {
-      "localizations": {
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "警告：此操作不可逆！您的所有数据将被永久删除。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "警告：此操作不可逆！您的所有数据将被永久删除。"
+            "value": "行走距离"
           }
         }
       }
     },
     "订阅中心": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "订阅中心"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "订阅中心"
@@ -2740,13 +3060,13 @@
     },
     "设备": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "设备"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "设备"
@@ -2756,13 +3076,13 @@
     },
     "设备管理": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "设备管理"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "设备管理"
@@ -2772,13 +3092,13 @@
     },
     "设备记录初始化失败，请重试": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "设备记录初始化失败，请重试"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "设备记录初始化失败，请重试"
@@ -2788,13 +3108,13 @@
     },
     "设置您的电台身份标识": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "设置您的电台身份标识"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "设置您的电台身份标识"
@@ -2804,13 +3124,13 @@
     },
     "访问我们的技术支持��站": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "访问我们的技术支持��站"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "访问我们的技术支持��站"
@@ -2820,13 +3140,13 @@
     },
     "评价购买": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "评价购买"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "评价购买"
@@ -2836,13 +3156,13 @@
     },
     "该设备尚未解锁：": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "该设备尚未解锁："
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "该设备尚未解锁："
@@ -2898,6 +3218,22 @@
         }
       }
     },
+    "警告：此操作不可逆！您的所有数据将被永久删除。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "警告：此操作不可逆！您的所有数据将被永久删除。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "警告：此操作不可逆！您的所有数据将被永久删除。"
+          }
+        }
+      }
+    },
     "资源": {
       "localizations": {
         "en": {
@@ -2932,13 +3268,13 @@
     },
     "资源管理": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "资源管理"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "资源管理"
@@ -2996,13 +3332,13 @@
     },
     "退出登录": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "退出登录"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "退出登录"
@@ -3012,13 +3348,13 @@
     },
     "选择建造位置": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "选择建造位置"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "选择建造位置"
@@ -3044,13 +3380,13 @@
     },
     "选择通讯设备，不同设备有不���覆盖范围": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "选择通讯设备，不同设备有不���覆盖范围"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "选择通讯设备，不同设备有不���覆盖范围"
@@ -3060,13 +3396,13 @@
     },
     "通知": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "通知"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "通知"
@@ -3076,13 +3412,13 @@
     },
     "通讯": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "通讯"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "通讯"
@@ -3092,13 +3428,13 @@
     },
     "通讯中心": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "通讯中心"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "通讯中心"
@@ -3108,13 +3444,13 @@
     },
     "邮箱": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "邮箱"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "邮箱"
@@ -3122,15 +3458,31 @@
         }
       }
     },
-    "采样点": {
+    "采样 %lld/%lld": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "采样 %1$lld/%2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sampling %lld/%lld"
+          }
+        }
+      }
+    },
+    "采样点": {
+      "localizations": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "采样点"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "采样点"
@@ -3156,13 +3508,13 @@
     },
     "附近幸存者": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "附近幸存者"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "附近幸存者"
@@ -3172,13 +3524,13 @@
     },
     "附近幸存者说明": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "附近幸存者说明"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "附近幸存者说明"
@@ -3204,13 +3556,13 @@
     },
     "隐私政策": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "隐私政策"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "隐私政策"
@@ -3220,13 +3572,13 @@
     },
     "雷达扫描范围内的其他幸存者": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "雷达扫描范围内的其他幸存者"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "雷达扫描范围内的其他幸存者"
@@ -3236,13 +3588,13 @@
     },
     "需建造「营地电台」建筑": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "需建造「营地电台」建筑"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "需建造「营地电台」建筑"
@@ -3252,13 +3604,13 @@
     },
     "需建造「通讯塔」建筑": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "需建造「通讯塔」建筑"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "需建造「通讯塔」建筑"
@@ -3268,13 +3620,13 @@
     },
     "需要:": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "需要:"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "需要:"
@@ -3332,13 +3684,13 @@
     },
     "领地命名": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "领地命名"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "领地命名"
@@ -3364,13 +3716,13 @@
     },
     "领地管理": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "领地管理"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "领地管理"
@@ -3396,13 +3748,13 @@
     },
     "领地预览": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "领地预览"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "领地预览"
@@ -3412,13 +3764,13 @@
     },
     "频道": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "频道"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "频道"
@@ -3428,13 +3780,13 @@
     },
     "频道详情": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "频道详情"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "频道详情"
@@ -3444,13 +3796,13 @@
     },
     "默认拥有": {
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "默认拥有"
           }
         },
-        "en": {
+        "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "默认拥有"
