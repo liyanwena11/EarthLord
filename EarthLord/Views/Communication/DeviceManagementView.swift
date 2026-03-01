@@ -28,7 +28,7 @@ struct DeviceManagementView: View {
                         Text(String(localized: "设备管理"))
                             .font(.headline)
                             .foregroundColor(ApocalypseTheme.textPrimary)
-                        Text(String(localized: "选择通讯设备，不同设备有不���覆盖范围"))
+                        Text(String(localized: "选择通讯设备，不同设备有不同覆盖范围"))
                             .font(.caption)
                             .foregroundColor(ApocalypseTheme.textMuted)
                     }
