@@ -8,157 +8,54 @@
 	<array/>
 	<key>products</key>
 	<array>
+		<!-- ==================== 消耗型产品（4个） ==================== -->
+		<!-- 1. 幸存者补给包 ¥6 -->
 		<dict>
 			<key>displayName</key>
-			<string>快速支援 30天</string>
-			<key>displayPrice</key>
-			<string>¥8.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.support.1m</string>
-			<key>price</key>
-			<integer>800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>快速支援 90天</string>
-			<key>displayPrice</key>
-			<string>¥18.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.support.3m</string>
-			<key>price</key>
-			<integer>1800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>快速支援年卡</string>
-			<key>displayPrice</key>
-			<string>¥58.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.support.1y</string>
-			<key>price</key>
-			<integer>5800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>领主权益 30天</string>
-			<key>displayPrice</key>
-			<string>¥18.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.lordship.1m</string>
-			<key>price</key>
-			<integer>1800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>领主权益 90天</string>
-			<key>displayPrice</key>
-			<string>¥38.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.lordship.3m</string>
-			<key>price</key>
-			<integer>3800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>领主权益年卡</string>
-			<key>displayPrice</key>
-			<string>¥128.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.lordship.1y</string>
-			<key>price</key>
-			<integer>12800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>帝国统治 30天</string>
-			<key>displayPrice</key>
-			<string>¥38.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.empire.1m</string>
-			<key>price</key>
-			<integer>3800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>帝国统治 90天</string>
-			<key>displayPrice</key>
-			<string>¥88.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.empire.3m</string>
-			<key>price</key>
-			<integer>8800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>帝国统治年卡</string>
-			<key>displayPrice</key>
-			<string>¥298.00</string>
-			<key>identifier</key>
-			<string>com.earthlord.empire.1y</string>
-			<key>price</key>
-			<integer>29800</integer>
-			<key>type</key>
-			<string>Non-Consumable</string>
-		</dict>
-		<dict>
-			<key>displayName</key>
-			<string>生存者补给</string>
+			<string>幸存者补给包</string>
 			<key>displayPrice</key>
 			<string>¥6.00</string>
 			<key>identifier</key>
-			<string>com.earthlord.supply.survivor</string>
+			<string>com.liyanwen.EarthLord.supply.survivor</string>
 			<key>price</key>
 			<integer>600</integer>
 			<key>type</key>
 			<string>Consumable</string>
 		</dict>
+		<!-- 2. 探险家补给包 ¥18 -->
 		<dict>
 			<key>displayName</key>
-			<string>探险家补给</string>
+			<string>探险家补给包</string>
 			<key>displayPrice</key>
 			<string>¥18.00</string>
 			<key>identifier</key>
-			<string>com.earthlord.supply.explorer</string>
+			<string>com.liyanwen.EarthLord.supply.explorer</string>
 			<key>price</key>
 			<integer>1800</integer>
 			<key>type</key>
 			<string>Consumable</string>
 		</dict>
+		<!-- 3. 领主补给包 ¥38 -->
 		<dict>
 			<key>displayName</key>
-			<string>领主补给</string>
+			<string>领主补给包</string>
 			<key>displayPrice</key>
-			<string>¥30.00</string>
+			<string>¥38.00</string>
 			<key>identifier</key>
-			<string>com.earthlord.supply.lord</string>
+			<string>com.liyanwen.EarthLord.supply.lord</string>
 			<key>price</key>
-			<integer>3000</integer>
+			<integer>3800</integer>
 			<key>type</key>
 			<string>Consumable</string>
 		</dict>
+		<!-- 4. 霸主补给包 ¥68 -->
 		<dict>
 			<key>displayName</key>
-			<string>霸主补给</string>
+			<string>霸主补给包</string>
 			<key>displayPrice</key>
 			<string>¥68.00</string>
 			<key>identifier</key>
-			<string>com.earthlord.supply.overlord</string>
+			<string>com.liyanwen.EarthLord.supply.overlord</string>
 			<key>price</key>
 			<integer>6800</integer>
 			<key>type</key>
@@ -167,18 +64,20 @@
 	</array>
 	<key>subscriptionGroups</key>
 	<array>
+		<!-- 订阅组1：探索者通行证 -->
 		<dict>
 			<key>identifier</key>
-			<string>com.earthlord.sub.vip</string>
+			<string>com.liyanwen.EarthLord.sub.explorer</string>
 			<key>subscriptions</key>
 			<array>
+				<!-- 探索者通行证月付 ¥12/月 -->
 				<dict>
 					<key>displayName</key>
-					<string>VIP月会员</string>
+					<string>探索者通行证月付</string>
 					<key>displayPrice</key>
 					<string>¥12.00</string>
 					<key>identifier</key>
-					<string>com.earthlord.vip.monthly</string>
+					<string>com.liyanwen.EarthLord.explorer.monthly</string>
 					<key>price</key>
 					<integer>1200</integer>
 					<key>subscriptionPeriod</key>
@@ -186,27 +85,14 @@
 					<key>type</key>
 					<string>Auto-Renewable Subscription</string>
 				</dict>
+				<!-- 探索者通行证年付 ¥88/年 -->
 				<dict>
 					<key>displayName</key>
-					<string>VIP季会员</string>
-					<key>displayPrice</key>
-					<string>¥28.00</string>
-					<key>identifier</key>
-					<string>com.earthlord.vip.quarterly</string>
-					<key>price</key>
-					<integer>2800</integer>
-					<key>subscriptionPeriod</key>
-					<string>P3M</string>
-					<key>type</key>
-					<string>Auto-Renewable Subscription</string>
-				</dict>
-				<dict>
-					<key>displayName</key>
-					<string>VIP年会员</string>
+					<string>探索者通行证年付</string>
 					<key>displayPrice</key>
 					<string>¥88.00</string>
 					<key>identifier</key>
-					<string>com.earthlord.vip.annual</string>
+					<string>com.liyanwen.EarthLord.explorer.yearly</string>
 					<key>price</key>
 					<integer>8800</integer>
 					<key>subscriptionPeriod</key>
@@ -216,73 +102,20 @@
 				</dict>
 			</array>
 		</dict>
+		<!-- 订阅组2：领主通行证 -->
 		<dict>
 			<key>identifier</key>
-			<string>com.earthlord.sub.apocalypse</string>
+			<string>com.liyanwen.EarthLord.sub.lord</string>
 			<key>subscriptions</key>
 			<array>
-				<dict>
-					<key>displayName</key>
-					<string>探索者通行证月付</string>
-					<key>displayPrice</key>
-					<string>¥12.00</string>
-					<key>identifier</key>
-					<string>com.earthlord.sub.explorer.monthly</string>
-					<key>price</key>
-					<integer>1200</integer>
-					<key>subscriptionPeriod</key>
-					<string>P1M</string>
-					<key>type</key>
-					<string>Auto-Renewable Subscription</string>
-				</dict>
-				<dict>
-					<key>displayName</key>
-					<string>探索者通行证年付</string>
-					<key>displayPrice</key>
-					<string>¥88.00</string>
-					<key>identifier</key>
-					<string>com.earthlord.sub.explorer.yearly</string>
-					<key>price</key>
-					<integer>8800</integer>
-					<key>subscriptionPeriod</key>
-					<string>P1Y</string>
-					<key>type</key>
-					<string>Auto-Renewable Subscription</string>
-				</dict>
-				<dict>
-					<key>displayName</key>
-					<string>探索者通行证试用</string>
-					<key>displayPrice</key>
-					<string>¥0.00</string>
-					<key>identifier</key>
-					<string>com.earthlord.sub.explorer.trial</string>
-					<key>price</key>
-					<integer>0</integer>
-					<key>subscriptionPeriod</key>
-					<string>P1W</string>
-					<key>type</key>
-					<string>Auto-Renewable Subscription</string>
-					<key>introductoryOffer</key>
-					<dict>
-						<key>displayPrice</key>
-						<string>¥0.00</string>
-						<key>identifier</key>
-						<string>explorer.trial.offer</string>
-						<key>paymentMode</key>
-						<string>Free Trial</string>
-						<key>period</key>
-						<string>P1W</string>
-						<key>type</key>
-						<string>Introductory Offer</string>
-					</dict>
-				</dict>
+				<!-- 领主通行证月付 ¥28/月 -->
 				<dict>
 					<key>displayName</key>
 					<string>领主通行证月付</string>
 					<key>displayPrice</key>
 					<string>¥28.00</string>
 					<key>identifier</key>
-					<string>com.earthlord.sub.lord.monthly</string>
+					<string>com.liyanwen.EarthLord.lord.monthly</string>
 					<key>price</key>
 					<integer>2800</integer>
 					<key>subscriptionPeriod</key>
@@ -290,46 +123,20 @@
 					<key>type</key>
 					<string>Auto-Renewable Subscription</string>
 				</dict>
+				<!-- 领主通行证年付 ¥168/年 -->
 				<dict>
 					<key>displayName</key>
 					<string>领主通行证年付</string>
 					<key>displayPrice</key>
-					<string>¥188.00</string>
+					<string>¥168.00</string>
 					<key>identifier</key>
-					<string>com.earthlord.sub.lord.yearly</string>
+					<string>com.liyanwen.EarthLord.lord.yearly</string>
 					<key>price</key>
-					<integer>18800</integer>
+					<integer>16800</integer>
 					<key>subscriptionPeriod</key>
 					<string>P1Y</string>
 					<key>type</key>
 					<string>Auto-Renewable Subscription</string>
-				</dict>
-				<dict>
-					<key>displayName</key>
-					<string>领主通行证试用</string>
-					<key>displayPrice</key>
-					<string>¥0.00</string>
-					<key>identifier</key>
-					<string>com.earthlord.sub.lord.trial</string>
-					<key>price</key>
-					<integer>0</integer>
-					<key>subscriptionPeriod</key>
-					<string>P1W</string>
-					<key>type</key>
-					<string>Auto-Renewable Subscription</string>
-					<key>introductoryOffer</key>
-					<dict>
-						<key>displayPrice</key>
-						<string>¥0.00</string>
-						<key>identifier</key>
-						<string>lord.trial.offer</string>
-						<key>paymentMode</key>
-						<string>Free Trial</string>
-						<key>period</key>
-						<string>P1W</string>
-						<key>type</key>
-						<string>Introductory Offer</string>
-					</dict>
 				</dict>
 			</array>
 		</dict>

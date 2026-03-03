@@ -5,10 +5,10 @@ import SwiftUI
 // MARK: - Supply Pack Product IDs
 
 enum SupplyPackID: String, CaseIterable {
-    case survivor  = "com.earthlord.supply.survivor"   // ¥6
-    case explorer  = "com.earthlord.supply.explorer"   // ¥18
-    case lord      = "com.earthlord.supply.lord"        // ¥38
-    case overlord  = "com.earthlord.supply.overlord"   // ¥68
+    case survivor  = "com.liyanwen.EarthLord.supply.survivor"   // ¥6
+    case explorer  = "com.liyanwen.EarthLord.supply.explorer"   // ¥18
+    case lord      = "com.liyanwen.EarthLord.supply.lord"        // ¥38
+    case overlord  = "com.liyanwen.EarthLord.supply.overlord"   // ¥68
 
     var displayName: String {
         switch self {

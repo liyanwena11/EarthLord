@@ -67,25 +67,34 @@ final class IAPManager: ObservableObject {
     // MARK: - Init
     
     private init() {
-        // 获取所有 16 个产品 ID + 新的订阅产品 ID
-        var allProducts = All16Products.all.map { $0.id }
-        allProducts.append(contentsOf: SubscriptionProductGroups.allProductIDs)
+        // 使用 App Store Connect 里全部8个产品ID
+        // ==================== 消耗型产品（4个） ====================
+        // 1. 幸存者补给包 ¥6
+        // 2. 探险家补给包 ¥18
+        // 3. 领主补给包 ¥38
+        // 4. 霸主补给包 ¥68
 
-        // 添加新的末日通行证产品 ID
-        let apocalypseProductIDs = [
-            "com.earthlord.sub.explorer.monthly",
-            "com.earthlord.sub.explorer.yearly",
-            "com.earthlord.sub.explorer.trial",
-            "com.earthlord.sub.lord.monthly",
-            "com.earthlord.sub.lord.yearly",
-            "com.earthlord.sub.lord.trial",
-            "com.earthlord.sub.apocalypse.monthly",
-            "com.earthlord.sub.apocalypse.yearly",
-            "com.earthlord.sub.apocalypse.trial"
+        // ==================== 订阅产品（4个） ====================
+        // 探索者通行证：月付¥12/年付¥88
+        // 领主通行证：月付¥28/年付¥168
+
+        let appStoreConnectProducts = [
+            // 消耗型产品 - App内购买项目
+            "com.liyanwen.EarthLord.supply.survivor",   // 幸存者补给包 ¥6
+            "com.liyanwen.EarthLord.supply.explorer",   // 探险家补给包 ¥18
+            "com.liyanwen.EarthLord.supply.lord",       // 领主补给包 ¥38
+            "com.liyanwen.EarthLord.supply.overlord",    // 霸主补给包 ¥68
+
+            // 订阅产品 - 探索者通行证
+            "com.liyanwen.EarthLord.explorer.monthly",   // 探索者通行证月付 ¥12/月
+            "com.liyanwen.EarthLord.explorer.yearly",    // 探索者通行证年付 ¥88/年
+
+            // 订阅产品 - 领主通行证
+            "com.liyanwen.EarthLord.lord.monthly",       // 领主通行证月付 ¥28/月
+            "com.liyanwen.EarthLord.lord.yearly"        // 领主通行证年付 ¥168/年
         ]
-        allProducts.append(contentsOf: apocalypseProductIDs)
 
-        self.productIdentifiers = Set(allProducts)
+        self.productIdentifiers = Set(appStoreConnectProducts)
 
         // 启动交易更新监听
         startTransactionUpdates()

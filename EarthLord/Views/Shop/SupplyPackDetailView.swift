@@ -597,11 +597,11 @@ struct SupplyPackDetailView_Previews: PreviewProvider {
     static var previews: some View {
         // Create mock supply pack
         let mockSupplyPack = SupplyPack(
-            id: "com.earthlord.supply.survivor",
+            id: "com.liyanwen.EarthLord.supply.survivor",
             name: "幸存者物资包",
             description: "基础生存物资，包含食物和水",
             price: "¥6",
-            productId: "com.earthlord.supply.survivor",
+            productId: "com.liyanwen.EarthLord.supply.survivor",
             rarity: "common",
             items: [
                 PackItem(itemId: "canned_food", quantity: 3, rarity: "common", guaranteed: true),

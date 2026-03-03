@@ -1,122 +1,78 @@
 import Foundation
 import StoreKit
 
-// MARK: - Extended Product Identifiers (16 个产品完整定义)
+// MARK: - Product Identifiers (8 个产品 - 与 App Store Connect 一致)
 
 enum IAPProductID: String, CaseIterable {
-    // MARK: Consumables (消耗品, 4 个)
-    case survivorPack = "com.earthlord.supply.survivor"
-    case explorerPack = "com.earthlord.supply.explorer"
-    case lordPack = "com.earthlord.supply.lord"
-    case overlordPack = "com.earthlord.supply.overlord"
-    
-    // MARK: Tier 1 - Support (快速支援, 3 个)
-    case support1m = "com.earthlord.support.1m"
-    case support3m = "com.earthlord.support.3m"
-    case support1y = "com.earthlord.support.1y"
-    
-    // MARK: Tier 2 - Lordship (领主权益, 3 个)
-    case lordship1m = "com.earthlord.lordship.1m"
-    case lordship3m = "com.earthlord.lordship.3m"
-    case lordship1y = "com.earthlord.lordship.1y"
-    
-    // MARK: Tier 3 - Empire (帝国统治, 3 个)
-    case empire1m = "com.earthlord.empire.1m"
-    case empire3m = "com.earthlord.empire.3m"
-    case empire1y = "com.earthlord.empire.1y"
-    
-    // MARK: VIP - Auto Renewable (VIP 续期, 3 个)
-    case vipMonthly = "com.earthlord.vip.monthly"
-    case vipQuarterly = "com.earthlord.vip.quarterly"
-    case vipAnnual = "com.earthlord.vip.annual"
-    
+    // MARK: 消耗型产品 - App内购买项目 (4 个)
+    case survivorPack = "com.liyanwen.EarthLord.supply.survivor"      // ¥6
+    case explorerPack = "com.liyanwen.EarthLord.supply.explorer"      // ¥18
+    case lordPack = "com.liyanwen.EarthLord.supply.lord"              // ¥38
+    case overlordPack = "com.liyanwen.EarthLord.supply.overlord"      // ¥68
+
+    // MARK: 订阅产品 - 探索者通行证 (2 个)
+    case explorerMonthly = "com.liyanwen.EarthLord.explorer.monthly"  // ¥12/月
+    case explorerYearly = "com.liyanwen.EarthLord.explorer.yearly"    // ¥88/年
+
+    // MARK: 订阅产品 - 领主通行证 (2 个)
+    case lordMonthly = "com.liyanwen.EarthLord.lord.monthly"          // ¥28/月
+    case lordYearly = "com.liyanwen.EarthLord.lord.yearly"            // ¥168/年
+
     var displayName: String {
         switch self {
-        // Consumables
+        // 消耗型产品
         case .survivorPack:
-            return "生存者补给"
+            return "幸存者补给包"
         case .explorerPack:
-            return "探险家补给"
+            return "探险家补给包"
         case .lordPack:
-            return "领主补给"
+            return "领主补给包"
         case .overlordPack:
-            return "霸主补给"
-        // Tier 1
-        case .support1m:
-            return "快速支援 30 天"
-        case .support3m:
-            return "快速支援 90 天"
-        case .support1y:
-            return "快速支援年卡"
-        // Tier 2
-        case .lordship1m:
-            return "领主权益 30 天"
-        case .lordship3m:
-            return "领主权益 90 天"
-        case .lordship1y:
-            return "领主权益年卡"
-        // Tier 3
-        case .empire1m:
-            return "帝国统治 30 天"
-        case .empire3m:
-            return "帝国统治 90 天"
-        case .empire1y:
-            return "帝国统治年卡"
-        // VIP
-        case .vipMonthly:
-            return "VIP 月会员"
-        case .vipQuarterly:
-            return "VIP 季会员"
-        case .vipAnnual:
-            return "VIP 年会员"
+            return "霸主补给包"
+        // 订阅产品 - 探索者
+        case .explorerMonthly:
+            return "探索者通行证月付"
+        case .explorerYearly:
+            return "探索者通行证年付"
+        // 订阅产品 - 领主
+        case .lordMonthly:
+            return "领主通行证月付"
+        case .lordYearly:
+            return "领主通行证年付"
         }
     }
-    
+
     var priceTier: String {
         switch self {
         case .survivorPack: return "¥6"
         case .explorerPack: return "¥18"
         case .lordPack: return "¥38"
         case .overlordPack: return "¥68"
-        case .support1m: return "¥8"
-        case .support3m: return "¥18"
-        case .support1y: return "¥58"
-        case .lordship1m: return "¥18"
-        case .lordship3m: return "¥38"
-        case .lordship1y: return "¥128"
-        case .empire1m: return "¥38"
-        case .empire3m: return "¥88"
-        case .empire1y: return "¥298"
-        case .vipMonthly: return "¥12/月"
-        case .vipQuarterly: return "¥28/季"
-        case .vipAnnual: return "¥88/年"
+        case .explorerMonthly: return "¥12/月"
+        case .explorerYearly: return "¥88/年"
+        case .lordMonthly: return "¥28/月"
+        case .lordYearly: return "¥168/年"
         }
     }
-    
+
     /// 获取对应的 Tier
     var tier: UserTier {
         switch self {
         case .survivorPack, .explorerPack, .lordPack, .overlordPack:
             return .free
-        case .support1m, .support3m, .support1y:
+        case .explorerMonthly, .explorerYearly:
             return .support
-        case .lordship1m, .lordship3m, .lordship1y:
+        case .lordMonthly, .lordYearly:
             return .lordship
-        case .empire1m, .empire3m, .empire1y:
-            return .empire
-        case .vipMonthly, .vipQuarterly, .vipAnnual:
-            return .vip
         }
     }
-    
+
     /// 获取对应的产品类型
     var subscriptionType: SubscriptionType {
         switch self {
         case .survivorPack, .explorerPack, .lordPack, .overlordPack:
             return .consumable
-        case .support1m, .support3m, .support1y, .lordship1m, .lordship3m, .lordship1y, .empire1m, .empire3m, .empire1y:
-            return .nonRenewable
-        case .vipMonthly, .vipQuarterly, .vipAnnual:
+        case .explorerMonthly, .explorerYearly, .lordMonthly, .lordYearly:
             return .autoRenewable
         }
     }
@@ -133,7 +89,7 @@ struct SupplyPack: Identifiable {
     let rarity: String
     let items: [PackItem]
     let guaranteedItems: [PackItem]
-    
+
     var isPremium: Bool {
         rarity == "epic" || rarity == "legendary"
     }
@@ -145,7 +101,7 @@ struct StoreProduct: Identifiable {
     let id: String
     let product: Product
     let supplyPack: SupplyPack?
-    let isPlaceholder: Bool // ✅ 新增：标记是否为占位产品
+    let isPlaceholder: Bool
 
     init(product: Product, supplyPack: SupplyPack? = nil, isPlaceholder: Bool = false) {
         self.id = product.id
@@ -162,7 +118,6 @@ struct StoreProduct: Identifiable {
         return "\(product.displayPrice)"
     }
 
-    // ✅ 新增：占位商品不可购买
     var availableForPurchase: Bool {
         return !isPlaceholder
     }
@@ -184,7 +139,7 @@ enum IAPError: Error, LocalizedError {
     case purchaseFailed
     case restoreFailed
     case notAuthenticated
-    
+
     var errorDescription: String? {
         switch self {
         case .productNotAvailable:
