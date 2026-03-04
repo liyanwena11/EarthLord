@@ -19,22 +19,9 @@
 		A4C93CEF2F07AB2A0029FEC2 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B46CE8A72F03E85800314E2B /* Exceptions for "EarthLord" folder in "EarthLord" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = A46CE8A42F03E85800314E2B /* EarthLord */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A46CE8A72F03E85800314E2B /* EarthLord */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B46CE8A72F03E85800314E2B /* Exceptions for "EarthLord" folder in "EarthLord" target */,
-			);
 			path = EarthLord;
 			sourceTree = "<group>";
 		};
