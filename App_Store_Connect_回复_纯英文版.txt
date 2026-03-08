@@ -1,0 +1,77 @@
+Dear App Store Review Team,
+
+Thank you for your review. Here is the requested information:
+
+App Description
+EarthLord is a location-based survival game (2051 post-apocalyptic setting) where players claim territories by walking, explore real POIs, build structures, trade, and communicate. Walk to Earn gameplay encourages outdoor exercise.
+
+Sandbox Test Account
+Email: 1521998923@qq.com
+Password: Woaini123@
+
+Testing Steps (20 minutes total)
+
+1. Login (2 min)
+- Launch app → Tap "Login"
+- Enter: 1521998923@qq.com / Woaini123@
+- Allow GPS (select "Always")
+
+2. GPS Territory Claiming (5 min)
+- Go to "Map" tab → Tap "开始圈地" (Start Claiming)
+- Walk in a circle (50-100m)
+- Tap "停止圈地" (Stop Claiming)
+- Expected: Territory created with area shown
+
+3. POI Exploration (3 min)
+- Tap POI marker on map
+- Tap "探索" (Explore)
+- Expected: Get random resources
+
+4. Buildings & Backpack (3 min)
+- Go to "资源" (Resources) → View backpack
+- Go to "领地" (Territory) → Select territory
+- Tap "建造" (Build) → Browse buildings
+
+5. Trading (3 min)
+- Go to "资源" → Tap "交易" (Trading)
+- Browse market → Tap "创建交易" (Create Trade)
+
+6. Communication (3 min)
+- Go to "通讯" (Communication) tab
+- Browse channels → Send message
+
+7. Profile & Settings (2 min)
+- Go to "个人" (Profile) → Scroll down
+- Tap "设置" (Settings) → Tap "帮助中心" (Help Center)
+
+Known Limitations
+- GPS permission required (allow "Always")
+- Internet required (Supabase backend)
+- Sandbox environment (no real charges)
+- Some features need player level progression
+
+Recent Improvements
+✅ Complete Settings page with account management
+✅ Help Center with FAQ and search
+✅ Terms of Service page
+✅ About page with app info
+✅ Logout confirmation dialog
+✅ Account deletion with safeguards
+✅ Privacy policy link
+✅ Technical support website
+✅ Language settings (Chinese/English)
+
+App Info
+- Bundle ID: com.liyanwen.EarthLord
+- Version: 1.0.0
+- iOS: 15.0+
+- Privacy: https://liyanwena11.github.io/earthlord-support/privacy.html
+- Support: https://liyanwena11.github.io/earthlord-support/
+
+Demo Video Attached
+Shows all core features: login, territory claiming, POI exploration, building, trading, communication, and settings.
+
+Fully functional and ready for review. Looking forward to your approval.
+
+Best regards,
+EarthLord Development Team

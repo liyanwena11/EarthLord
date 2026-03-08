@@ -1,0 +1,192 @@
+# App Store Connect 回复内容（直接复制这个）
+
+**复制以下内容到App Store Connect回复框：**
+
+---
+
+Dear App Store Review Team,
+
+Thank you for your review. Here is the requested information about EarthLord:
+
+## App Description
+EarthLord is a location-based survival game set in a post-apocalyptic world of 2051. Players claim territories by walking in the real world, explore resources at real POIs (Points of Interest), build structures, and interact with other players through trading and communication systems.
+
+**Key Innovation:** Walk to Earn gameplay that encourages outdoor exercise while delivering an immersive location-based gaming experience.
+
+**Target Audience:** Players aged 18-35 who enjoy exploration, survival games, and gamified fitness.
+
+**Problems Solved:**
+- Lack of exercise in traditional games - GPS territory claiming encourages outdoor walking
+- Lack of innovative gameplay - Real-world location-based gaming experience
+- Limited social interaction - Distance-based social features (within 5km)
+
+## Core Features Demo
+[Please see the attached video demonstrating all features below]
+
+1. **GPS Territory Claiming** - Players claim land by walking in real world
+2. **POI Exploration** - Explore real-world locations for resources
+3. **Building System** - Construct structures on claimed territories
+4. **Trading System** - Player-to-player marketplace
+5. **Communication** - Distance-based social channels (5km range)
+6. **Walk to Earn** - Get rewards for real-world walking
+
+## Test Account Information
+
+**Sandbox Test Account:**
+- Email: [替换成你的沙盒测试账号邮箱]
+- Password: [替换成你的沙盒测试账号密码]
+
+**Note:** This is a sandbox tester account for testing In-App Purchases. No real charges will be made.
+
+## Step-by-Step Testing Instructions
+
+### Step 1: Login (2 minutes)
+1. Launch the app
+2. Wait for splash animation
+3. Tap "Login" button
+4. Enter sandbox test account credentials
+5. Tap "Login"
+
+**Expected:** Successfully logged in, see 5 tabs (Map, Territory, Resources, Communication, Profile)
+
+### Step 2: GPS Territory Claiming (5 minutes)
+**Method A: Real GPS (Recommended)**
+1. Allow GPS location access
+2. Go to "Map" tab
+3. Tap "Start Claiming" button
+4. Walk in a small circle (50-100m)
+5. Tap "Stop Claiming" button
+6. Wait for path closure detection
+
+**Method B: Simulated GPS (Xcode)**
+1. In Xcode: Edit Scheme → Run → Options → Add GPX file
+2. Use "SimulatedRun.gpx" from project
+3. Run app and simulate GPS movement
+
+**Expected:** Territory created successfully, showing area and location
+
+### Step 3: POI Exploration (3 minutes)
+1. View POI markers on map
+2. Tap a nearby POI marker
+3. View POI details (name, type, distance)
+4. Tap "Explore" button
+5. Wait for exploration animation
+
+**Expected:** Successfully explored POI, obtained random items
+
+### Step 4: View Backpack & Building (3 minutes)
+1. Go to "Resources" tab
+2. View backpack items
+3. View capacity and weight
+4. Go to "Territory" tab
+5. Select a territory
+6. Tap "Build"
+7. Browse available buildings
+
+**Expected:** Display backpack items and building list
+
+### Step 5: Trading System (3 minutes)
+1. Go to "Resources" tab
+2. Tap "Trading"
+3. Browse market listings
+4. View listing details
+5. Tap "Create Trade"
+
+**Expected:** Display trading market and create trade interface
+
+### Step 6: Communication System (3 minutes)
+1. Go to "Communication" tab
+2. Browse nearby channels
+3. Tap "Create Channel"
+4. Enter channel name
+5. Send a message
+
+**Expected:** Display channels and send messages
+
+### Step 7: Profile & Settings (2 minutes)
+1. Go to "Profile" tab
+2. View user statistics
+3. Scroll to bottom
+4. Tap "Settings"
+5. View settings page
+6. Tap "Help Center"
+7. View FAQ
+
+**Expected:** Display complete profile and settings
+
+### Step 8: Store & Subscription (4 minutes)
+1. In profile, tap "Supply Store"
+2. Browse supply packs
+3. Tap a pack to view details
+4. **DO NOT PURCHASE** (demo only)
+5. Return to profile
+6. Tap "Apocalypse Pass"
+7. View subscription plans
+
+**Expected:** Display store and subscriptions
+**Note:** Using sandbox environment, no real charges
+
+## Known Limitations
+
+1. **GPS Permission Required:** Territory claiming requires GPS access
+   - **Solution:** Testers should allow "Always" location permission
+
+2. **Network Connection Required:** Uses Supabase backend
+   - **Solution:** Ensure device has internet connection
+
+3. **Sandbox Environment:** IAP uses sandbox for testing
+   - **Solution:** Use provided sandbox test account
+   - **No real charges will be made**
+
+4. **Some Features Require Level:** Advanced features unlocked by progression
+   - **Solution:** Test account has sufficient level for most features
+
+5. **Map Data:** POI data from real-world sources
+   - **Solution:** Test in urban area with more POIs if needed
+
+## Recent Improvements
+We have added the following features to meet App Store guidelines:
+
+✅ Complete Settings page with account management
+✅ Help Center with comprehensive FAQ and search
+✅ Terms of Service page with full terms
+✅ About page with app information
+✅ Improved logout flow with confirmation
+✅ Account deletion functionality with safeguards
+✅ Privacy policy link in settings
+✅ Technical support link
+✅ Language settings (Chinese/English)
+
+## Additional Information
+
+**Privacy Policy:** https://liyanwena11.github.io/earthlord-support/privacy.html
+**Technical Support:** https://liyanwena11.github.io/earthlord-support/
+**Contact Email:** support@earthlord.game
+
+The app is fully functional and ready for review. All core features work as designed, and we have provided comprehensive testing instructions and demo video.
+
+Looking forward to your approval.
+
+Best regards,
+EarthLord Development Team
+
+---
+
+## 使用说明：
+
+1. **复制上面的所有英文内容**（从 "Dear App Store Review Team," 到 "EarthLord Development Team"）
+
+2. **替换沙盒测试账号信息**
+   - 找到 `[替换成你的沙盒测试账号邮箱]`
+   - 替换成你创建的沙盒测试账号邮箱
+   - 找到 `[替换成你的沙盒测试账号密码]`
+   - 替换成你创建的沙盒测试账号密码
+
+3. **粘贴到App Store Connect**
+   - 在你的截屏中的文本框里粘贴修改后的内容
+
+4. **上传视频**
+   - 在附件区域上传你的演示视频
+
+5. **提交回复**
+   - 点击提交/发送按钮

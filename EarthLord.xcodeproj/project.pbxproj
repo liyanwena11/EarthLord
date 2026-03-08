@@ -296,7 +296,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = T4SB3T9SY4;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "EarthLord/Info.plist";
+				INFOPLIST_FILE = EarthLord/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "末世领主";
 				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleTypeRole = Editor;\n    CFBundleURLSchemes =     (\n        \"com.googleusercontent.apps.260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb\"\n    );\n}";
 				INFOPLIST_KEY_GIDClientID = "260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb.apps.googleusercontent.com";
@@ -342,7 +342,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = T4SB3T9SY4;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "EarthLord/Info.plist";
+				INFOPLIST_FILE = EarthLord/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "末世领主";
 				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleTypeRole = Editor;\n    CFBundleURLSchemes =     (\n        \"com.googleusercontent.apps.260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb\"\n    );\n}";
 				INFOPLIST_KEY_GIDClientID = "260393563504-m7dsjl4t3qq7h3b8476fs7b8j710ljpb.apps.googleusercontent.com";

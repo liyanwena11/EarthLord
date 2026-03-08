@@ -13,6 +13,7 @@ struct ProfileTabView: View {
     @State private var deleteConfirmText = ""
     @State private var showSubscriptionCenter = false
     @State private var showSupplyStore = false
+    @State private var showSettings = false
     @ObservedObject private var mailbox = MailboxManager.shared
     @ObservedObject private var tierManager = TierManager.shared
 
@@ -328,6 +329,11 @@ struct ProfileTabView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             MenuRow(icon: "info.circle.fill", title: LocalizedStringKey("关于"), value: "v1.0.0")
+                            .buttonStyle(PlainButtonStyle())
+                            Button(action: { showSettings = true }) {
+                                MenuRow(icon: "gearshape.fill", title: LocalizedStringKey("设置"), value: "")
+                            }
+                            .buttonStyle(PlainButtonStyle())
                             Divider().background(Color.white.opacity(0.08))
                         }
                         .padding(.bottom, 20)
@@ -362,6 +368,10 @@ struct ProfileTabView: View {
             .navigationBarHidden(true)
         }
         .task { await MailboxManager.shared.loadPendingItems() }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environmentObject(authManager)
+        }
         .alert("删除账号？", isPresented: $showDeleteAlert) {
             TextField("输入 DELETE 确认", text: $deleteConfirmText)
             Button("确认删除", role: .destructive) {

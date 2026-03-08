@@ -1,0 +1,234 @@
+# App Store Connect 回复内容（最终版 - 可直接复制）
+
+**复制以下所有英文内容到App Store Connect回复框：**
+
+---
+
+Dear App Store Review Team,
+
+Thank you for your review. Here is the requested information about EarthLord:
+
+## App Description
+EarthLord is a location-based survival game set in a post-apocalyptic world of 2051. Players claim territories by walking in the real world, explore resources at real POIs (Points of Interest), build structures, and interact with other players through trading and communication systems.
+
+**Key Innovation:** Walk to Earn gameplay that encourages outdoor exercise while delivering an immersive location-based gaming experience.
+
+**Target Audience:** Players aged 18-35 who enjoy exploration, survival games, and gamified fitness.
+
+**Problems Solved:**
+- Lack of exercise in traditional games - GPS territory claiming encourages outdoor walking
+- Lack of innovative gameplay - Real-world location-based gaming experience
+- Limited social interaction - Distance-based social features (within 5km)
+
+## Core Features Demo
+[Please see the attached video demonstrating all features below]
+
+1. **GPS Territory Claiming** - Players claim land by walking in real world
+2. **POI Exploration** - Explore real-world locations for resources
+3. **Building System** - Construct structures on claimed territories
+4. **Trading System** - Player-to-player marketplace
+5. **Communication** - Distance-based social channels (5km range)
+6. **Walk to Earn** - Get rewards for real-world walking
+
+## Test Account Information
+
+**Sandbox Test Account:**
+- Email: 1521998923@qq.com
+- Password: Woaini123@
+
+**Note:** This is a sandbox tester account for testing In-App Purchases. No real charges will be made.
+
+## Step-by-Step Testing Instructions
+
+### Step 1: Login (2 minutes)
+1. Launch the app
+2. Wait for splash animation
+3. Tap "Login" button
+4. Enter sandbox test account: 1521998923@qq.com
+5. Enter password: Woaini123@
+6. Tap "Login"
+
+**Expected:** Successfully logged in, see 5 tabs (Map, Territory, Resources, Communication, Profile)
+
+### Step 2: GPS Territory Claiming (5 minutes)
+**Method A: Real GPS (Recommended)**
+1. Allow GPS location access (select "Always Allow")
+2. Go to "Map" tab
+3. Tap "开始圈地" (Start Claiming) button
+4. Walk in a small circle (50-100m)
+5. Tap "停止圈地" (Stop Claiming) button
+6. Wait for path closure detection
+
+**Method B: Simulated GPS (Xcode)**
+1. In Xcode: Edit Scheme → Run → Options → Add GPX file
+2. Use "SimulatedRun.gpx" from project
+3. Run app and simulate GPS movement
+
+**Expected:** Territory created successfully, showing area and location on map
+
+### Step 3: POI Exploration (3 minutes)
+1. View POI markers on map (colored pins)
+2. Tap a nearby POI marker
+3. View POI details (name, type, distance)
+4. Tap "探索" (Explore) button
+5. Wait for exploration animation
+
+**Expected:** Successfully explored POI, obtained random resources (wood, stone, etc.)
+
+### Step 4: View Backpack & Building (3 minutes)
+1. Go to "资源" (Resources) tab
+2. View backpack items and quantity
+3. View capacity and weight limit
+4. Go to "领地" (Territory) tab
+5. Select a territory from list
+6. Tap "建造" (Build)
+7. Browse available buildings (小屋/Hut, 农场/Farm, etc.)
+
+**Expected:** Display backpack inventory and building construction options
+
+### Step 5: Trading System (3 minutes)
+1. Go to "资源" (Resources) tab
+2. Tap "交易" (Trading)
+3. Browse market listings from other players
+4. Tap a listing to view details
+5. Tap "创建交易" (Create Trade)
+
+**Expected:** Display trading marketplace and create trade interface
+
+### Step 6: Communication System (3 minutes)
+1. Go to "通讯" (Communication) tab
+2. Browse nearby player channels (within 5km)
+3. Tap "创建频道" (Create Channel)
+4. Enter channel name
+5. Send a test message
+
+**Expected:** Display nearby channels and successfully send messages
+
+### Step 7: Profile & Settings (2 minutes)
+1. Go to "个人" (Profile) tab
+2. View user statistics (territories, backpack weight, nearby players)
+3. Scroll to bottom
+4. Tap "设置" (Settings)
+5. Browse settings options
+6. Tap "帮助中心" (Help Center)
+7. View FAQ and search functionality
+
+**Expected:** Display complete user profile and settings pages
+
+### Step 8: Store & Subscription (4 minutes)
+1. In profile, tap "物资商城" (Supply Store)
+2. Browse supply packs (幸存者/探险家/领主/霸主)
+3. Tap a pack to view details
+4. **DO NOT PURCHASE** (demo only, show subscription page)
+5. Return to profile
+6. Tap "末日通行证" (Apocalypse Pass)
+7. View subscription plans (探索者/领主通行证)
+
+**Expected:** Display in-app purchases and subscription options
+**Note:** Using sandbox environment, no real charges will be made
+
+## Known Limitations
+
+1. **GPS Permission Required:** Territory claiming requires GPS access
+   - **Solution:** Testers should allow "Always" location permission when prompted
+
+2. **Network Connection Required:** Uses Supabase backend for data sync
+   - **Solution:** Ensure device has stable internet connection
+
+3. **Sandbox Environment:** IAP uses Apple's sandbox for testing
+   - **Solution:** Use provided sandbox test account
+   - **No real charges will be made**
+
+4. **Some Features Require Level:** Advanced features unlocked by progression
+   - **Solution:** Test account has sufficient level for most features
+
+5. **Map Data:** POI data from real-world sources (Apple Maps/Google Maps)
+   - **Solution:** Test in urban area with more POIs if needed
+   - Or use Xcode GPS simulation with pre-defined locations
+
+## Recent Improvements
+We have added the following features to fully comply with App Store guidelines:
+
+✅ Complete Settings page with account management
+✅ Help Center with comprehensive FAQ and search functionality
+✅ Terms of Service page with complete terms and conditions
+✅ About page with app information and version details
+✅ Improved logout flow with confirmation dialog
+✅ Account deletion functionality with proper safeguards
+✅ Privacy policy link in settings
+✅ Technical support website link
+✅ Language settings (Chinese/English switching)
+✅ Contact support form for user feedback
+
+## Additional Information
+
+**Privacy Policy:** https://liyanwena11.github.io/earthlord-support/privacy.html
+**Technical Support:** https://liyanwena11.github.io/earthlord-support/
+**Contact Email:** support@earthlord.game
+
+**App Information:**
+- Bundle ID: com.liyanwen.EarthLord
+- Version: 1.0.0
+- Supported iOS: 15.0+
+
+The app is fully functional and ready for review. All core features work as designed, and we have provided comprehensive testing instructions, demo video, and sandbox test account.
+
+Looking forward to your approval.
+
+Best regards,
+EarthLord Development Team
+
+---
+
+## ✅ 使用说明：
+
+### 📋 复制粘贴步骤：
+
+1. **选中并复制上面所有英文内容**
+   - 从 "Dear App Store Review Team," 开始
+   - 到 "EarthLord Development Team" 结束
+   - **不要复制"使用说明"这部分中文**
+
+2. **粘贴到App Store Connect**
+   - 回到你之前的截屏页面
+   - 在大的文本输入框中粘贴
+   - 确认所有内容都粘贴进去了
+
+3. **上传演示视频**
+   - 找到附件上传区域（通常在文本框下方）
+   - 上传你录制的演示视频
+   - 等待上传完成
+
+4. **提交回复**
+   - 点击"提交"或"发送"按钮
+   - 等待确认提交成功
+
+---
+
+## 📊 检查清单：
+
+- [x] 沙盒测试账号：1521998923@qq.com
+- [x] 密码：Woaini123@
+- [x] 回复内容已准备完毕
+- [ ] 复制粘贴到App Store Connect
+- [ ] 录制演示视频
+- [ ] 上传演示视频
+- [ ] 提交回复
+
+---
+
+## 🎯 下一步：
+
+1. ✅ **文档已准备好** - 可以直接使用
+2. ⏳ **录制演示视频** - 按照「演示视频录制脚本.md」录制
+3. ⏳ **在App Store Connect中粘贴回复并上传视频**
+4. ⏳ **提交回复**
+
+---
+
+**现在这个文档可以直接使用了！**
+- 测试账号已填写：1521998923@qq.com
+- 密码已填写：Woaini123@
+- 所有步骤都详细说明
+
+🚀 **准备就绪，可以复制粘贴了！**

@@ -72,15 +72,18 @@ struct MapTabView: View {
                             withAnimation(.spring()) {
                                 showTerritoryCard = true
                             }
-                            // 延迟执行实际操作
+                            // 延迟执行实际操作，调用 startTracking() 方法
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                locationManager.isTracking.toggle()
+                                locationManager.startTracking()
+                                LogDebug("🚩 [MapTabView] 用户点击开始圈地")
                             }
                         } else {
-                            locationManager.isTracking.toggle()
+                            // 停止圈地，调用 stopTracking() 方法
+                            locationManager.stopTracking()
                             withAnimation {
                                 showTerritoryCard = false
                             }
+                            LogDebug("⏹️ [MapTabView] 用户点击停止圈地")
                         }
                     }) {
                         HStack {
@@ -229,7 +232,8 @@ struct MapTabView: View {
                             withAnimation {
                                 showTerritoryCard = false
                                 if locationManager.isTracking {
-                                    locationManager.isTracking = false
+                                    locationManager.stopTracking()
+                                    LogDebug("⏹️ [MapTabView] 用户关闭卡片，停止圈地")
                                 }
                             }
                         }
