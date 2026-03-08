@@ -139,6 +139,11 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
     /// 停止圈地（取消）
     @MainActor
     func stopTracking() {
+        let previousPointCount = pathPoints.count
+        LogDebug("🛑 [圈地] stopTracking() 被调用")
+        LogDebug("   - 当前路径点数: \(previousPointCount)")
+        LogDebug("   - 追踪状态: \(isTracking)")
+
         isTracking = false
         trackingStatusText = ""
         pathPoints.removeAll()
@@ -151,7 +156,7 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         trackingStartTime = nil
         lastSpeedUpdateTime = nil
 
-        LogDebug("🛑 [圈地] 已取消圈地")
+        LogDebug("🛑 [圈地] 已取消圈地，清除了 \(previousPointCount) 个路径点")
     }
 
     /// GPS 回调中调用：圈地逻辑（移除自动完成）

@@ -301,9 +301,9 @@ class ExplorationManager: ObservableObject {
                 let user_id: String
                 let poi_id: String?
                 let started_at: String
-                let completed_at: String
                 let duration_seconds: Int
                 let items_looted: [LootedItem]
+                // 移除 completed_at - 数据库表中没有此字段
             }
 
             // 物品数据转为 JSON
@@ -322,18 +322,21 @@ class ExplorationManager: ObservableObject {
                 user_id: userId,
                 poi_id: currentExplorationPOI?.id,
                 started_at: formatter.string(from: startTime),
-                completed_at: formatter.string(from: Date()),
                 duration_seconds: Int(duration),
                 items_looted: itemsJson
             )
 
             // 保存到 Supabase
-            try await supabase
-                .from("exploration_sessions")
-                .insert(record)
-                .execute()
-
-            LogInfo("☁️ [探索] 探索会话已保存到云端")
+            do {
+                try await supabase
+                    .from("exploration_sessions")
+                    .insert(record)
+                    .execute()
+                LogInfo("☁️ [探索] 探索会话已保存到云端")
+            } catch {
+                LogError("❌ [探索] 保存探索会话失败: \(error.localizedDescription)")
+                // 不中断流程，继续执行
+            }
             LogDebug("   - 时长: \(Int(duration))秒")
             LogDebug("   - 距离: \(Int(finalDistance))米")
             LogDebug("   - 物品: \(itemsFound.count)种")
@@ -434,7 +437,7 @@ class ExplorationManager: ObservableObject {
                 let user_id: String
                 let poi_id: String
                 let items_looted: String
-                let completed_at: String
+                // 移除 completed_at - 数据库表中没有此字段
             }
 
             let itemsJson = items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", ")
@@ -442,8 +445,7 @@ class ExplorationManager: ObservableObject {
             let sessionRecord = ExplorationSession(
                 user_id: userId,
                 poi_id: poiId,
-                items_looted: itemsJson,
-                completed_at: formatter.string(from: Date())
+                items_looted: itemsJson
             )
 
             try await supabase
