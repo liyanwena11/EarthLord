@@ -321,8 +321,15 @@ class EarthLordEngine: NSObject, ObservableObject, CLLocationManagerDelegate {
         // 简化检查：检查任意两条边（不相邻）是否相交
         let coords = pathPoints.map { $0.coordinate }
 
+        // 安全检查：确保有足够的点进行相交检测
+        guard coords.count >= 4 else { return false }
+
         for i in 0..<(coords.count - 1) {
-            for j in (i + 2)..<(coords.count - 1) {
+            // 安全检查：确保内层循环范围有效
+            let startJ = i + 2
+            guard startJ < coords.count - 1 else { continue }
+
+            for j in startJ..<(coords.count - 1) {
                 // 跳过连接到起点的边（最后一个点和第一个点连接是正常的闭合）
                 if j == coords.count - 2 && i == 0 {
                     continue
