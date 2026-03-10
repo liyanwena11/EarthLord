@@ -8,10 +8,12 @@
 import SwiftUI
 import Auth
 import CoreLocation
+import AVFoundation
 
 struct PTTCallView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject private var communicationManager = CommunicationManager.shared
+    @StateObject private var audioManager = AudioRecordManager.shared
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedChannelId: UUID?
@@ -20,6 +22,12 @@ struct PTTCallView: View {
     @State private var showingSuccess: Bool = false
     @State private var showErrorAlert: Bool = false
     @State private var errorText: String = ""
+
+    // Day 36: 语音录制状态
+    @State private var isVoiceMode: Bool = true  // 默认语音模式
+    @State private var recordedAudioURL: URL?
+    @State private var recordedAudioDuration: TimeInterval = 0
+    @State private var showingPermissionAlert: Bool = false
 
     private var sendableChannels: [SubscribedChannel] {
         communicationManager.subscribedChannels.filter {
@@ -38,12 +46,16 @@ struct PTTCallView: View {
     private var canSend: Bool {
         let deviceCanSend = communicationManager.currentDevice?.deviceType.canSend ?? false
         let hasChannel = selectedChannel != nil
-        let hasContent = !messageContent.trimmingCharacters(in: .whitespaces).isEmpty
+
+        // 语音模式：不需要文字内容
+        // 文字模式：需要文字内容
+        let hasContent = isVoiceMode ? true : !messageContent.trimmingCharacters(in: .whitespaces).isEmpty
 
         if !deviceCanSend || !hasChannel || !hasContent {
             LogDebug("⚠️ [PTT] canSend 检查失败:")
             LogDebug("  - 设备可发送: \(deviceCanSend)")
             LogDebug("  - 已选频道: \(hasChannel)")
+            LogDebug("  - 模式: \(isVoiceMode ? "语音" : "文字")")
             LogDebug("  - 有内容: \(hasContent)")
         }
 
@@ -76,7 +88,9 @@ struct PTTCallView: View {
 
                 Spacer()
 
-                Text("长按按钮发送呼叫，松开结束")
+                Text(isVoiceMode
+                    ? (canSend ? "长按按钮开始录音，松开发送" : "请先选择一个频道")
+                    : "长按按钮发送呼叫，松开结束")
                     .font(.caption)
                     .foregroundColor(ApocalypseTheme.textMuted)
                     .padding(.bottom, 20)
@@ -84,6 +98,17 @@ struct PTTCallView: View {
         }
         .onAppear {
             Task { await initializePTTData() }
+            // Day 36: 检查麦克风权限
+            if isVoiceMode && !audioManager.hasMicrophonePermission {
+                Task {
+                    let granted = await audioManager.requestMicrophonePermission()
+                    if !granted {
+                        await MainActor.run {
+                            showingPermissionAlert = true
+                        }
+                    }
+                }
+            }
         }
         .overlay(successToast)
         .onTapGesture {
@@ -94,6 +119,22 @@ struct PTTCallView: View {
             Button("确定", role: .cancel) {}
         } message: {
             Text(errorText)
+        }
+        .alert("需要麦克风权限", isPresented: $showingPermissionAlert) {
+            Button("去设置", action: openSettings)
+            Button("取消", role: .cancel) {
+                isVoiceMode = false  // 切换到文字模式
+            }
+        } message: {
+            Text("语音消息需要访问麦克风。请在设置中允许访问。")
+        }
+    }
+
+    // MARK: - 辅助方法
+
+    private func openSettings() {
+        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsUrl)
         }
     }
 
@@ -315,26 +356,112 @@ struct PTTCallView: View {
 
     private var messageInputArea: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("呼叫内容")
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(ApocalypseTheme.textPrimary)
-
-            ZStack(alignment: .topLeading) {
-                TextEditor(text: $messageContent)
-                    .frame(height: 80)
-                    .padding(8)
-                    .background(ApocalypseTheme.cardBackground)
-                    .cornerRadius(12)
+            HStack {
+                Text("呼叫内容")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                     .foregroundColor(ApocalypseTheme.textPrimary)
 
-                if messageContent.isEmpty {
-                    Text("输入呼叫内容，按住 PTT 按钮发送")
+                Spacer()
+
+                // Day 36: 模式切换按钮
+                HStack(spacing: 4) {
+                    Button(action: { isVoiceMode = true }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "waveform")
+                            Text("语音")
+                        }
+                        .font(.caption)
+                        .foregroundColor(isVoiceMode ? .white : ApocalypseTheme.textSecondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(isVoiceMode ? ApocalypseTheme.primary : ApocalypseTheme.cardBackground)
+                        .cornerRadius(8)
+                    }
+
+                    Button(action: { isVoiceMode = false }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "text.bubble")
+                            Text("文字")
+                        }
+                        .font(.caption)
+                        .foregroundColor(!isVoiceMode ? .white : ApocalypseTheme.textSecondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(!isVoiceMode ? ApocalypseTheme.primary : ApocalypseTheme.cardBackground)
+                        .cornerRadius(8)
+                    }
+                }
+            }
+
+            // 没有可用频道的提示
+            if sendableChannels.isEmpty {
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.yellow)
+                        Text("没有可发送消息的频道")
+                            .font(.subheadline)
+                            .foregroundColor(ApocalypseTheme.textSecondary)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity)
+                    .background(ApocalypseTheme.cardBackground)
+                    .cornerRadius(12)
+
+                    Text("请先在「通讯」标签页订阅非官方频道")
+                        .font(.caption)
                         .foregroundColor(ApocalypseTheme.textMuted)
-                        .font(.subheadline)
-                        .padding(.top, 16)
-                        .padding(.leading, 12)
-                        .allowsHitTesting(false)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+            } else if isVoiceMode {
+                // 语音模式提示
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "waveform")
+                            .foregroundColor(ApocalypseTheme.primary)
+                        Text("长按下方按钮开始录音，松开发送")
+                            .font(.subheadline)
+                            .foregroundColor(ApocalypseTheme.textSecondary)
+
+                        Spacer()
+
+                        if audioManager.isRecording {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(.red)
+                                    .frame(width: 8, height: 8)
+                                    .scaleEffect(audioManager.recordingDuration.truncatingRemainder(dividingBy: 1) == 0 ? 1 : 0.5)
+                                    .animation(.easeInOut(duration: 0.5).repeatForever(), value: audioManager.recordingDuration)
+                                Text(audioManager.formatDuration(audioManager.recordingDuration))
+                                    .font(.system(.caption, design: .monospaced))
+                                    .foregroundColor(.red)
+                            }
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity)
+                    .background(ApocalypseTheme.cardBackground)
+                    .cornerRadius(12)
+                }
+            } else {
+                // 文字模式输入框
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $messageContent)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(ApocalypseTheme.cardBackground)
+                        .cornerRadius(12)
+                        .foregroundColor(ApocalypseTheme.textPrimary)
+
+                    if messageContent.isEmpty {
+                        Text("输入呼叫内容，按住 PTT 按钮发送")
+                            .foregroundColor(ApocalypseTheme.textMuted)
+                            .font(.subheadline)
+                            .padding(.top, 16)
+                            .padding(.leading, 12)
+                            .allowsHitTesting(false)
+                    }
                 }
             }
         }
@@ -349,7 +476,7 @@ struct PTTCallView: View {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: isPressingPTT
+                        colors: isPressingPTT || audioManager.isRecording
                             ? [Color.gray, Color.gray.opacity(0.7)]
                             : (canSend
                                 ? [ApocalypseTheme.primary, ApocalypseTheme.primary.opacity(0.7)]
@@ -360,25 +487,26 @@ struct PTTCallView: View {
                 )
                 .frame(width: 120, height: 120)
                 .shadow(
-                    color: isPressingPTT
+                    color: isPressingPTT || audioManager.isRecording
                         ? Color.gray.opacity(0.4)
                         : ApocalypseTheme.primary.opacity(0.4),
                     radius: 12
                 )
-                .scaleEffect(isPressingPTT ? 0.95 : 1.0)
+                .scaleEffect(isPressingPTT || audioManager.isRecording ? 0.95 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: isPressingPTT)
+                .animation(.easeInOut(duration: 0.1), value: audioManager.isRecording)
 
             VStack(spacing: 8) {
-                Image(systemName: isPressingPTT ? "waveform" : "mic.fill")
+                Image(systemName: audioManager.isRecording ? "waveform" : (isVoiceMode ? "mic.fill" : "paperplane.fill"))
                     .font(.system(size: 34))
                     .foregroundColor(.white)
-                Text(isPressingPTT ? "发送中..." : "按住发送")
+                Text(buttonText)
                     .font(.headline)
                     .foregroundColor(.white)
             }
         }
         .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.1)
+            LongPressGesture(minimumDuration: 0.5)
                 .onChanged { _ in
                     guard canSend else {
                         if !isPressingPTT {
@@ -389,15 +517,73 @@ struct PTTCallView: View {
                     guard !isPressingPTT else { return }
                     isPressingPTT = true
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    LogDebug("📡 [PTT] 开始发送...")
+
+                    // Day 36: 语音模式开始录音
+                    if isVoiceMode {
+                        startRecording()
+                    } else {
+                        LogDebug("📡 [PTT] 准备发送文字...")
+                    }
                 }
                 .onEnded { _ in
                     guard isPressingPTT else { return }
                     isPressingPTT = false
-                    LogDebug("✅ [PTT] 发送完成")
-                    sendPTTMessage()
+
+                    // Day 36: 语音模式停止录音并发送
+                    if isVoiceMode {
+                        stopRecordingAndSend()
+                    } else {
+                        LogDebug("✅ [PTT] 发送完成")
+                        sendPTTMessage()
+                    }
                 }
         )
+    }
+
+    // Day 36: 按钮文字
+    private var buttonText: String {
+        if audioManager.isRecording {
+            return "录音中..."
+        } else if isPressingPTT {
+            return "发送中..."
+        } else {
+            return isVoiceMode ? "按住说话" : "按住发送"
+        }
+    }
+
+    // Day 36: 开始录音
+    private func startRecording() {
+        guard audioManager.hasMicrophonePermission else {
+            showingPermissionAlert = true
+            isPressingPTT = false
+            return
+        }
+
+        let success = audioManager.startRecording()
+        if !success {
+            errorText = "录音启动失败"
+            showErrorAlert = true
+            isPressingPTT = false
+        } else {
+            LogDebug("🎤 [PTT] 开始录音...")
+        }
+    }
+
+    // Day 36: 停止录音并发送
+    private func stopRecordingAndSend() {
+        guard let result = audioManager.stopRecording() else {
+            errorText = "录音失败"
+            showErrorAlert = true
+            return
+        }
+
+        recordedAudioURL = result.url
+        recordedAudioDuration = result.duration
+
+        LogDebug("✅ [PTT] 录音完成: \(audioManager.formatDuration(result.duration))")
+
+        // 自动发送语音消息
+        sendVoiceMessage()
     }
 
     // MARK: - 成功提示
@@ -428,6 +614,46 @@ struct PTTCallView: View {
     }
 
     // MARK: - 发送
+
+    // Day 36: 发送语音消息
+    private func sendVoiceMessage() {
+        guard let channelId = selectedChannelId,
+              let audioURL = recordedAudioURL else {
+            errorText = "语音录制���败"
+            showErrorAlert = true
+            return
+        }
+
+        let deviceType = communicationManager.currentDevice?.deviceType.rawValue
+
+        Task {
+            let success = await communicationManager.sendVoiceMessage(
+                channelId: channelId,
+                audioURL: audioURL,
+                audioDuration: recordedAudioDuration,
+                latitude: nil,
+                longitude: nil,
+                deviceType: deviceType
+            )
+
+            if success {
+                await MainActor.run {
+                    recordedAudioURL = nil
+                    recordedAudioDuration = 0
+                    withAnimation { showingSuccess = true }
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation { showingSuccess = false }
+                    }
+                }
+            } else {
+                await MainActor.run {
+                    errorText = communicationManager.errorMessage ?? "发送失败，请稍后重试"
+                    showErrorAlert = true
+                }
+            }
+        }
+    }
 
     private func sendPTTMessage() {
         guard let channelId = selectedChannelId,

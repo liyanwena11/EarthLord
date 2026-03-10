@@ -46,12 +46,19 @@ struct MessageRowView: View {
 
                 HStack {
                     if let last = summary.lastMessage {
+                        // Day 36: 消息类型图标
+                        if last.isVoiceMessage {
+                            Image(systemName: "waveform")
+                                .font(.caption)
+                                .foregroundColor(ApocalypseTheme.primary)
+                        }
+
                         if let callsign = last.senderCallsign {
                             Text("\(callsign): ")
                                 .font(.subheadline)
                                 .foregroundColor(ApocalypseTheme.primary)
                         }
-                        Text(last.content)
+                        Text(last.isVoiceMessage ? "[语音消息]" : last.content)
                             .font(.subheadline)
                             .foregroundColor(ApocalypseTheme.textSecondary)
                             .lineLimit(1)

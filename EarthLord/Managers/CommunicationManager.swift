@@ -451,6 +451,115 @@ class CommunicationManager: ObservableObject {
 
     // MARK: - Message Methods
 
+    // Day 36: 发送语音消息
+    func sendVoiceMessage(
+        channelId: UUID,
+        audioURL: URL,
+        audioDuration: TimeInterval,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        deviceType: String? = nil
+    ) async -> Bool {
+        guard await currentUserId() != nil else {
+            await MainActor.run { self.errorMessage = "用户未登录" }
+            return false
+        }
+
+        await MainActor.run { self.isSendingMessage = true }
+
+        do {
+            // 1. 获取音频数据
+            let audioData = try Data(contentsOf: audioURL)
+            let fileName = audioURL.lastPathComponent
+
+            // 2. 计算文件大小
+            let fileSizeMB = Double(audioData.count) / 1024.0 / 1024.0
+
+            // 3. TODO: 上传到 Supabase Storage（暂时使用本地路径）
+            // 由于 Supabase SDK API 变化，暂时使用占位符
+            let audioPublicURL = "local://\(audioURL.path)"
+
+            // 4. 发送消息（含音频 URL）
+            let params: [String: AnyJSON] = [
+                "p_channel_id": .string(channelId.uuidString),
+                "p_content": .string("[语音消息]"),
+                "p_latitude": latitude.map { .double($0) } ?? .null,
+                "p_longitude": longitude.map { .double($0) } ?? .null,
+                "p_device_type": deviceType.map { .string($0) } ?? .null,
+                "p_message_type": .string("voice"),
+                "p_audio_url": .string(audioPublicURL),
+                "p_audio_duration": .double(audioDuration),
+                "p_file_size": .double(fileSizeMB)
+            ]
+
+            // 尝试调用 RPC 函数
+            let _: UUID = try await supabase
+                .rpc("send_voice_message", params: params)
+                .execute()
+                .value
+
+            await MainActor.run { self.isSendingMessage = false }
+            LogInfo("🎤 [语音] 发送成功: \(fileName), \(String(format: "%.1f", audioDuration))s, \(String(format: "%.2f", fileSizeMB))MB")
+            return true
+        } catch {
+            LogError("❌ [语音] 发送失败: \(error.localizedDescription)")
+
+            // 回退：尝试直接写入数据库
+            do {
+                guard let senderId = await currentUserId() else {
+                    throw CommunicationError.notConfigured
+                }
+
+                let audioData = try Data(contentsOf: audioURL)
+                let fileSizeMB = Double(audioData.count) / 1024.0 / 1024.0
+                let callsign = await fetchCurrentCallsign(userId: senderId) ?? "匿名幸存者"
+                let audioPublicURL = "local://\(audioURL.path)"
+
+                struct VoiceMessageInsert: Encodable {
+                    let channel_id: String
+                    let sender_id: String
+                    let sender_callsign: String
+                    let content: String
+                    let sender_location: [String: Double]?
+                    let metadata: [String: AnyJSON]
+                }
+
+                let metadata: [String: AnyJSON] = [
+                    "device_type": .string(deviceType ?? "unknown"),
+                    "message_type": .string("voice"),
+                    "audio_url": .string(audioPublicURL),
+                    "audio_duration": .double(audioDuration),
+                    "file_size": .double(fileSizeMB)
+                ]
+
+                let payload = VoiceMessageInsert(
+                    channel_id: channelId.uuidString,
+                    sender_id: senderId.uuidString,
+                    sender_callsign: callsign,
+                    content: "[语音消息]",
+                    sender_location: latitude.map { ["latitude": $0, "longitude": longitude ?? 0] },
+                    metadata: metadata
+                )
+
+                try await supabase
+                    .from("channel_messages")
+                    .insert(payload)
+                    .execute()
+
+                await MainActor.run { self.isSendingMessage = false }
+                LogInfo("🎤 [语音] 直接写入成功")
+                return true
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "发送失败: \(error.localizedDescription)"
+                    self.isSendingMessage = false
+                }
+                LogError("❌ [语音] 直接写入也失败: \(error.localizedDescription)")
+                return false
+            }
+        }
+    }
+
     func loadChannelMessages(channelId: UUID) async {
         do {
             let messages: [ChannelMessage] = try await supabase

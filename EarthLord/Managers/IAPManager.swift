@@ -484,7 +484,7 @@ final class IAPManager: ObservableObject {
         // 注意：这是备用方案，正确的做法是配置 StoreKit Configuration
         print("🧪 [IAP] 创建本地测试产品（仅用于 DEBUG）")
 
-        var testProducts: [Product] = []
+        let testProducts: [Product] = []
 
         // 由于 StoreKit 2 无法直接创建 Product 对象，
         // 这里我们返回空数组，并在购买时提供模拟

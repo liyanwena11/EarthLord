@@ -209,6 +209,27 @@ enum MessageCategory: String, Codable, CaseIterable {
     }
 }
 
+// MARK: - MessageType (Day 36)
+
+enum MessageType: String, Codable {
+    case text = "text"
+    case voice = "voice"
+
+    var displayName: String {
+        switch self {
+        case .text: return String(localized: "文字消息")
+        case .voice: return String(localized: "语音消息")
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .text: return "text.bubble"
+        case .voice: return "waveform"
+        }
+    }
+}
+
 // MARK: - CommunicationChannel
 
 struct CommunicationChannel: Codable, Identifiable, Hashable {
@@ -330,8 +351,18 @@ struct LocationPoint: Codable {
 struct MessageMetadata: Codable {
     let deviceType: String?
     let category: String?
+    let messageType: String?  // "text" | "voice"
+    let audioURL: String?     // 音频文件 URL
+    let audioDuration: Double? // 音频时长（秒）
+    let fileSize: Double?     // 文件大小（MB）
+
     enum CodingKeys: String, CodingKey {
-        case deviceType = "device_type"; case category
+        case deviceType = "device_type"
+        case category
+        case messageType = "message_type"
+        case audioURL = "audio_url"
+        case audioDuration = "audio_duration"
+        case fileSize = "file_size"
     }
 }
 
@@ -432,4 +463,11 @@ struct ChannelMessage: Codable, Identifiable {
         guard let s = metadata?.category else { return nil }
         return MessageCategory(rawValue: s)
     }
+
+    // Day 36: 音频消息支持
+    var messageType: String { metadata?.messageType ?? "text" }
+    var isVoiceMessage: Bool { messageType == "voice" }
+    var audioURL: String? { metadata?.audioURL }
+    var audioDuration: Double? { metadata?.audioDuration }
+    var audioFileSize: Double? { metadata?.fileSize }
 }
